@@ -2,6 +2,16 @@
   "name": "nextjs-v1-client",
   "version": "0.1.0",
   "private": true,
+  "description": "Professional speech-to-text transcription with automatic speaker diarization. Works completely offline using state-of-the-art AI models.",
+  "author": {
+    "name": "Shahar Raz",
+    "email": "SRaz.Sw@gmail.com"
+  },
+  "homepage": "https://github.com/SRaz-Sw/whisper-diarization",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SRaz-Sw/whisper-diarization.git"
+  },
   "main": "electron/main.js",
   "scripts": {
     "dev": "next dev --turbopack",
@@ -9,7 +19,7 @@
     "build-local": "next build",
     "start": "next start",
     "lint": "next lint",
-    "clean": "rm -rf .next && rm -rf node_modules && rm -rf bun.lockb",
+    "clean": "chmod -R u+w node_modules/@sraz-sw 2>/dev/null || true && rm -rf .next node_modules bun.lockb",
     "electron:dev": "cross-env NODE_ENV=development electron .",
     "electron:build": "cross-env NEXT_CONFIG_FILE=next.config.electron.ts next build && electron-builder",
     "electron:build:mac": "cross-env NEXT_CONFIG_FILE=next.config.electron.ts next build && electron-builder --mac",

@@ -14,6 +14,9 @@
       "filter": ["**/*"]
     }
   ],
+  "buildDependenciesFromSource": false,
+  "nodeGypRebuild": false,
+  "npmRebuild": false,
   "mac": {
     "category": "public.app-category.productivity",
     "icon": "electron/resources/icon.icns",
