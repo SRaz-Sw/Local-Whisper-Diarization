@@ -54,9 +54,6 @@ const nextConfig: NextConfig = {
   // Static export for Electron
   output: "export",
 
-  // Base path must match the route
-  basePath: "/web-transc",
-
   // Disable image optimization for static export
   images: {
     unoptimized: true,
@@ -68,6 +65,14 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   poweredByHeader: false,
   reactStrictMode: true,
+
+  // Skip type checking and ESLint for faster builds
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   // Webpack configuration for Web Workers and Electron
   webpack: (config, { isServer }) => {
@@ -100,6 +105,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-
-

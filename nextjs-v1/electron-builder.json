@@ -6,7 +6,12 @@
     "output": "dist",
     "buildResources": "electron/resources"
   },
-  "files": ["out/**/*", "electron/**/*", "public/**/*", "package.json"],
+  "files": [
+    "out/**/*",
+    "electron/**/*",
+    "package.json",
+    "!node_modules/**/*"
+  ],
   "extraResources": [
     {
       "from": "public/workers",
@@ -33,7 +38,10 @@
     "hardenedRuntime": true,
     "gatekeeperAssess": false,
     "entitlements": "electron/entitlements.mac.plist",
-    "entitlementsInherit": "electron/entitlements.mac.plist"
+    "entitlementsInherit": "electron/entitlements.mac.plist",
+    "identity": null,
+    "type": "distribution",
+    "notarize": false
   },
   "dmg": {
     "contents": [
@@ -64,7 +72,9 @@
         "target": "portable",
         "arch": ["x64"]
       }
-    ]
+    ],
+    "forceCodeSigning": false,
+    "verifyUpdateCodeSignature": false
   },
   "nsis": {
     "oneClick": false,

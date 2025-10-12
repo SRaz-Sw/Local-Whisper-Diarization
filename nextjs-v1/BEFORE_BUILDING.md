@@ -61,7 +61,71 @@ const baseUrl =
 
 ---
 
-## 📝 Step 3: Optional - Add App Icons
+## 📝 Step 3: Code Signing (Critical for Distribution)
+
+⚠️ **Important:** Apps built without code signing will trigger security warnings!
+
+### Quick Decision Guide
+
+**Building for yourself only?**
+
+- ✅ Skip code signing
+- ℹ️ Users will need to right-click → Open on macOS
+- ℹ️ See `tutorials_plans_markdowns/UNSIGNED_APP_INSTALLATION.md` for user instructions
+
+**Building for others to download?**
+
+- ✅ **Highly recommended** to code sign
+- 💰 Costs: macOS ($99/year) + Windows ($50-300/year)
+- 📚 See complete guide: `tutorials_plans_markdowns/CODE_SIGNING_GUIDE.md`
+
+### Current Configuration
+
+By default, the app is configured to build **without code signing**:
+
+- `mac.identity: null` - No macOS signing
+- `mac.notarize: false` - No notarization
+- `win.sign: null` - No Windows signing
+
+This is fine for:
+
+- ✅ Personal use
+- ✅ Internal company distribution
+- ✅ Testing and development
+
+This will cause issues for:
+
+- ❌ Public downloads (users see "damaged" error on macOS)
+- ❌ Windows SmartScreen warnings
+- ❌ Auto-updates (requires signing)
+
+### To Enable Code Signing
+
+See the complete guide: `tutorials_plans_markdowns/CODE_SIGNING_GUIDE.md`
+
+**Quick steps:**
+
+1. **For macOS:**
+   - Get Apple Developer account ($99/year)
+   - Update `electron-builder.json`:
+     ```json
+     "mac": {
+       "identity": "Developer ID Application: Your Name (TEAM_ID)",
+       "notarize": { "teamId": "TEAM_ID" }
+     }
+     ```
+
+2. **For Windows:**
+   - Get code signing certificate ($50-300/year)
+   - Set environment variables:
+     ```bash
+     export CSC_LINK=/path/to/certificate.pfx
+     export CSC_KEY_PASSWORD=your-password
+     ```
+
+---
+
+## 📝 Step 4: Optional - Add App Icons
 
 Place your custom icons in `electron/resources/`:
 
@@ -81,7 +145,7 @@ Place your custom icons in `electron/resources/`:
 
 ## ✅ You're Ready!
 
-After updating the above, you can build:
+After updating the above (steps 1-2 required, steps 3-4 optional), you can build:
 
 ```bash
 cd speech-to-text/nextjs-v1
@@ -169,20 +233,53 @@ ls -lh dist/*.AppImage dist/*.deb
 
 ℹ️ This is just a warning - add icons to `electron/resources/` to fix
 
+### macOS: "App is damaged and can't be opened"
+
+This happens because the app isn't code signed. Two solutions:
+
+**For Users:**
+
+- See `tutorials_plans_markdowns/UNSIGNED_APP_INSTALLATION.md`
+- Quick fix: Right-click the app → Select "Open"
+
+**For Developers:**
+
+- See `tutorials_plans_markdowns/CODE_SIGNING_GUIDE.md`
+- Get Apple Developer account and code sign the app
+
+### Windows: "Windows protected your PC"
+
+This happens because the app isn't code signed.
+
+**For Users:**
+
+- Click "More info" → "Run anyway"
+
+**For Developers:**
+
+- Get a code signing certificate ($50-300/year)
+- See `tutorials_plans_markdowns/CODE_SIGNING_GUIDE.md`
+
 ---
 
 ## 📚 Next Steps
 
 1. ✅ Update `package.json` metadata
 2. ✅ Update landing page URLs
-3. ✅ Build for all platforms
-4. ✅ Test on target platforms
-5. ✅ Create GitHub Release
-6. ✅ Upload builds to release
-7. ✅ Update download links in landing page
-8. ✅ Deploy web app to Vercel
+3. ⚠️ Decide on code signing (optional but recommended)
+4. ✅ Build for all platforms
+5. ✅ Test on target platforms
+6. ✅ Create GitHub Release
+7. ✅ Upload builds to release
+8. ✅ Include installation instructions for unsigned apps (if not signed)
+9. ✅ Update download links in landing page
+10. ✅ Deploy web app to Vercel
 
-See `BUILD_AND_DISTRIBUTION_GUIDE.md` for detailed instructions!
+See these guides for more details:
+
+- `tutorials_plans_markdowns/DISTRIBUTION_GUIDE.md` - Distribution best practices
+- `tutorials_plans_markdowns/CODE_SIGNING_GUIDE.md` - How to code sign apps
+- `tutorials_plans_markdowns/UNSIGNED_APP_INSTALLATION.md` - User instructions for unsigned apps
 
 ---
 
