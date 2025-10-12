@@ -49,13 +49,14 @@ Open `src/app/page.tsx` and update the GitHub release URLs (around line 47-48):
 ```typescript
 const baseUrl =
   "https://github.com/YOUR_USERNAME/YOUR_REPO/releases/download/v0.1.0";
+("https://github.com/SRaz-Sw/Local-Whisper-Diarization/releases/download/v0.1.0");
 ```
 
 **Example (filled in):**
 
 ```typescript
 const baseUrl =
-  "https://github.com/johnsmith/whisper-diarization/releases/download/v0.1.0";
+  "https://github.com/YOUR_USERNAME/YOUR_REPO/releases/latest";
 ```
 
 ---

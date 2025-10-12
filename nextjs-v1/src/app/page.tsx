@@ -44,7 +44,7 @@ export default function LandingPage() {
 
   const getDownloadInfo = () => {
     const baseUrl =
-      "https://github.com/YOUR_USERNAME/YOUR_REPO/releases/download/v0.1.0";
+      "https://github.com/SRaz-Sw/Local-Whisper-Diarization/releases/download/v0.1.0";
 
     switch (platform) {
       case "mac-arm":
@@ -178,7 +178,7 @@ export default function LandingPage() {
             <p>
               Other platforms:{" "}
               <a
-                href="https://github.com/YOUR_USERNAME/YOUR_REPO/releases/latest"
+                href="https://github.com/SRaz-Sw/Local-Whisper-Diarization/releases/latest"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
