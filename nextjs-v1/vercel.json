@@ -1,0 +1,31 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "bun install --force && bun run build",
+  "installCommand": "bun install --force",
+  "outputDirectory": ".next",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ],
+  "github": {
+    "silent": true
+  },
+  "env": {
+    "NODE_OPTIONS": "--max-old-space-size=4096"
+  }
+} 

@@ -1,0 +1,6438 @@
+{
+  "lastUpdated": "2025-08-20T11:54:30.113Z",
+  "totalManufacturers": 122,
+  "dataSource": "Yad2 API",
+  "manufacturers": [
+    {
+      "id": 1,
+      "name": "Audi",
+      "nameHebrew": "אאודי",
+      "models": [
+        {
+          "id": 10001,
+          "name": "100",
+          "nameHebrew": "100"
+        },
+        {
+          "id": 10002,
+          "name": "80",
+          "nameHebrew": "80"
+        },
+        {
+          "id": 10003,
+          "name": "A1",
+          "nameHebrew": "A1"
+        },
+        {
+          "id": 10004,
+          "name": "A3",
+          "nameHebrew": "A3"
+        },
+        {
+          "id": 10005,
+          "name": "A4",
+          "nameHebrew": "A4"
+        },
+        {
+          "id": 10006,
+          "name": "A5",
+          "nameHebrew": "A5"
+        },
+        {
+          "id": 10007,
+          "name": "A6",
+          "nameHebrew": "A6"
+        },
+        {
+          "id": 10876,
+          "name": "A6 e-tron",
+          "nameHebrew": "A6 e-tron"
+        },
+        {
+          "id": 10008,
+          "name": "A7",
+          "nameHebrew": "A7"
+        },
+        {
+          "id": 10009,
+          "name": "A8",
+          "nameHebrew": "A8"
+        },
+        {
+          "id": 10010,
+          "name": "E-tron",
+          "nameHebrew": "E-tron"
+        },
+        {
+          "id": 10879,
+          "name": "E-tron GT",
+          "nameHebrew": "E-tron GT"
+        },
+        {
+          "id": 10011,
+          "name": "Q2",
+          "nameHebrew": "Q2"
+        },
+        {
+          "id": 10012,
+          "name": "Q3",
+          "nameHebrew": "Q3"
+        },
+        {
+          "id": 10883,
+          "name": "Q4 e-tron",
+          "nameHebrew": "Q4 e-tron"
+        },
+        {
+          "id": 10013,
+          "name": "Q5",
+          "nameHebrew": "Q5"
+        },
+        {
+          "id": 13336,
+          "name": "Q6 e-tron",
+          "nameHebrew": "Q6 e-tron"
+        },
+        {
+          "id": 10014,
+          "name": "Q7",
+          "nameHebrew": "Q7"
+        },
+        {
+          "id": 10015,
+          "name": "Q8",
+          "nameHebrew": "Q8"
+        },
+        {
+          "id": 13069,
+          "name": "Q8 e-tron",
+          "nameHebrew": "Q8 e-tron"
+        },
+        {
+          "id": 10016,
+          "name": "R8",
+          "nameHebrew": "R8"
+        },
+        {
+          "id": 10017,
+          "name": "RS 3",
+          "nameHebrew": "RS 3"
+        },
+        {
+          "id": 10886,
+          "name": "RS 4",
+          "nameHebrew": "RS 4"
+        },
+        {
+          "id": 10018,
+          "name": "RS 5",
+          "nameHebrew": "RS 5"
+        },
+        {
+          "id": 10019,
+          "name": "RS 6",
+          "nameHebrew": "RS 6"
+        },
+        {
+          "id": 10020,
+          "name": "RS 7",
+          "nameHebrew": "RS 7"
+        },
+        {
+          "id": 10887,
+          "name": "RS E-tron GT",
+          "nameHebrew": "RS E-tron GT"
+        },
+        {
+          "id": 10021,
+          "name": "RS Q3",
+          "nameHebrew": "RS Q3"
+        },
+        {
+          "id": 10022,
+          "name": "RS Q8",
+          "nameHebrew": "RS Q8"
+        },
+        {
+          "id": 10023,
+          "name": "S1",
+          "nameHebrew": "S1"
+        },
+        {
+          "id": 10024,
+          "name": "S3",
+          "nameHebrew": "S3"
+        },
+        {
+          "id": 10025,
+          "name": "S4",
+          "nameHebrew": "S4"
+        },
+        {
+          "id": 10026,
+          "name": "S5",
+          "nameHebrew": "S5"
+        },
+        {
+          "id": 10027,
+          "name": "S6",
+          "nameHebrew": "S6"
+        },
+        {
+          "id": 10028,
+          "name": "S7",
+          "nameHebrew": "S7"
+        },
+        {
+          "id": 10029,
+          "name": "S8",
+          "nameHebrew": "S8"
+        },
+        {
+          "id": 10030,
+          "name": "SQ2",
+          "nameHebrew": "SQ2"
+        },
+        {
+          "id": 10031,
+          "name": "SQ5",
+          "nameHebrew": "SQ5"
+        },
+        {
+          "id": 10032,
+          "name": "SQ7",
+          "nameHebrew": "SQ7"
+        },
+        {
+          "id": 10889,
+          "name": "SQ8",
+          "nameHebrew": "SQ8"
+        },
+        {
+          "id": 13222,
+          "name": "SQ8 e-tron",
+          "nameHebrew": "SQ8 e-tron"
+        },
+        {
+          "id": 10033,
+          "name": "TT",
+          "nameHebrew": "TT"
+        }
+      ],
+      "totalModels": 42,
+      "totalSubModels": 0
+    },
+    {
+      "id": 53,
+      "name": "Abarth",
+      "nameHebrew": "אבארט",
+      "models": [
+        {
+          "id": 11861,
+          "name": "124 ספיידר",
+          "nameHebrew": "124 ספיידר"
+        },
+        {
+          "id": 11862,
+          "name": "500",
+          "nameHebrew": "500"
+        },
+        {
+          "id": 13308,
+          "name": "500E",
+          "nameHebrew": "500E"
+        },
+        {
+          "id": 10805,
+          "name": "595",
+          "nameHebrew": "595"
+        },
+        {
+          "id": 11863,
+          "name": "695",
+          "nameHebrew": "695"
+        },
+        {
+          "id": 13588,
+          "name": "פונטו איבו ",
+          "nameHebrew": "פונטו איבו "
+        }
+      ],
+      "totalModels": 6,
+      "totalSubModels": 0
+    },
+    {
+      "id": 338,
+      "name": "Avatr",
+      "nameHebrew": "אווטאר",
+      "models": [
+        {
+          "id": 13211,
+          "name": "11",
+          "nameHebrew": "11"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 96,
+      "name": "Autobianchi",
+      "nameHebrew": "אוטוביאנקי",
+      "models": [
+        {
+          "id": 10868,
+          "name": "Y10",
+          "nameHebrew": "Y10"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 2,
+      "name": "Opel",
+      "nameHebrew": "אופל",
+      "models": [
+        {
+          "id": 10034,
+          "name": "אדם",
+          "nameHebrew": "אדם"
+        },
+        {
+          "id": 10047,
+          "name": "אומגה",
+          "nameHebrew": "אומגה"
+        },
+        {
+          "id": 10042,
+          "name": "אינסיגניה",
+          "nameHebrew": "אינסיגניה"
+        },
+        {
+          "id": 10035,
+          "name": "אסטרה",
+          "nameHebrew": "אסטרה"
+        },
+        {
+          "id": 10041,
+          "name": "גרנדלנד",
+          "nameHebrew": "גרנדלנד"
+        },
+        {
+          "id": 10050,
+          "name": "ויוארו",
+          "nameHebrew": "ויוארו"
+        },
+        {
+          "id": 10049,
+          "name": "וקטרה",
+          "nameHebrew": "וקטרה"
+        },
+        {
+          "id": 10051,
+          "name": "זאפירה",
+          "nameHebrew": "זאפירה"
+        },
+        {
+          "id": 10913,
+          "name": "זאפירה לייף",
+          "nameHebrew": "זאפירה לייף"
+        },
+        {
+          "id": 10048,
+          "name": "טיגרה",
+          "nameHebrew": "טיגרה"
+        },
+        {
+          "id": 10046,
+          "name": "מובאנו",
+          "nameHebrew": "מובאנו"
+        },
+        {
+          "id": 10045,
+          "name": "מוקה",
+          "nameHebrew": "מוקה"
+        },
+        {
+          "id": 10044,
+          "name": "מריבה",
+          "nameHebrew": "מריבה"
+        },
+        {
+          "id": 10040,
+          "name": "פרונטרה",
+          "nameHebrew": "פרונטרה"
+        },
+        {
+          "id": 10037,
+          "name": "קומבו",
+          "nameHebrew": "קומבו"
+        },
+        {
+          "id": 10038,
+          "name": "קורסה",
+          "nameHebrew": "קורסה"
+        },
+        {
+          "id": 10036,
+          "name": "קסקדה",
+          "nameHebrew": "קסקדה"
+        },
+        {
+          "id": 10899,
+          "name": "קרוסלנד",
+          "nameHebrew": "קרוסלנד"
+        },
+        {
+          "id": 10039,
+          "name": "קרוסלנד X",
+          "nameHebrew": "קרוסלנד X"
+        }
+      ],
+      "totalModels": 19,
+      "totalSubModels": 0
+    },
+    {
+      "id": 224,
+      "name": "ORA",
+      "nameHebrew": "אורה",
+      "models": [
+        {
+          "id": 13012,
+          "name": "03",
+          "nameHebrew": "03"
+        },
+        {
+          "id": 13341,
+          "name": "07",
+          "nameHebrew": "07"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 323,
+      "name": "EVeasy",
+      "nameHebrew": "אי.וי איזי ",
+      "models": [
+        {
+          "id": 13187,
+          "name": "Limo",
+          "nameHebrew": "Limo"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 288,
+      "name": "Aiways",
+      "nameHebrew": "איוויס",
+      "models": [
+        {
+          "id": 12929,
+          "name": "U5",
+          "nameHebrew": "U5"
+        },
+        {
+          "id": 13096,
+          "name": "U6",
+          "nameHebrew": "U6"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 85,
+      "name": "Iveco",
+      "nameHebrew": "איווקו",
+      "models": [
+        {
+          "id": 10859,
+          "name": "דיילי",
+          "nameHebrew": "דיילי"
+        },
+        {
+          "id": 12103,
+          "name": "מאסיף",
+          "nameHebrew": "מאסיף"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 310,
+      "name": "INEOS",
+      "nameHebrew": "אינאוס",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 3,
+      "name": "Infiniti",
+      "nameHebrew": "אינפיניטי",
+      "models": [
+        {
+          "id": 10914,
+          "name": "EX37",
+          "nameHebrew": "EX37"
+        },
+        {
+          "id": 10052,
+          "name": "FX35",
+          "nameHebrew": "FX35"
+        },
+        {
+          "id": 13124,
+          "name": "FX37",
+          "nameHebrew": "FX37"
+        },
+        {
+          "id": 13125,
+          "name": "FX50",
+          "nameHebrew": "FX50"
+        },
+        {
+          "id": 10053,
+          "name": "G37",
+          "nameHebrew": "G37"
+        },
+        {
+          "id": 10055,
+          "name": "Q30",
+          "nameHebrew": "Q30"
+        },
+        {
+          "id": 10056,
+          "name": "Q50",
+          "nameHebrew": "Q50"
+        },
+        {
+          "id": 10057,
+          "name": "Q60",
+          "nameHebrew": "Q60"
+        },
+        {
+          "id": 10058,
+          "name": "Q70",
+          "nameHebrew": "Q70"
+        },
+        {
+          "id": 10059,
+          "name": "QX30",
+          "nameHebrew": "QX30"
+        },
+        {
+          "id": 10060,
+          "name": "QX50",
+          "nameHebrew": "QX50"
+        },
+        {
+          "id": 10924,
+          "name": "QX55",
+          "nameHebrew": "QX55"
+        },
+        {
+          "id": 10062,
+          "name": "QX60",
+          "nameHebrew": "QX60"
+        },
+        {
+          "id": 10063,
+          "name": "QX70",
+          "nameHebrew": "QX70"
+        }
+      ],
+      "totalModels": 14,
+      "totalSubModels": 0
+    },
+    {
+      "id": 4,
+      "name": "Isuzu",
+      "nameHebrew": "איסוזו",
+      "models": [
+        {
+          "id": 10066,
+          "name": "איפון",
+          "nameHebrew": "איפון"
+        },
+        {
+          "id": 10064,
+          "name": "אקסיום ",
+          "nameHebrew": "אקסיום "
+        },
+        {
+          "id": 10065,
+          "name": "די-מקס",
+          "nameHebrew": "די-מקס"
+        },
+        {
+          "id": 10068,
+          "name": "טרופר",
+          "nameHebrew": "טרופר"
+        },
+        {
+          "id": 10067,
+          "name": "רודאו",
+          "nameHebrew": "רודאו"
+        }
+      ],
+      "totalModels": 5,
+      "totalSubModels": 0
+    },
+    {
+      "id": 299,
+      "name": "LEVC",
+      "nameHebrew": "אל.אי.וי.סי",
+      "models": [
+        {
+          "id": 13071,
+          "name": "TX",
+          "nameHebrew": "TX"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 77,
+      "name": "LTI",
+      "nameHebrew": "אל.טי.איי",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 5,
+      "name": "Alfa Romeo",
+      "nameHebrew": "אלפא רומיאו",
+      "models": [
+        {
+          "id": 10069,
+          "name": "145",
+          "nameHebrew": "145"
+        },
+        {
+          "id": 10070,
+          "name": "146",
+          "nameHebrew": "146"
+        },
+        {
+          "id": 10071,
+          "name": "147",
+          "nameHebrew": "147"
+        },
+        {
+          "id": 10072,
+          "name": "156",
+          "nameHebrew": "156"
+        },
+        {
+          "id": 10073,
+          "name": "159",
+          "nameHebrew": "159"
+        },
+        {
+          "id": 10075,
+          "name": "166",
+          "nameHebrew": "166"
+        },
+        {
+          "id": 10077,
+          "name": "4C",
+          "nameHebrew": "4C"
+        },
+        {
+          "id": 10941,
+          "name": "75",
+          "nameHebrew": "75"
+        },
+        {
+          "id": 10082,
+          "name": "GT",
+          "nameHebrew": "GT"
+        },
+        {
+          "id": 10083,
+          "name": "GTV",
+          "nameHebrew": "GTV"
+        },
+        {
+          "id": 10079,
+          "name": "בררה",
+          "nameHebrew": "בררה"
+        },
+        {
+          "id": 10080,
+          "name": "ג'וליה",
+          "nameHebrew": "ג'וליה"
+        },
+        {
+          "id": 10081,
+          "name": "ג'ולייטה",
+          "nameHebrew": "ג'ולייטה"
+        },
+        {
+          "id": 13393,
+          "name": "ג'וניור",
+          "nameHebrew": "ג'וניור"
+        },
+        {
+          "id": 12912,
+          "name": "טונלה",
+          "nameHebrew": "טונלה"
+        },
+        {
+          "id": 10084,
+          "name": "מיטו",
+          "nameHebrew": "מיטו"
+        },
+        {
+          "id": 10086,
+          "name": "סטלביו",
+          "nameHebrew": "סטלביו"
+        },
+        {
+          "id": 10085,
+          "name": "ספיידר",
+          "nameHebrew": "ספיידר"
+        }
+      ],
+      "totalModels": 18,
+      "totalSubModels": 0
+    },
+    {
+      "id": 115,
+      "name": "Alpine",
+      "nameHebrew": "אלפין",
+      "models": [
+        {
+          "id": 12185,
+          "name": "A110",
+          "nameHebrew": "A110"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 6,
+      "name": "MG",
+      "nameHebrew": "אם ג'י",
+      "models": [
+        {
+          "id": 10087,
+          "name": "350",
+          "nameHebrew": "350"
+        },
+        {
+          "id": 10953,
+          "name": "550",
+          "nameHebrew": "550"
+        },
+        {
+          "id": 13059,
+          "name": "EHS PHEV",
+          "nameHebrew": "EHS PHEV"
+        },
+        {
+          "id": 10089,
+          "name": "MG3",
+          "nameHebrew": "MG3"
+        },
+        {
+          "id": 13065,
+          "name": "MG4",
+          "nameHebrew": "MG4"
+        },
+        {
+          "id": 10952,
+          "name": "MG5",
+          "nameHebrew": "MG5"
+        },
+        {
+          "id": 10091,
+          "name": "RX5",
+          "nameHebrew": "RX5"
+        },
+        {
+          "id": 10092,
+          "name": "ZR",
+          "nameHebrew": "ZR"
+        },
+        {
+          "id": 10093,
+          "name": "ZS",
+          "nameHebrew": "ZS"
+        },
+        {
+          "id": 10094,
+          "name": "ZT",
+          "nameHebrew": "ZT"
+        },
+        {
+          "id": 12880,
+          "name": "מארוול R",
+          "nameHebrew": "מארוול R"
+        }
+      ],
+      "totalModels": 11,
+      "totalSubModels": 0
+    },
+    {
+      "id": 345,
+      "name": "SWM",
+      "nameHebrew": "אס דאבל יו אמ",
+      "models": [
+        {
+          "id": 13312,
+          "name": "G01",
+          "nameHebrew": "G01"
+        },
+        {
+          "id": 13349,
+          "name": "X30LEV ",
+          "nameHebrew": "X30LEV "
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 54,
+      "name": "Aston Martin",
+      "nameHebrew": "אסטון מרטין",
+      "models": [
+        {
+          "id": 10806,
+          "name": "DB11",
+          "nameHebrew": "DB11"
+        },
+        {
+          "id": 13153,
+          "name": "DB12",
+          "nameHebrew": "DB12"
+        },
+        {
+          "id": 10807,
+          "name": "DB9",
+          "nameHebrew": "DB9"
+        },
+        {
+          "id": 10808,
+          "name": "DBS",
+          "nameHebrew": "DBS"
+        },
+        {
+          "id": 10809,
+          "name": "DBX",
+          "nameHebrew": "DBX"
+        },
+        {
+          "id": 10810,
+          "name": "Rapide",
+          "nameHebrew": "Rapide"
+        },
+        {
+          "id": 10812,
+          "name": "ואנטאג'",
+          "nameHebrew": "ואנטאג'"
+        },
+        {
+          "id": 10813,
+          "name": "ואנקוויש",
+          "nameHebrew": "ואנקוויש"
+        }
+      ],
+      "totalModels": 8,
+      "totalSubModels": 0
+    },
+    {
+      "id": 111,
+      "name": "Acura",
+      "nameHebrew": "אקורה",
+      "models": [
+        {
+          "id": 13226,
+          "name": "MDX",
+          "nameHebrew": "MDX"
+        },
+        {
+          "id": 13225,
+          "name": "אינטגרה",
+          "nameHebrew": "אינטגרה"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 335,
+      "name": "XEV",
+      "nameHebrew": "אקס אי וי",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 290,
+      "name": "XPENG",
+      "nameHebrew": "אקספנג",
+      "models": [
+        {
+          "id": 13164,
+          "name": "P7",
+          "nameHebrew": "P7"
+        },
+        {
+          "id": 12841,
+          "name": "G3",
+          "nameHebrew": "G3"
+        },
+        {
+          "id": 13352,
+          "name": "G6",
+          "nameHebrew": "G6"
+        },
+        {
+          "id": 13178,
+          "name": "G9",
+          "nameHebrew": "G9"
+        },
+        {
+          "id": 13164,
+          "name": "P7",
+          "nameHebrew": "P7"
+        }
+      ],
+      "totalModels": 5,
+      "totalSubModels": 0
+    },
+    {
+      "id": 117,
+      "name": "Arcfox",
+      "nameHebrew": "ארקפוקס",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 7,
+      "name": "BMW",
+      "nameHebrew": "ב מ וו",
+      "models": [
+        {
+          "id": 13309,
+          "name": "I5",
+          "nameHebrew": "I5"
+        },
+        {
+          "id": 13135,
+          "name": "IX1",
+          "nameHebrew": "IX1"
+        },
+        {
+          "id": 10105,
+          "name": "M2 ",
+          "nameHebrew": "M2 "
+        },
+        {
+          "id": 10106,
+          "name": "M3",
+          "nameHebrew": "M3"
+        },
+        {
+          "id": 10107,
+          "name": "M4",
+          "nameHebrew": "M4"
+        },
+        {
+          "id": 10108,
+          "name": "M5",
+          "nameHebrew": "M5"
+        },
+        {
+          "id": 10109,
+          "name": "M6",
+          "nameHebrew": "M6"
+        },
+        {
+          "id": 10110,
+          "name": "M8",
+          "nameHebrew": "M8"
+        },
+        {
+          "id": 10111,
+          "name": "X1",
+          "nameHebrew": "X1"
+        },
+        {
+          "id": 10112,
+          "name": "X2",
+          "nameHebrew": "X2"
+        },
+        {
+          "id": 10113,
+          "name": "X3",
+          "nameHebrew": "X3"
+        },
+        {
+          "id": 10968,
+          "name": "X3 M",
+          "nameHebrew": "X3 M"
+        },
+        {
+          "id": 10114,
+          "name": "X4",
+          "nameHebrew": "X4"
+        },
+        {
+          "id": 10115,
+          "name": "X4 M",
+          "nameHebrew": "X4 M"
+        },
+        {
+          "id": 10116,
+          "name": "X5",
+          "nameHebrew": "X5"
+        },
+        {
+          "id": 10117,
+          "name": "X5 M",
+          "nameHebrew": "X5 M"
+        },
+        {
+          "id": 10118,
+          "name": "X6",
+          "nameHebrew": "X6"
+        },
+        {
+          "id": 10119,
+          "name": "X6 M",
+          "nameHebrew": "X6 M"
+        },
+        {
+          "id": 10120,
+          "name": "X7",
+          "nameHebrew": "X7"
+        },
+        {
+          "id": 13121,
+          "name": "XM",
+          "nameHebrew": "XM"
+        },
+        {
+          "id": 10121,
+          "name": "Z3",
+          "nameHebrew": "Z3"
+        },
+        {
+          "id": 10122,
+          "name": "Z4",
+          "nameHebrew": "Z4"
+        },
+        {
+          "id": 10103,
+          "name": "i3",
+          "nameHebrew": "i3"
+        },
+        {
+          "id": 10963,
+          "name": "i4",
+          "nameHebrew": "i4"
+        },
+        {
+          "id": 13013,
+          "name": "i7",
+          "nameHebrew": "i7"
+        },
+        {
+          "id": 10104,
+          "name": "i8",
+          "nameHebrew": "i8"
+        },
+        {
+          "id": 10964,
+          "name": "iX",
+          "nameHebrew": "iX"
+        },
+        {
+          "id": 13259,
+          "name": "iX2",
+          "nameHebrew": "iX2"
+        },
+        {
+          "id": 10965,
+          "name": "iX3",
+          "nameHebrew": "iX3"
+        },
+        {
+          "id": 10095,
+          "name": "סדרה 1",
+          "nameHebrew": "סדרה 1"
+        },
+        {
+          "id": 10096,
+          "name": "סדרה 2",
+          "nameHebrew": "סדרה 2"
+        },
+        {
+          "id": 10097,
+          "name": "סדרה 3",
+          "nameHebrew": "סדרה 3"
+        },
+        {
+          "id": 10098,
+          "name": "סדרה 4",
+          "nameHebrew": "סדרה 4"
+        },
+        {
+          "id": 10099,
+          "name": "סדרה 5",
+          "nameHebrew": "סדרה 5"
+        },
+        {
+          "id": 10100,
+          "name": "סדרה 6",
+          "nameHebrew": "סדרה 6"
+        },
+        {
+          "id": 10101,
+          "name": "סדרה 7",
+          "nameHebrew": "סדרה 7"
+        },
+        {
+          "id": 10102,
+          "name": "סדרה 8",
+          "nameHebrew": "סדרה 8"
+        }
+      ],
+      "totalModels": 37,
+      "totalSubModels": 0
+    },
+    {
+      "id": 126,
+      "name": "BAIC Motor",
+      "nameHebrew": "באייק",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 193,
+      "name": "BAW",
+      "nameHebrew": "בי.איי.דאבליו",
+      "models": [
+        {
+          "id": 13143,
+          "name": "פוני",
+          "nameHebrew": "פוני"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 141,
+      "name": "BYD",
+      "nameHebrew": "בי.ווי.די",
+      "models": [
+        {
+          "id": 13188,
+          "name": "ETP3",
+          "nameHebrew": "ETP3"
+        },
+        {
+          "id": 13050,
+          "name": "אטו 3",
+          "nameHebrew": "אטו 3"
+        },
+        {
+          "id": 12975,
+          "name": "דולפין",
+          "nameHebrew": "דולפין"
+        },
+        {
+          "id": 13623,
+          "name": "דולפין סרף",
+          "nameHebrew": "דולפין סרף"
+        },
+        {
+          "id": 12923,
+          "name": "האן",
+          "nameHebrew": "האן"
+        },
+        {
+          "id": 12962,
+          "name": "טאנג",
+          "nameHebrew": "טאנג"
+        },
+        {
+          "id": 13601,
+          "name": "סי ליאון 07",
+          "nameHebrew": "סי ליאון 07"
+        },
+        {
+          "id": 13231,
+          "name": "סיל",
+          "nameHebrew": "סיל"
+        },
+        {
+          "id": 13329,
+          "name": "סיל U",
+          "nameHebrew": "סיל U"
+        }
+      ],
+      "totalModels": 9,
+      "totalSubModels": 0
+    },
+    {
+      "id": 8,
+      "name": "Buick",
+      "nameHebrew": "ביואיק",
+      "models": [
+        {
+          "id": 10123,
+          "name": "אנקלייב",
+          "nameHebrew": "אנקלייב"
+        },
+        {
+          "id": 10126,
+          "name": "לה-סייבר",
+          "nameHebrew": "לה-סייבר"
+        },
+        {
+          "id": 10125,
+          "name": "לה-קרוס",
+          "nameHebrew": "לה-קרוס"
+        },
+        {
+          "id": 10127,
+          "name": "לוצרן",
+          "nameHebrew": "לוצרן"
+        },
+        {
+          "id": 10128,
+          "name": "פארק אבניו",
+          "nameHebrew": "פארק אבניו"
+        },
+        {
+          "id": 10129,
+          "name": "רנדוו",
+          "nameHebrew": "רנדוו"
+        }
+      ],
+      "totalModels": 6,
+      "totalSubModels": 0
+    },
+    {
+      "id": 55,
+      "name": "Bentley",
+      "nameHebrew": "בנטלי",
+      "models": [
+        {
+          "id": 10814,
+          "name": "בנטאיגה",
+          "nameHebrew": "בנטאיגה"
+        },
+        {
+          "id": 10817,
+          "name": "פליינג ספור",
+          "nameHebrew": "פליינג ספור"
+        },
+        {
+          "id": 10815,
+          "name": "קונטיננטל",
+          "nameHebrew": "קונטיננטל"
+        },
+        {
+          "id": 10816,
+          "name": "קונטיננטל GT",
+          "nameHebrew": "קונטיננטל GT"
+        }
+      ],
+      "totalModels": 4,
+      "totalSubModels": 0
+    },
+    {
+      "id": 355,
+      "name": "Jaecoo",
+      "nameHebrew": "ג'אקו",
+      "models": [
+        {
+          "id": 13395,
+          "name": "J7",
+          "nameHebrew": "J7"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 99,
+      "name": "GAC",
+      "nameHebrew": "ג'י.איי.סי",
+      "models": [
+        {
+          "id": 10871,
+          "name": "GE3",
+          "nameHebrew": "GE3"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 9,
+      "name": "GMC",
+      "nameHebrew": "ג'י.אם.סי",
+      "models": [
+        {
+          "id": 10131,
+          "name": "אכאדיה",
+          "nameHebrew": "אכאדיה"
+        },
+        {
+          "id": 10132,
+          "name": "ג'ימי",
+          "nameHebrew": "ג'ימי"
+        },
+        {
+          "id": 13294,
+          "name": "האמר EV",
+          "nameHebrew": "האמר EV"
+        },
+        {
+          "id": 10138,
+          "name": "ונדורה",
+          "nameHebrew": "ונדורה"
+        },
+        {
+          "id": 10139,
+          "name": "יוקון",
+          "nameHebrew": "יוקון"
+        },
+        {
+          "id": 10137,
+          "name": "סאברבן",
+          "nameHebrew": "סאברבן"
+        },
+        {
+          "id": 10134,
+          "name": "סוואנה",
+          "nameHebrew": "סוואנה"
+        },
+        {
+          "id": 10136,
+          "name": "סונומה",
+          "nameHebrew": "סונומה"
+        },
+        {
+          "id": 10135,
+          "name": "סיירה",
+          "nameHebrew": "סיירה"
+        },
+        {
+          "id": 13533,
+          "name": "סיירה EV  ",
+          "nameHebrew": "סיירה EV  "
+        },
+        {
+          "id": 10133,
+          "name": "ספארי",
+          "nameHebrew": "ספארי"
+        }
+      ],
+      "totalModels": 11,
+      "totalSubModels": 0
+    },
+    {
+      "id": 10,
+      "name": "Jeep",
+      "nameHebrew": "ג'יפ",
+      "models": [
+        {
+          "id": 13199,
+          "name": "אוונגר",
+          "nameHebrew": "אוונגר"
+        },
+        {
+          "id": 10143,
+          "name": "גלדיאטור",
+          "nameHebrew": "גלדיאטור"
+        },
+        {
+          "id": 13132,
+          "name": "גראנד וואגוניר",
+          "nameHebrew": "גראנד וואגוניר"
+        },
+        {
+          "id": 10144,
+          "name": "גרנד צ'ירוקי",
+          "nameHebrew": "גרנד צ'ירוקי"
+        },
+        {
+          "id": 11000,
+          "name": "וגוניר",
+          "nameHebrew": "וגוניר"
+        },
+        {
+          "id": 10145,
+          "name": "פטריוט",
+          "nameHebrew": "פטריוט"
+        },
+        {
+          "id": 10140,
+          "name": "צ'ירוקי",
+          "nameHebrew": "צ'ירוקי"
+        },
+        {
+          "id": 10141,
+          "name": "קומנדר",
+          "nameHebrew": "קומנדר"
+        },
+        {
+          "id": 10142,
+          "name": "קומפאס",
+          "nameHebrew": "קומפאס"
+        },
+        {
+          "id": 10146,
+          "name": "רנגייד",
+          "nameHebrew": "רנגייד"
+        },
+        {
+          "id": 10147,
+          "name": "רנגלר",
+          "nameHebrew": "רנגלר"
+        }
+      ],
+      "totalModels": 11,
+      "totalSubModels": 0
+    },
+    {
+      "id": 93,
+      "name": "Genesis",
+      "nameHebrew": "ג'נסיס",
+      "models": [
+        {
+          "id": 12137,
+          "name": "G70",
+          "nameHebrew": "G70"
+        },
+        {
+          "id": 12138,
+          "name": "G80",
+          "nameHebrew": "G80"
+        },
+        {
+          "id": 10863,
+          "name": "G90",
+          "nameHebrew": "G90"
+        },
+        {
+          "id": 13025,
+          "name": "GV60",
+          "nameHebrew": "GV60"
+        },
+        {
+          "id": 12140,
+          "name": "GV70",
+          "nameHebrew": "GV70"
+        },
+        {
+          "id": 10864,
+          "name": "GV80",
+          "nameHebrew": "GV80"
+        }
+      ],
+      "totalModels": 6,
+      "totalSubModels": 0
+    },
+    {
+      "id": 319,
+      "name": "Goupil",
+      "nameHebrew": "גופיל",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 346,
+      "name": "Jiayuan",
+      "nameHebrew": "גיאיוואן",
+      "models": [
+        {
+          "id": 13315,
+          "name": "קומי",
+          "nameHebrew": "קומי"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 11,
+      "name": "Great Wall",
+      "nameHebrew": "גרייט וול",
+      "models": [
+        {
+          "id": 10152,
+          "name": "C10",
+          "nameHebrew": "C10"
+        },
+        {
+          "id": 10150,
+          "name": "הובר H6",
+          "nameHebrew": "הובר H6"
+        },
+        {
+          "id": 10151,
+          "name": "סטיד",
+          "nameHebrew": "סטיד"
+        },
+        {
+          "id": 10149,
+          "name": "פלוריד",
+          "nameHebrew": "פלוריד"
+        },
+        {
+          "id": 10148,
+          "name": "קולבר",
+          "nameHebrew": "קולבר"
+        }
+      ],
+      "totalModels": 5,
+      "totalSubModels": 0
+    },
+    {
+      "id": 200,
+      "name": "JAC",
+      "nameHebrew": "ג׳יי.איי.סי",
+      "models": [
+        {
+          "id": 13511,
+          "name": "30",
+          "nameHebrew": "30"
+        },
+        {
+          "id": 13111,
+          "name": "E-JS4",
+          "nameHebrew": "E-JS4"
+        },
+        {
+          "id": 13112,
+          "name": "E-S2",
+          "nameHebrew": "E-S2"
+        },
+        {
+          "id": 13113,
+          "name": "E-S4",
+          "nameHebrew": "E-S4"
+        },
+        {
+          "id": 13114,
+          "name": "IC5",
+          "nameHebrew": "IC5"
+        }
+      ],
+      "totalModels": 5,
+      "totalSubModels": 0
+    },
+    {
+      "id": 177,
+      "name": "Geely",
+      "nameHebrew": "ג׳ילי",
+      "models": [
+        {
+          "id": 13409,
+          "name": " גלקסי E5",
+          "nameHebrew": " גלקסי E5"
+        },
+        {
+          "id": 13054,
+          "name": "Geometry C",
+          "nameHebrew": "Geometry C"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 329,
+      "name": "WM Motors",
+      "nameHebrew": "דאבל יו אם מוטורס",
+      "models": [
+        {
+          "id": 13110,
+          "name": "דאבל יו 5",
+          "nameHebrew": "דאבל יו 5"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 360,
+      "name": "Dayun",
+      "nameHebrew": "דאיון",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 12,
+      "name": "Dacia",
+      "nameHebrew": "דאצ'יה",
+      "models": [
+        {
+          "id": 13491,
+          "name": "ביגסטר",
+          "nameHebrew": "ביגסטר"
+        },
+        {
+          "id": 13015,
+          "name": "ג׳וגר",
+          "nameHebrew": "ג׳וגר"
+        },
+        {
+          "id": 10154,
+          "name": "דאסטר",
+          "nameHebrew": "דאסטר"
+        },
+        {
+          "id": 10153,
+          "name": "דוקר",
+          "nameHebrew": "דוקר"
+        },
+        {
+          "id": 10156,
+          "name": "לוגאן",
+          "nameHebrew": "לוגאן"
+        },
+        {
+          "id": 10155,
+          "name": "לודג'י",
+          "nameHebrew": "לודג'י"
+        },
+        {
+          "id": 10157,
+          "name": "סנדרו",
+          "nameHebrew": "סנדרו"
+        },
+        {
+          "id": 13424,
+          "name": "סנדרו Stepway",
+          "nameHebrew": "סנדרו Stepway"
+        },
+        {
+          "id": 11019,
+          "name": "ספרינג",
+          "nameHebrew": "ספרינג"
+        }
+      ],
+      "totalModels": 9,
+      "totalSubModels": 0
+    },
+    {
+      "id": 13,
+      "name": "Dodge",
+      "nameHebrew": "דודג'",
+      "models": [
+        {
+          "id": 10158,
+          "name": "אוונג'ר",
+          "nameHebrew": "אוונג'ר"
+        },
+        {
+          "id": 10164,
+          "name": "ג'רני",
+          "nameHebrew": "ג'רני"
+        },
+        {
+          "id": 10163,
+          "name": "דורנגו",
+          "nameHebrew": "דורנגו"
+        },
+        {
+          "id": 10165,
+          "name": "ניטרו",
+          "nameHebrew": "ניטרו"
+        },
+        {
+          "id": 10162,
+          "name": "צ'ארג'ר",
+          "nameHebrew": "צ'ארג'ר"
+        },
+        {
+          "id": 10161,
+          "name": "צ'לנג'ר",
+          "nameHebrew": "צ'לנג'ר"
+        },
+        {
+          "id": 10159,
+          "name": "קאליבר",
+          "nameHebrew": "קאליבר"
+        },
+        {
+          "id": 10160,
+          "name": "קראוון",
+          "nameHebrew": "קראוון"
+        }
+      ],
+      "totalModels": 8,
+      "totalSubModels": 0
+    },
+    {
+      "id": 88,
+      "name": "DongFeng",
+      "nameHebrew": "דונגפנג",
+      "models": [
+        {
+          "id": 13044,
+          "name": "C31",
+          "nameHebrew": "C31"
+        },
+        {
+          "id": 13045,
+          "name": "C32",
+          "nameHebrew": "C32"
+        },
+        {
+          "id": 13223,
+          "name": "C35",
+          "nameHebrew": "C35"
+        },
+        {
+          "id": 13043,
+          "name": "KO1",
+          "nameHebrew": "KO1"
+        },
+        {
+          "id": 13042,
+          "name": "KO2",
+          "nameHebrew": "KO2"
+        },
+        {
+          "id": 13041,
+          "name": "KO5",
+          "nameHebrew": "KO5"
+        },
+        {
+          "id": 13430,
+          "name": "MHERO 1",
+          "nameHebrew": "MHERO 1"
+        },
+        {
+          "id": 13431,
+          "name": "בוקס",
+          "nameHebrew": "בוקס"
+        },
+        {
+          "id": 13046,
+          "name": "גלורי 580",
+          "nameHebrew": "גלורי 580"
+        }
+      ],
+      "totalModels": 9,
+      "totalSubModels": 0
+    },
+    {
+      "id": 14,
+      "name": "DS",
+      "nameHebrew": "די.אס",
+      "models": [
+        {
+          "id": 10167,
+          "name": "3",
+          "nameHebrew": "3"
+        },
+        {
+          "id": 11033,
+          "name": "4",
+          "nameHebrew": "4"
+        },
+        {
+          "id": 10168,
+          "name": "5",
+          "nameHebrew": "5"
+        },
+        {
+          "id": 10169,
+          "name": "7",
+          "nameHebrew": "7"
+        }
+      ],
+      "totalModels": 4,
+      "totalSubModels": 0
+    },
+    {
+      "id": 60,
+      "name": "Daewoo",
+      "nameHebrew": "דייהו",
+      "models": [
+        {
+          "id": 10833,
+          "name": "אספרו",
+          "nameHebrew": "אספרו"
+        },
+        {
+          "id": 10844,
+          "name": "טאקומה",
+          "nameHebrew": "טאקומה"
+        },
+        {
+          "id": 10845,
+          "name": "טיקו",
+          "nameHebrew": "טיקו"
+        },
+        {
+          "id": 10835,
+          "name": "לאנוס",
+          "nameHebrew": "לאנוס"
+        },
+        {
+          "id": 10836,
+          "name": "לגנזה",
+          "nameHebrew": "לגנזה"
+        },
+        {
+          "id": 10837,
+          "name": "מאטיס",
+          "nameHebrew": "מאטיס"
+        },
+        {
+          "id": 10838,
+          "name": "מוסו",
+          "nameHebrew": "מוסו"
+        },
+        {
+          "id": 10840,
+          "name": "נובירה",
+          "nameHebrew": "נובירה"
+        },
+        {
+          "id": 10839,
+          "name": "נקסייה",
+          "nameHebrew": "נקסייה"
+        },
+        {
+          "id": 10843,
+          "name": "סופר סלון",
+          "nameHebrew": "סופר סלון"
+        },
+        {
+          "id": 10841,
+          "name": "פרינס",
+          "nameHebrew": "פרינס"
+        },
+        {
+          "id": 10832,
+          "name": "צ'רמן",
+          "nameHebrew": "צ'רמן"
+        },
+        {
+          "id": 10834,
+          "name": "קורנדו",
+          "nameHebrew": "קורנדו"
+        },
+        {
+          "id": 10842,
+          "name": "רייסר",
+          "nameHebrew": "רייסר"
+        }
+      ],
+      "totalModels": 14,
+      "totalSubModels": 0
+    },
+    {
+      "id": 15,
+      "name": "Daihatsu",
+      "nameHebrew": "דייהטסו",
+      "models": [
+        {
+          "id": 10178,
+          "name": "YRV",
+          "nameHebrew": "YRV"
+        },
+        {
+          "id": 10170,
+          "name": "אפלאוז",
+          "nameHebrew": "אפלאוז"
+        },
+        {
+          "id": 10174,
+          "name": "גרנד מוב",
+          "nameHebrew": "גרנד מוב"
+        },
+        {
+          "id": 10177,
+          "name": "טריוס",
+          "nameHebrew": "טריוס"
+        },
+        {
+          "id": 10175,
+          "name": "מאטריה",
+          "nameHebrew": "מאטריה"
+        },
+        {
+          "id": 10176,
+          "name": "סיריון",
+          "nameHebrew": "סיריון"
+        },
+        {
+          "id": 10173,
+          "name": "פרוזה",
+          "nameHebrew": "פרוזה"
+        },
+        {
+          "id": 10172,
+          "name": "קורה",
+          "nameHebrew": "קורה"
+        },
+        {
+          "id": 10171,
+          "name": "שרייד",
+          "nameHebrew": "שרייד"
+        }
+      ],
+      "totalModels": 9,
+      "totalSubModels": 0
+    },
+    {
+      "id": 362,
+      "name": "Deepal",
+      "nameHebrew": "דיפאל",
+      "models": [
+        {
+          "id": 13472,
+          "name": "S07",
+          "nameHebrew": "S07"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 16,
+      "name": "Hummer",
+      "nameHebrew": "האמר",
+      "models": [
+        {
+          "id": 11062,
+          "name": "H1",
+          "nameHebrew": "H1"
+        },
+        {
+          "id": 10179,
+          "name": "H2",
+          "nameHebrew": "H2"
+        },
+        {
+          "id": 10180,
+          "name": "H3",
+          "nameHebrew": "H3"
+        }
+      ],
+      "totalModels": 3,
+      "totalSubModels": 0
+    },
+    {
+      "id": 301,
+      "name": "HONGQI",
+      "nameHebrew": "הונגצ'י",
+      "models": [
+        {
+          "id": 12992,
+          "name": "E-HS9",
+          "nameHebrew": "E-HS9"
+        },
+        {
+          "id": 13540,
+          "name": "EH7",
+          "nameHebrew": "EH7"
+        },
+        {
+          "id": 13483,
+          "name": "EHS7",
+          "nameHebrew": "EHS7"
+        },
+        {
+          "id": 13116,
+          "name": "הוסדו",
+          "nameHebrew": "הוסדו"
+        }
+      ],
+      "totalModels": 4,
+      "totalSubModels": 0
+    },
+    {
+      "id": 17,
+      "name": "Honda",
+      "nameHebrew": "הונדה",
+      "models": [
+        {
+          "id": 10183,
+          "name": "CR-V",
+          "nameHebrew": "CR-V"
+        },
+        {
+          "id": 10184,
+          "name": "CR-Z",
+          "nameHebrew": "CR-Z"
+        },
+        {
+          "id": 10185,
+          "name": "FR-V",
+          "nameHebrew": "FR-V"
+        },
+        {
+          "id": 10186,
+          "name": "HR-V",
+          "nameHebrew": "HR-V"
+        },
+        {
+          "id": 10193,
+          "name": "S2000",
+          "nameHebrew": "S2000"
+        },
+        {
+          "id": 10190,
+          "name": "אודיסיי",
+          "nameHebrew": "אודיסיי"
+        },
+        {
+          "id": 10187,
+          "name": "אינסייט",
+          "nameHebrew": "אינסייט"
+        },
+        {
+          "id": 10181,
+          "name": "אקורד",
+          "nameHebrew": "אקורד"
+        },
+        {
+          "id": 10188,
+          "name": "ג'אז ",
+          "nameHebrew": "ג'אז "
+        },
+        {
+          "id": 10189,
+          "name": "לג'נד",
+          "nameHebrew": "לג'נד"
+        },
+        {
+          "id": 10182,
+          "name": "סיוויק",
+          "nameHebrew": "סיוויק"
+        },
+        {
+          "id": 13419,
+          "name": "סיוויק Type R",
+          "nameHebrew": "סיוויק Type R"
+        },
+        {
+          "id": 11069,
+          "name": "סיטי",
+          "nameHebrew": "סיטי"
+        },
+        {
+          "id": 10191,
+          "name": "פיילוט",
+          "nameHebrew": "פיילוט"
+        },
+        {
+          "id": 10192,
+          "name": "פרלוד",
+          "nameHebrew": "פרלוד"
+        },
+        {
+          "id": 11070,
+          "name": "קלריטי",
+          "nameHebrew": "קלריטי"
+        },
+        {
+          "id": 10195,
+          "name": "שאטל",
+          "nameHebrew": "שאטל"
+        }
+      ],
+      "totalModels": 17,
+      "totalSubModels": 0
+    },
+    {
+      "id": 322,
+      "name": "Voyah",
+      "nameHebrew": "וויה",
+      "models": [
+        {
+          "id": 13302,
+          "name": "דרים",
+          "nameHebrew": "דרים"
+        },
+        {
+          "id": 13078,
+          "name": "פרי",
+          "nameHebrew": "פרי"
+        },
+        {
+          "id": 13494,
+          "name": "קוראז",
+          "nameHebrew": "קוראז"
+        }
+      ],
+      "totalModels": 3,
+      "totalSubModels": 0
+    },
+    {
+      "id": 18,
+      "name": "Volvo",
+      "nameHebrew": "וולוו",
+      "models": [
+        {
+          "id": 10197,
+          "name": "850",
+          "nameHebrew": "850"
+        },
+        {
+          "id": 10198,
+          "name": "940",
+          "nameHebrew": "940"
+        },
+        {
+          "id": 10199,
+          "name": "960",
+          "nameHebrew": "960"
+        },
+        {
+          "id": 10200,
+          "name": "C30",
+          "nameHebrew": "C30"
+        },
+        {
+          "id": 11127,
+          "name": "C40",
+          "nameHebrew": "C40"
+        },
+        {
+          "id": 10201,
+          "name": "C70",
+          "nameHebrew": "C70"
+        },
+        {
+          "id": 13182,
+          "name": "EX30",
+          "nameHebrew": "EX30"
+        },
+        {
+          "id": 10202,
+          "name": "S40",
+          "nameHebrew": "S40"
+        },
+        {
+          "id": 10203,
+          "name": "S60",
+          "nameHebrew": "S60"
+        },
+        {
+          "id": 10204,
+          "name": "S70",
+          "nameHebrew": "S70"
+        },
+        {
+          "id": 10205,
+          "name": "S80",
+          "nameHebrew": "S80"
+        },
+        {
+          "id": 10206,
+          "name": "S90",
+          "nameHebrew": "S90"
+        },
+        {
+          "id": 10207,
+          "name": "V40",
+          "nameHebrew": "V40"
+        },
+        {
+          "id": 10208,
+          "name": "V50",
+          "nameHebrew": "V50"
+        },
+        {
+          "id": 10209,
+          "name": "V60",
+          "nameHebrew": "V60"
+        },
+        {
+          "id": 10210,
+          "name": "V70",
+          "nameHebrew": "V70"
+        },
+        {
+          "id": 10211,
+          "name": "V90",
+          "nameHebrew": "V90"
+        },
+        {
+          "id": 10212,
+          "name": "XC40",
+          "nameHebrew": "XC40"
+        },
+        {
+          "id": 10213,
+          "name": "XC60",
+          "nameHebrew": "XC60"
+        },
+        {
+          "id": 10214,
+          "name": "XC70",
+          "nameHebrew": "XC70"
+        },
+        {
+          "id": 10215,
+          "name": "XC90",
+          "nameHebrew": "XC90"
+        }
+      ],
+      "totalModels": 21,
+      "totalSubModels": 0
+    },
+    {
+      "id": 284,
+      "name": "WEY",
+      "nameHebrew": "ויי",
+      "models": [
+        {
+          "id": 13087,
+          "name": "קופי 01",
+          "nameHebrew": "קופי 01"
+        },
+        {
+          "id": 13191,
+          "name": "קופי 02",
+          "nameHebrew": "קופי 02"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 333,
+      "name": "Zeekr",
+      "nameHebrew": "זיקר",
+      "models": [
+        {
+          "id": 13181,
+          "name": "001",
+          "nameHebrew": "001"
+        },
+        {
+          "id": 13208,
+          "name": "X",
+          "nameHebrew": "X"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 87,
+      "name": "Tata",
+      "nameHebrew": "טאטא",
+      "models": [
+        {
+          "id": 13040,
+          "name": "טלקוליין",
+          "nameHebrew": "טלקוליין"
+        },
+        {
+          "id": 12117,
+          "name": "סומו",
+          "nameHebrew": "סומו"
+        },
+        {
+          "id": 12116,
+          "name": "סיירה",
+          "nameHebrew": "סיירה"
+        },
+        {
+          "id": 12115,
+          "name": "ספארי",
+          "nameHebrew": "ספארי"
+        }
+      ],
+      "totalModels": 4,
+      "totalSubModels": 0
+    },
+    {
+      "id": 19,
+      "name": "Toyota",
+      "nameHebrew": "טויוטה",
+      "models": [
+        {
+          "id": 10225,
+          "name": "C-HR",
+          "nameHebrew": "C-HR"
+        },
+        {
+          "id": 10228,
+          "name": "FJ קרוזר",
+          "nameHebrew": "FJ קרוזר"
+        },
+        {
+          "id": 10217,
+          "name": "GT86",
+          "nameHebrew": "GT86"
+        },
+        {
+          "id": 10234,
+          "name": "MR 2",
+          "nameHebrew": "MR 2"
+        },
+        {
+          "id": 10238,
+          "name": "RAV4",
+          "nameHebrew": "RAV4"
+        },
+        {
+          "id": 12894,
+          "name": "bZ4X",
+          "nameHebrew": "bZ4X"
+        },
+        {
+          "id": 10232,
+          "name": "iQ",
+          "nameHebrew": "iQ"
+        },
+        {
+          "id": 10219,
+          "name": "אוולון",
+          "nameHebrew": "אוולון"
+        },
+        {
+          "id": 10220,
+          "name": "אוונסיס",
+          "nameHebrew": "אוונסיס"
+        },
+        {
+          "id": 10218,
+          "name": "אוריס",
+          "nameHebrew": "אוריס"
+        },
+        {
+          "id": 10221,
+          "name": "אייגו",
+          "nameHebrew": "אייגו"
+        },
+        {
+          "id": 12897,
+          "name": "אייגו X",
+          "nameHebrew": "אייגו X"
+        },
+        {
+          "id": 13237,
+          "name": "גראנד היילנדר",
+          "nameHebrew": "גראנד היילנדר"
+        },
+        {
+          "id": 10229,
+          "name": "הייאס",
+          "nameHebrew": "הייאס"
+        },
+        {
+          "id": 10230,
+          "name": "היילנדר",
+          "nameHebrew": "היילנדר"
+        },
+        {
+          "id": 10231,
+          "name": "היילקס",
+          "nameHebrew": "היילקס"
+        },
+        {
+          "id": 13373,
+          "name": "היילקס ויגו",
+          "nameHebrew": "היילקס ויגו"
+        },
+        {
+          "id": 10244,
+          "name": "ונזה",
+          "nameHebrew": "ונזה"
+        },
+        {
+          "id": 10245,
+          "name": "ורסו",
+          "nameHebrew": "ורסו"
+        },
+        {
+          "id": 10246,
+          "name": "ורסו-S",
+          "nameHebrew": "ורסו-S"
+        },
+        {
+          "id": 10243,
+          "name": "טאקומה",
+          "nameHebrew": "טאקומה"
+        },
+        {
+          "id": 11215,
+          "name": "טונדרה",
+          "nameHebrew": "טונדרה"
+        },
+        {
+          "id": 10247,
+          "name": "יאריס",
+          "nameHebrew": "יאריס"
+        },
+        {
+          "id": 13386,
+          "name": "יאריס GR ",
+          "nameHebrew": "יאריס GR "
+        },
+        {
+          "id": 11228,
+          "name": "יאריס קרוס",
+          "nameHebrew": "יאריס קרוס"
+        },
+        {
+          "id": 10233,
+          "name": "לנד קרוזר",
+          "nameHebrew": "לנד קרוזר"
+        },
+        {
+          "id": 11212,
+          "name": "סופרה",
+          "nameHebrew": "סופרה"
+        },
+        {
+          "id": 10242,
+          "name": "סטארלט",
+          "nameHebrew": "סטארלט"
+        },
+        {
+          "id": 10240,
+          "name": "סיינה",
+          "nameHebrew": "סיינה"
+        },
+        {
+          "id": 10224,
+          "name": "סליקה",
+          "nameHebrew": "סליקה"
+        },
+        {
+          "id": 10239,
+          "name": "סקויה",
+          "nameHebrew": "סקויה"
+        },
+        {
+          "id": 10216,
+          "name": "פור-ראנר",
+          "nameHebrew": "פור-ראנר"
+        },
+        {
+          "id": 13093,
+          "name": "פרואייס",
+          "nameHebrew": "פרואייס"
+        },
+        {
+          "id": 10237,
+          "name": "פרואייס סיטי",
+          "nameHebrew": "פרואייס סיטי"
+        },
+        {
+          "id": 10235,
+          "name": "פריוויה",
+          "nameHebrew": "פריוויה"
+        },
+        {
+          "id": 10236,
+          "name": "פריוס",
+          "nameHebrew": "פריוס"
+        },
+        {
+          "id": 13238,
+          "name": "פריוס פלוס",
+          "nameHebrew": "פריוס פלוס"
+        },
+        {
+          "id": 10222,
+          "name": "קאמרי",
+          "nameHebrew": "קאמרי"
+        },
+        {
+          "id": 10226,
+          "name": "קורולה",
+          "nameHebrew": "קורולה"
+        },
+        {
+          "id": 10227,
+          "name": "קורולה ורסו",
+          "nameHebrew": "קורולה ורסו"
+        },
+        {
+          "id": 11150,
+          "name": "קורולה קרוס",
+          "nameHebrew": "קורולה קרוס"
+        },
+        {
+          "id": 11157,
+          "name": "קראון",
+          "nameHebrew": "קראון"
+        },
+        {
+          "id": 10223,
+          "name": "קרינה",
+          "nameHebrew": "קרינה"
+        }
+      ],
+      "totalModels": 43,
+      "totalSubModels": 0
+    },
+    {
+      "id": 62,
+      "name": "Tesla",
+      "nameHebrew": "טסלה",
+      "models": [
+        {
+          "id": 10846,
+          "name": "מודל 3",
+          "nameHebrew": "מודל 3"
+        },
+        {
+          "id": 10847,
+          "name": "מודל S",
+          "nameHebrew": "מודל S"
+        },
+        {
+          "id": 10848,
+          "name": "מודל X",
+          "nameHebrew": "מודל X"
+        },
+        {
+          "id": 11942,
+          "name": "מודל Y",
+          "nameHebrew": "מודל Y"
+        },
+        {
+          "id": 13295,
+          "name": "סייבטראק",
+          "nameHebrew": "סייבטראק"
+        }
+      ],
+      "totalModels": 5,
+      "totalSubModels": 0
+    },
+    {
+      "id": 20,
+      "name": "Jaguar",
+      "nameHebrew": "יגואר",
+      "models": [
+        {
+          "id": 10248,
+          "name": "E-Pace",
+          "nameHebrew": "E-Pace"
+        },
+        {
+          "id": 10249,
+          "name": "F-Pace",
+          "nameHebrew": "F-Pace"
+        },
+        {
+          "id": 10250,
+          "name": "F-type",
+          "nameHebrew": "F-type"
+        },
+        {
+          "id": 10252,
+          "name": "I-Pace",
+          "nameHebrew": "I-Pace"
+        },
+        {
+          "id": 10253,
+          "name": "S-type",
+          "nameHebrew": "S-type"
+        },
+        {
+          "id": 10258,
+          "name": "X-type",
+          "nameHebrew": "X-type"
+        },
+        {
+          "id": 10254,
+          "name": "XE",
+          "nameHebrew": "XE"
+        },
+        {
+          "id": 10255,
+          "name": "XF",
+          "nameHebrew": "XF"
+        },
+        {
+          "id": 10256,
+          "name": "XJ",
+          "nameHebrew": "XJ"
+        },
+        {
+          "id": 10257,
+          "name": "XK",
+          "nameHebrew": "XK"
+        }
+      ],
+      "totalModels": 10,
+      "totalSubModels": 0
+    },
+    {
+      "id": 357,
+      "name": "Yudo",
+      "nameHebrew": "יודו",
+      "models": [
+        {
+          "id": 13469,
+          "name": " יודו 3",
+          "nameHebrew": " יודו 3"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 21,
+      "name": "Hyundai",
+      "nameHebrew": "יונדאי",
+      "models": [
+        {
+          "id": 10275,
+          "name": " אקסנט",
+          "nameHebrew": " אקסנט"
+        },
+        {
+          "id": 10268,
+          "name": "H-1 / i800",
+          "nameHebrew": "H-1 / i800"
+        },
+        {
+          "id": 10269,
+          "name": "H100",
+          "nameHebrew": "H100"
+        },
+        {
+          "id": 10271,
+          "name": "H350",
+          "nameHebrew": "H350"
+        },
+        {
+          "id": 13435,
+          "name": "I20 קרוס",
+          "nameHebrew": "I20 קרוס"
+        },
+        {
+          "id": 13137,
+          "name": "I20N",
+          "nameHebrew": "I20N"
+        },
+        {
+          "id": 13138,
+          "name": "I30N",
+          "nameHebrew": "I30N"
+        },
+        {
+          "id": 13276,
+          "name": "I35",
+          "nameHebrew": "I35"
+        },
+        {
+          "id": 10272,
+          "name": "i10",
+          "nameHebrew": "i10"
+        },
+        {
+          "id": 10273,
+          "name": "i20",
+          "nameHebrew": "i20"
+        },
+        {
+          "id": 10276,
+          "name": "i30",
+          "nameHebrew": "i30"
+        },
+        {
+          "id": 10277,
+          "name": "i40",
+          "nameHebrew": "i40"
+        },
+        {
+          "id": 10280,
+          "name": "ix20",
+          "nameHebrew": "ix20"
+        },
+        {
+          "id": 10281,
+          "name": "ix35",
+          "nameHebrew": "ix35"
+        },
+        {
+          "id": 10282,
+          "name": "ix55",
+          "nameHebrew": "ix55"
+        },
+        {
+          "id": 10260,
+          "name": "אטוס",
+          "nameHebrew": "אטוס"
+        },
+        {
+          "id": 10279,
+          "name": "איוניק",
+          "nameHebrew": "איוניק"
+        },
+        {
+          "id": 11239,
+          "name": "איוניק 5",
+          "nameHebrew": "איוניק 5"
+        },
+        {
+          "id": 13427,
+          "name": "איוניק 5 N",
+          "nameHebrew": "איוניק 5 N"
+        },
+        {
+          "id": 13099,
+          "name": "איוניק 6",
+          "nameHebrew": "איוניק 6"
+        },
+        {
+          "id": 10263,
+          "name": "אלנטרה",
+          "nameHebrew": "אלנטרה"
+        },
+        {
+          "id": 10259,
+          "name": "אקסנט i25",
+          "nameHebrew": "אקסנט i25"
+        },
+        {
+          "id": 11234,
+          "name": "באיון",
+          "nameHebrew": "באיון"
+        },
+        {
+          "id": 10265,
+          "name": "ג'נסיס ",
+          "nameHebrew": "ג'נסיס "
+        },
+        {
+          "id": 10264,
+          "name": "גאלופר",
+          "nameHebrew": "גאלופר"
+        },
+        {
+          "id": 10266,
+          "name": "גטס",
+          "nameHebrew": "גטס"
+        },
+        {
+          "id": 10267,
+          "name": "גרנדיור",
+          "nameHebrew": "גרנדיור"
+        },
+        {
+          "id": 10292,
+          "name": "ולוסטר",
+          "nameHebrew": "ולוסטר"
+        },
+        {
+          "id": 10293,
+          "name": "וניו",
+          "nameHebrew": "וניו"
+        },
+        {
+          "id": 10289,
+          "name": "טאראקן",
+          "nameHebrew": "טאראקן"
+        },
+        {
+          "id": 10291,
+          "name": "טוסון",
+          "nameHebrew": "טוסון"
+        },
+        {
+          "id": 10290,
+          "name": "טרג'ט",
+          "nameHebrew": "טרג'ט"
+        },
+        {
+          "id": 10284,
+          "name": "לנטרה",
+          "nameHebrew": "לנטרה"
+        },
+        {
+          "id": 10285,
+          "name": "מטריקס",
+          "nameHebrew": "מטריקס"
+        },
+        {
+          "id": 10288,
+          "name": "סונטה",
+          "nameHebrew": "סונטה"
+        },
+        {
+          "id": 12925,
+          "name": "סטאריה",
+          "nameHebrew": "סטאריה"
+        },
+        {
+          "id": 10287,
+          "name": "סנטה פה",
+          "nameHebrew": "סנטה פה"
+        },
+        {
+          "id": 10286,
+          "name": "פליסדה",
+          "nameHebrew": "פליסדה"
+        },
+        {
+          "id": 10283,
+          "name": "קונה",
+          "nameHebrew": "קונה"
+        },
+        {
+          "id": 10262,
+          "name": "קופה",
+          "nameHebrew": "קופה"
+        }
+      ],
+      "totalModels": 40,
+      "totalSubModels": 0
+    },
+    {
+      "id": 80,
+      "name": "Lada",
+      "nameHebrew": "לאדה",
+      "models": [
+        {
+          "id": 10851,
+          "name": "2108",
+          "nameHebrew": "2108"
+        },
+        {
+          "id": 10852,
+          "name": "2109",
+          "nameHebrew": "2109"
+        },
+        {
+          "id": 10853,
+          "name": "ניבה",
+          "nameHebrew": "ניבה"
+        },
+        {
+          "id": 10854,
+          "name": "סמרה",
+          "nameHebrew": "סמרה"
+        }
+      ],
+      "totalModels": 4,
+      "totalSubModels": 0
+    },
+    {
+      "id": 22,
+      "name": "Lotus",
+      "nameHebrew": "לוטוס",
+      "models": [
+        {
+          "id": 12956,
+          "name": "אמירה",
+          "nameHebrew": "אמירה"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 321,
+      "name": "Lynk & Co",
+      "nameHebrew": "לינק אנד קו",
+      "models": [
+        {
+          "id": 13077,
+          "name": "01",
+          "nameHebrew": "01"
+        },
+        {
+          "id": 13347,
+          "name": "02",
+          "nameHebrew": "02"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 23,
+      "name": "Lincoln",
+      "nameHebrew": "לינקולן",
+      "models": [
+        {
+          "id": 10294,
+          "name": "LS",
+          "nameHebrew": "LS"
+        },
+        {
+          "id": 10296,
+          "name": "MKC",
+          "nameHebrew": "MKC"
+        },
+        {
+          "id": 10297,
+          "name": "MKS",
+          "nameHebrew": "MKS"
+        },
+        {
+          "id": 10298,
+          "name": "MKT",
+          "nameHebrew": "MKT"
+        },
+        {
+          "id": 10299,
+          "name": "MKZ",
+          "nameHebrew": "MKZ"
+        },
+        {
+          "id": 11270,
+          "name": "אביאטור",
+          "nameHebrew": "אביאטור"
+        },
+        {
+          "id": 10302,
+          "name": "זפיר",
+          "nameHebrew": "זפיר"
+        },
+        {
+          "id": 10301,
+          "name": "טאון קאר",
+          "nameHebrew": "טאון קאר"
+        },
+        {
+          "id": 10300,
+          "name": "נביגטור",
+          "nameHebrew": "נביגטור"
+        }
+      ],
+      "totalModels": 9,
+      "totalSubModels": 0
+    },
+    {
+      "id": 363,
+      "name": "Linxys",
+      "nameHebrew": "לינקסיס",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 320,
+      "name": "Leapmotor",
+      "nameHebrew": "ליפמוטור",
+      "models": [
+        {
+          "id": 13371,
+          "name": "C10",
+          "nameHebrew": "C10"
+        },
+        {
+          "id": 13076,
+          "name": "T03",
+          "nameHebrew": "T03"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 63,
+      "name": "Lamborghini",
+      "nameHebrew": "למבורגיני",
+      "models": [
+        {
+          "id": 11962,
+          "name": "אורוס",
+          "nameHebrew": "אורוס"
+        },
+        {
+          "id": 11953,
+          "name": "הורקאן",
+          "nameHebrew": "הורקאן"
+        },
+        {
+          "id": 13108,
+          "name": "רוולטו",
+          "nameHebrew": "רוולטו"
+        }
+      ],
+      "totalModels": 3,
+      "totalSubModels": 0
+    },
+    {
+      "id": 24,
+      "name": "Land Rover",
+      "nameHebrew": "לנד רובר",
+      "models": [
+        {
+          "id": 10304,
+          "name": "דיסקברי",
+          "nameHebrew": "דיסקברי"
+        },
+        {
+          "id": 10305,
+          "name": "דיסקברי ספורט",
+          "nameHebrew": "דיסקברי ספורט"
+        },
+        {
+          "id": 10303,
+          "name": "דיפנדר",
+          "nameHebrew": "דיפנדר"
+        },
+        {
+          "id": 10306,
+          "name": "פרילנדר",
+          "nameHebrew": "פרילנדר"
+        },
+        {
+          "id": 10307,
+          "name": "ריינג' רובר",
+          "nameHebrew": "ריינג' רובר"
+        },
+        {
+          "id": 10308,
+          "name": "ריינג' רובר איווק",
+          "nameHebrew": "ריינג' רובר איווק"
+        },
+        {
+          "id": 10310,
+          "name": "ריינג' רובר ולאר",
+          "nameHebrew": "ריינג' רובר ולאר"
+        },
+        {
+          "id": 10309,
+          "name": "ריינג' רובר ספורט",
+          "nameHebrew": "ריינג' רובר ספורט"
+        }
+      ],
+      "totalModels": 8,
+      "totalSubModels": 0
+    },
+    {
+      "id": 25,
+      "name": "Lancia",
+      "nameHebrew": "לנצ'יה",
+      "models": [
+        {
+          "id": 10316,
+          "name": "אפסילון",
+          "nameHebrew": "אפסילון"
+        },
+        {
+          "id": 10312,
+          "name": "דדרה",
+          "nameHebrew": "דדרה"
+        },
+        {
+          "id": 10313,
+          "name": "דלתא",
+          "nameHebrew": "דלתא"
+        },
+        {
+          "id": 10314,
+          "name": "קאפה",
+          "nameHebrew": "קאפה"
+        }
+      ],
+      "totalModels": 4,
+      "totalSubModels": 0
+    },
+    {
+      "id": 26,
+      "name": "Lexus",
+      "nameHebrew": "לקסוס",
+      "models": [
+        {
+          "id": 13338,
+          "name": " LBX",
+          "nameHebrew": " LBX"
+        },
+        {
+          "id": 10317,
+          "name": "CT",
+          "nameHebrew": "CT"
+        },
+        {
+          "id": 10318,
+          "name": "ES",
+          "nameHebrew": "ES"
+        },
+        {
+          "id": 10319,
+          "name": "GS",
+          "nameHebrew": "GS"
+        },
+        {
+          "id": 10320,
+          "name": "GX",
+          "nameHebrew": "GX"
+        },
+        {
+          "id": 10321,
+          "name": "IS",
+          "nameHebrew": "IS"
+        },
+        {
+          "id": 10322,
+          "name": "LC",
+          "nameHebrew": "LC"
+        },
+        {
+          "id": 13246,
+          "name": "LM350H",
+          "nameHebrew": "LM350H"
+        },
+        {
+          "id": 10323,
+          "name": "LS",
+          "nameHebrew": "LS"
+        },
+        {
+          "id": 10324,
+          "name": "LX",
+          "nameHebrew": "LX"
+        },
+        {
+          "id": 10325,
+          "name": "NX",
+          "nameHebrew": "NX"
+        },
+        {
+          "id": 10326,
+          "name": "RC",
+          "nameHebrew": "RC"
+        },
+        {
+          "id": 10327,
+          "name": "RX",
+          "nameHebrew": "RX"
+        },
+        {
+          "id": 13022,
+          "name": "RZ",
+          "nameHebrew": "RZ"
+        },
+        {
+          "id": 10328,
+          "name": "SC",
+          "nameHebrew": "SC"
+        },
+        {
+          "id": 13279,
+          "name": "TX",
+          "nameHebrew": "TX"
+        },
+        {
+          "id": 10329,
+          "name": "UX",
+          "nameHebrew": "UX"
+        }
+      ],
+      "totalModels": 17,
+      "totalSubModels": 0
+    },
+    {
+      "id": 27,
+      "name": "Mazda",
+      "nameHebrew": "מאזדה",
+      "models": [
+        {
+          "id": 10330,
+          "name": "121",
+          "nameHebrew": "121"
+        },
+        {
+          "id": 10331,
+          "name": "2",
+          "nameHebrew": "2"
+        },
+        {
+          "id": 10332,
+          "name": "3",
+          "nameHebrew": "3"
+        },
+        {
+          "id": 10333,
+          "name": "323",
+          "nameHebrew": "323"
+        },
+        {
+          "id": 10334,
+          "name": "5",
+          "nameHebrew": "5"
+        },
+        {
+          "id": 10335,
+          "name": "6",
+          "nameHebrew": "6"
+        },
+        {
+          "id": 10336,
+          "name": "626",
+          "nameHebrew": "626"
+        },
+        {
+          "id": 10338,
+          "name": "B-series",
+          "nameHebrew": "B-series"
+        },
+        {
+          "id": 10339,
+          "name": "BT-50",
+          "nameHebrew": "BT-50"
+        },
+        {
+          "id": 10340,
+          "name": "CX-3",
+          "nameHebrew": "CX-3"
+        },
+        {
+          "id": 10341,
+          "name": "CX-30",
+          "nameHebrew": "CX-30"
+        },
+        {
+          "id": 10342,
+          "name": "CX-5",
+          "nameHebrew": "CX-5"
+        },
+        {
+          "id": 12966,
+          "name": "CX-50",
+          "nameHebrew": "CX-50"
+        },
+        {
+          "id": 12986,
+          "name": "CX-60",
+          "nameHebrew": "CX-60"
+        },
+        {
+          "id": 11311,
+          "name": "CX-9",
+          "nameHebrew": "CX-9"
+        },
+        {
+          "id": 13104,
+          "name": "CX-90",
+          "nameHebrew": "CX-90"
+        },
+        {
+          "id": 10345,
+          "name": "MPV",
+          "nameHebrew": "MPV"
+        },
+        {
+          "id": 10346,
+          "name": "MX-3",
+          "nameHebrew": "MX-3"
+        },
+        {
+          "id": 11322,
+          "name": "MX-30",
+          "nameHebrew": "MX-30"
+        },
+        {
+          "id": 10347,
+          "name": "MX-5",
+          "nameHebrew": "MX-5"
+        },
+        {
+          "id": 10343,
+          "name": "דמיו",
+          "nameHebrew": "דמיו"
+        },
+        {
+          "id": 10350,
+          "name": "טריביוט",
+          "nameHebrew": "טריביוט"
+        },
+        {
+          "id": 10348,
+          "name": "פרמסי",
+          "nameHebrew": "פרמסי"
+        },
+        {
+          "id": 10351,
+          "name": "קסדוס 6",
+          "nameHebrew": "קסדוס 6"
+        },
+        {
+          "id": 10352,
+          "name": "קסדוס 9",
+          "nameHebrew": "קסדוס 9"
+        }
+      ],
+      "totalModels": 25,
+      "totalSubModels": 0
+    },
+    {
+      "id": 86,
+      "name": "MAN",
+      "nameHebrew": "מאן",
+      "models": [
+        {
+          "id": 10860,
+          "name": "TGE",
+          "nameHebrew": "TGE"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 219,
+      "name": "Morgan",
+      "nameHebrew": "מורגן",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 28,
+      "name": "Maserati",
+      "nameHebrew": "מזראטי",
+      "models": [
+        {
+          "id": 11352,
+          "name": "MC20",
+          "nameHebrew": "MC20"
+        },
+        {
+          "id": 10353,
+          "name": "גיבלי",
+          "nameHebrew": "גיבלי"
+        },
+        {
+          "id": 10355,
+          "name": "גראן-טוריסמו",
+          "nameHebrew": "גראן-טוריסמו"
+        },
+        {
+          "id": 10354,
+          "name": "גראן-קבריו",
+          "nameHebrew": "גראן-קבריו"
+        },
+        {
+          "id": 12974,
+          "name": "גרקאלה",
+          "nameHebrew": "גרקאלה"
+        },
+        {
+          "id": 10356,
+          "name": "לבנטה ",
+          "nameHebrew": "לבנטה "
+        },
+        {
+          "id": 10357,
+          "name": "קוואטרופורטה",
+          "nameHebrew": "קוואטרופורטה"
+        }
+      ],
+      "totalModels": 7,
+      "totalSubModels": 0
+    },
+    {
+      "id": 29,
+      "name": "Mini",
+      "nameHebrew": "מיני",
+      "models": [
+        {
+          "id": 13379,
+          "name": "אייסמן",
+          "nameHebrew": "אייסמן"
+        },
+        {
+          "id": 10363,
+          "name": "פייסמן",
+          "nameHebrew": "פייסמן"
+        },
+        {
+          "id": 10361,
+          "name": "קאנטרימן",
+          "nameHebrew": "קאנטרימן"
+        },
+        {
+          "id": 10360,
+          "name": "קופר",
+          "nameHebrew": "קופר"
+        },
+        {
+          "id": 10362,
+          "name": "קופר SE (חשמלית)",
+          "nameHebrew": "קופר SE (חשמלית)"
+        },
+        {
+          "id": 10359,
+          "name": "קופר קבריולט",
+          "nameHebrew": "קופר קבריולט"
+        },
+        {
+          "id": 10358,
+          "name": "קלאבמן",
+          "nameHebrew": "קלאבמן"
+        },
+        {
+          "id": 10364,
+          "name": "רודסטר",
+          "nameHebrew": "רודסטר"
+        }
+      ],
+      "totalModels": 8,
+      "totalSubModels": 0
+    },
+    {
+      "id": 30,
+      "name": "Mitsubishi",
+      "nameHebrew": "מיצובישי",
+      "models": [
+        {
+          "id": 10365,
+          "name": "3000 GT",
+          "nameHebrew": "3000 GT"
+        },
+        {
+          "id": 10366,
+          "name": "ASX",
+          "nameHebrew": "ASX"
+        },
+        {
+          "id": 10378,
+          "name": "L300",
+          "nameHebrew": "L300"
+        },
+        {
+          "id": 10371,
+          "name": "L400",
+          "nameHebrew": "L400"
+        },
+        {
+          "id": 10376,
+          "name": "i-MiEV",
+          "nameHebrew": "i-MiEV"
+        },
+        {
+          "id": 10381,
+          "name": "אאוטלנדר",
+          "nameHebrew": "אאוטלנדר"
+        },
+        {
+          "id": 10367,
+          "name": "אטראז'",
+          "nameHebrew": "אטראז'"
+        },
+        {
+          "id": 10372,
+          "name": "אקליפס",
+          "nameHebrew": "אקליפס"
+        },
+        {
+          "id": 10373,
+          "name": "אקליפס קרוס",
+          "nameHebrew": "אקליפס קרוס"
+        },
+        {
+          "id": 10374,
+          "name": "גאלאנט",
+          "nameHebrew": "גאלאנט"
+        },
+        {
+          "id": 10375,
+          "name": "גרנדיס",
+          "nameHebrew": "גרנדיס"
+        },
+        {
+          "id": 10377,
+          "name": "טרייטון / L200",
+          "nameHebrew": "טרייטון / L200"
+        },
+        {
+          "id": 10369,
+          "name": "כריזמה",
+          "nameHebrew": "כריזמה"
+        },
+        {
+          "id": 10379,
+          "name": "לנסר",
+          "nameHebrew": "לנסר"
+        },
+        {
+          "id": 10380,
+          "name": "לנסר איוולושן",
+          "nameHebrew": "לנסר איוולושן"
+        },
+        {
+          "id": 11382,
+          "name": "מונטרו ספורט",
+          "nameHebrew": "מונטרו ספורט"
+        },
+        {
+          "id": 10387,
+          "name": "סופר לנסר",
+          "nameHebrew": "סופר לנסר"
+        },
+        {
+          "id": 11391,
+          "name": "ספייס גיר",
+          "nameHebrew": "ספייס גיר"
+        },
+        {
+          "id": 10386,
+          "name": "ספייס וואגן",
+          "nameHebrew": "ספייס וואגן"
+        },
+        {
+          "id": 10385,
+          "name": "ספייס סטאר",
+          "nameHebrew": "ספייס סטאר"
+        },
+        {
+          "id": 10384,
+          "name": "ספייס ראנר",
+          "nameHebrew": "ספייס ראנר"
+        },
+        {
+          "id": 10382,
+          "name": "פג'רו",
+          "nameHebrew": "פג'רו"
+        },
+        {
+          "id": 10368,
+          "name": "קאנטר",
+          "nameHebrew": "קאנטר"
+        },
+        {
+          "id": 10370,
+          "name": "קולט",
+          "nameHebrew": "קולט"
+        }
+      ],
+      "totalModels": 24,
+      "totalSubModels": 0
+    },
+    {
+      "id": 73,
+      "name": "McLaren",
+      "nameHebrew": "מקלארן",
+      "models": [
+        {
+          "id": 12012,
+          "name": "720S",
+          "nameHebrew": "720S"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 89,
+      "name": "Maxus",
+      "nameHebrew": "מקסוס",
+      "models": [
+        {
+          "id": 10861,
+          "name": "V80",
+          "nameHebrew": "V80"
+        },
+        {
+          "id": 13481,
+          "name": "אי דליברי 7",
+          "nameHebrew": "אי דליברי 7"
+        },
+        {
+          "id": 13488,
+          "name": "אי דליברי 9",
+          "nameHebrew": "אי דליברי 9"
+        },
+        {
+          "id": 13049,
+          "name": "אי-דליוור 3",
+          "nameHebrew": "אי-דליוור 3"
+        },
+        {
+          "id": 13473,
+          "name": "אי-דליוור 5",
+          "nameHebrew": "אי-דליוור 5"
+        },
+        {
+          "id": 13048,
+          "name": "איוניק 5",
+          "nameHebrew": "איוניק 5"
+        },
+        {
+          "id": 13047,
+          "name": "איוניק 6",
+          "nameHebrew": "איוניק 6"
+        },
+        {
+          "id": 13468,
+          "name": "מיפה 7",
+          "nameHebrew": "מיפה 7"
+        },
+        {
+          "id": 13165,
+          "name": "מיפה 9",
+          "nameHebrew": "מיפה 9"
+        }
+      ],
+      "totalModels": 9,
+      "totalSubModels": 0
+    },
+    {
+      "id": 31,
+      "name": "Mercedes-Benz",
+      "nameHebrew": "מרצדס-בנץ",
+      "models": [
+        {
+          "id": 10389,
+          "name": "A-class",
+          "nameHebrew": "A-class"
+        },
+        {
+          "id": 10390,
+          "name": "AMG GT",
+          "nameHebrew": "AMG GT"
+        },
+        {
+          "id": 10391,
+          "name": "AMG GT 4 דל' קופה",
+          "nameHebrew": "AMG GT 4 דל' קופה"
+        },
+        {
+          "id": 10393,
+          "name": "B-class",
+          "nameHebrew": "B-class"
+        },
+        {
+          "id": 10394,
+          "name": "C-class",
+          "nameHebrew": "C-class"
+        },
+        {
+          "id": 10396,
+          "name": "CL",
+          "nameHebrew": "CL"
+        },
+        {
+          "id": 10397,
+          "name": "CLA",
+          "nameHebrew": "CLA"
+        },
+        {
+          "id": 10398,
+          "name": "CLC",
+          "nameHebrew": "CLC"
+        },
+        {
+          "id": 13217,
+          "name": "CLE",
+          "nameHebrew": "CLE"
+        },
+        {
+          "id": 10399,
+          "name": "CLK",
+          "nameHebrew": "CLK"
+        },
+        {
+          "id": 10400,
+          "name": "CLS",
+          "nameHebrew": "CLS"
+        },
+        {
+          "id": 10401,
+          "name": "E-class",
+          "nameHebrew": "E-class"
+        },
+        {
+          "id": 11412,
+          "name": "EQA",
+          "nameHebrew": "EQA"
+        },
+        {
+          "id": 11413,
+          "name": "EQB",
+          "nameHebrew": "EQB"
+        },
+        {
+          "id": 10402,
+          "name": "EQC",
+          "nameHebrew": "EQC"
+        },
+        {
+          "id": 12931,
+          "name": "EQE",
+          "nameHebrew": "EQE"
+        },
+        {
+          "id": 13333,
+          "name": "EQE SUV",
+          "nameHebrew": "EQE SUV"
+        },
+        {
+          "id": 11414,
+          "name": "EQS",
+          "nameHebrew": "EQS"
+        },
+        {
+          "id": 12981,
+          "name": "EQS SUV",
+          "nameHebrew": "EQS SUV"
+        },
+        {
+          "id": 11415,
+          "name": "EQV",
+          "nameHebrew": "EQV"
+        },
+        {
+          "id": 10403,
+          "name": "G-class",
+          "nameHebrew": "G-class"
+        },
+        {
+          "id": 10404,
+          "name": "GL",
+          "nameHebrew": "GL"
+        },
+        {
+          "id": 10405,
+          "name": "GLA",
+          "nameHebrew": "GLA"
+        },
+        {
+          "id": 10406,
+          "name": "GLB",
+          "nameHebrew": "GLB"
+        },
+        {
+          "id": 10407,
+          "name": "GLC",
+          "nameHebrew": "GLC"
+        },
+        {
+          "id": 13436,
+          "name": "GLC קופה ",
+          "nameHebrew": "GLC קופה "
+        },
+        {
+          "id": 10408,
+          "name": "GLE",
+          "nameHebrew": "GLE"
+        },
+        {
+          "id": 13355,
+          "name": "GLE Coupe",
+          "nameHebrew": "GLE Coupe"
+        },
+        {
+          "id": 10409,
+          "name": "GLK",
+          "nameHebrew": "GLK"
+        },
+        {
+          "id": 10410,
+          "name": "GLS",
+          "nameHebrew": "GLS"
+        },
+        {
+          "id": 10412,
+          "name": "ML",
+          "nameHebrew": "ML"
+        },
+        {
+          "id": 10413,
+          "name": "R-class",
+          "nameHebrew": "R-class"
+        },
+        {
+          "id": 10414,
+          "name": "S-class",
+          "nameHebrew": "S-class"
+        },
+        {
+          "id": 10415,
+          "name": "SL",
+          "nameHebrew": "SL"
+        },
+        {
+          "id": 10416,
+          "name": "SLC",
+          "nameHebrew": "SLC"
+        },
+        {
+          "id": 10417,
+          "name": "SLK",
+          "nameHebrew": "SLK"
+        },
+        {
+          "id": 10418,
+          "name": "SLS AMG",
+          "nameHebrew": "SLS AMG"
+        },
+        {
+          "id": 10421,
+          "name": "V-class",
+          "nameHebrew": "V-class"
+        },
+        {
+          "id": 10424,
+          "name": "X-class",
+          "nameHebrew": "X-class"
+        },
+        {
+          "id": 10420,
+          "name": "ואריו",
+          "nameHebrew": "ואריו"
+        },
+        {
+          "id": 10422,
+          "name": "ויאנו",
+          "nameHebrew": "ויאנו"
+        },
+        {
+          "id": 10423,
+          "name": "ויטו",
+          "nameHebrew": "ויטו"
+        },
+        {
+          "id": 10411,
+          "name": "מטריס",
+          "nameHebrew": "מטריס"
+        },
+        {
+          "id": 10395,
+          "name": "סיטאן",
+          "nameHebrew": "סיטאן"
+        },
+        {
+          "id": 10419,
+          "name": "ספרינטר",
+          "nameHebrew": "ספרינטר"
+        }
+      ],
+      "totalModels": 45,
+      "totalSubModels": 0
+    },
+    {
+      "id": 348,
+      "name": "Neta",
+      "nameHebrew": "נטע",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 289,
+      "name": "NIO",
+      "nameHebrew": "ניאו",
+      "models": [
+        {
+          "id": 13358,
+          "name": "EL6",
+          "nameHebrew": "EL6"
+        },
+        {
+          "id": 13109,
+          "name": "EL7",
+          "nameHebrew": "EL7"
+        },
+        {
+          "id": 12839,
+          "name": "ES8",
+          "nameHebrew": "ES8"
+        },
+        {
+          "id": 12987,
+          "name": "ET5",
+          "nameHebrew": "ET5"
+        },
+        {
+          "id": 12840,
+          "name": "ET7",
+          "nameHebrew": "ET7"
+        }
+      ],
+      "totalModels": 5,
+      "totalSubModels": 0
+    },
+    {
+      "id": 32,
+      "name": "Nissan",
+      "nameHebrew": "ניסאן",
+      "models": [
+        {
+          "id": 10425,
+          "name": "200 SX",
+          "nameHebrew": "200 SX"
+        },
+        {
+          "id": 10427,
+          "name": "370Z",
+          "nameHebrew": "370Z"
+        },
+        {
+          "id": 10432,
+          "name": "GT-R",
+          "nameHebrew": "GT-R"
+        },
+        {
+          "id": 10443,
+          "name": "NV200",
+          "nameHebrew": "NV200"
+        },
+        {
+          "id": 10429,
+          "name": "אלטימה",
+          "nameHebrew": "אלטימה"
+        },
+        {
+          "id": 10428,
+          "name": "אלמרה",
+          "nameHebrew": "אלמרה"
+        },
+        {
+          "id": 10457,
+          "name": "אקס טרייל",
+          "nameHebrew": "אקס טרייל"
+        },
+        {
+          "id": 11485,
+          "name": "אקסטרה",
+          "nameHebrew": "אקסטרה"
+        },
+        {
+          "id": 11435,
+          "name": "אריה",
+          "nameHebrew": "אריה"
+        },
+        {
+          "id": 10430,
+          "name": "ארמדה",
+          "nameHebrew": "ארמדה"
+        },
+        {
+          "id": 10433,
+          "name": "ג'וק",
+          "nameHebrew": "ג'וק"
+        },
+        {
+          "id": 10446,
+          "name": "ווינר",
+          "nameHebrew": "ווינר"
+        },
+        {
+          "id": 10455,
+          "name": "טידה",
+          "nameHebrew": "טידה"
+        },
+        {
+          "id": 10454,
+          "name": "טראנו",
+          "nameHebrew": "טראנו"
+        },
+        {
+          "id": 10435,
+          "name": "לארגו",
+          "nameHebrew": "לארגו"
+        },
+        {
+          "id": 10436,
+          "name": "ליף",
+          "nameHebrew": "ליף"
+        },
+        {
+          "id": 10439,
+          "name": "מוראנו",
+          "nameHebrew": "מוראנו"
+        },
+        {
+          "id": 10438,
+          "name": "מיקרה",
+          "nameHebrew": "מיקרה"
+        },
+        {
+          "id": 10437,
+          "name": "מקסימה",
+          "nameHebrew": "מקסימה"
+        },
+        {
+          "id": 10440,
+          "name": "נבארה",
+          "nameHebrew": "נבארה"
+        },
+        {
+          "id": 10441,
+          "name": "נוט",
+          "nameHebrew": "נוט"
+        },
+        {
+          "id": 10451,
+          "name": "סנטרה",
+          "nameHebrew": "סנטרה"
+        },
+        {
+          "id": 10452,
+          "name": "סרנה",
+          "nameHebrew": "סרנה"
+        },
+        {
+          "id": 10444,
+          "name": "פאת'פיינדר",
+          "nameHebrew": "פאת'פיינדר"
+        },
+        {
+          "id": 10448,
+          "name": "פולסר",
+          "nameHebrew": "פולסר"
+        },
+        {
+          "id": 10445,
+          "name": "פטרול",
+          "nameHebrew": "פטרול"
+        },
+        {
+          "id": 10447,
+          "name": "פרימרה",
+          "nameHebrew": "פרימרה"
+        },
+        {
+          "id": 10431,
+          "name": "קבסטאר",
+          "nameHebrew": "קבסטאר"
+        },
+        {
+          "id": 10449,
+          "name": "קשקאי",
+          "nameHebrew": "קשקאי"
+        }
+      ],
+      "totalModels": 29,
+      "totalSubModels": 0
+    },
+    {
+      "id": 78,
+      "name": "Nanjing",
+      "nameHebrew": "ננג'ינג",
+      "models": [
+        {
+          "id": 10850,
+          "name": "סיטי ספיריט",
+          "nameHebrew": "סיטי ספיריט"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 33,
+      "name": "Saab",
+      "nameHebrew": "סאאב",
+      "models": [
+        {
+          "id": 10460,
+          "name": "9-3",
+          "nameHebrew": "9-3"
+        },
+        {
+          "id": 10461,
+          "name": "9-5",
+          "nameHebrew": "9-5"
+        },
+        {
+          "id": 10458,
+          "name": "900",
+          "nameHebrew": "900"
+        },
+        {
+          "id": 10459,
+          "name": "9000",
+          "nameHebrew": "9000"
+        }
+      ],
+      "totalModels": 4,
+      "totalSubModels": 0
+    },
+    {
+      "id": 34,
+      "name": "SsangYong",
+      "nameHebrew": "סאנגיונג",
+      "models": [
+        {
+          "id": 10462,
+          "name": "אקטיון",
+          "nameHebrew": "אקטיון"
+        },
+        {
+          "id": 10469,
+          "name": "טיבולי",
+          "nameHebrew": "טיבולי"
+        },
+        {
+          "id": 10466,
+          "name": "מוסו",
+          "nameHebrew": "מוסו"
+        },
+        {
+          "id": 10463,
+          "name": "צ'רמן",
+          "nameHebrew": "צ'רמן"
+        },
+        {
+          "id": 10464,
+          "name": "קורנדו",
+          "nameHebrew": "קורנדו"
+        },
+        {
+          "id": 10465,
+          "name": "קיירון",
+          "nameHebrew": "קיירון"
+        },
+        {
+          "id": 10468,
+          "name": "רודיוס",
+          "nameHebrew": "רודיוס"
+        },
+        {
+          "id": 10467,
+          "name": "רקסטון",
+          "nameHebrew": "רקסטון"
+        }
+      ],
+      "totalModels": 8,
+      "totalSubModels": 0
+    },
+    {
+      "id": 56,
+      "name": "Today Sunshine",
+      "nameHebrew": "סאנשיין",
+      "models": [
+        {
+          "id": 10818,
+          "name": "M2",
+          "nameHebrew": "M2"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 35,
+      "name": "Subaru",
+      "nameHebrew": "סובארו",
+      "models": [
+        {
+          "id": 10471,
+          "name": "B4/לגאסי",
+          "nameHebrew": "B4/לגאסי"
+        },
+        {
+          "id": 10472,
+          "name": "BRZ",
+          "nameHebrew": "BRZ"
+        },
+        {
+          "id": 10484,
+          "name": "WRX",
+          "nameHebrew": "WRX"
+        },
+        {
+          "id": 10485,
+          "name": "XV",
+          "nameHebrew": "XV"
+        },
+        {
+          "id": 10481,
+          "name": "אאוטבק",
+          "nameHebrew": "אאוטבק"
+        },
+        {
+          "id": 10475,
+          "name": "אבולטיס/אסנט",
+          "nameHebrew": "אבולטיס/אסנט"
+        },
+        {
+          "id": 10477,
+          "name": "אימפרזה",
+          "nameHebrew": "אימפרזה"
+        },
+        {
+          "id": 13357,
+          "name": "טנדר (בראט)",
+          "nameHebrew": "טנדר (בראט)"
+        },
+        {
+          "id": 10483,
+          "name": "טריבקה",
+          "nameHebrew": "טריבקה"
+        },
+        {
+          "id": 10479,
+          "name": "לאונה",
+          "nameHebrew": "לאונה"
+        },
+        {
+          "id": 10480,
+          "name": "לבורג",
+          "nameHebrew": "לבורג"
+        },
+        {
+          "id": 10478,
+          "name": "לגאסי",
+          "nameHebrew": "לגאסי"
+        },
+        {
+          "id": 12899,
+          "name": "סולטרה",
+          "nameHebrew": "סולטרה"
+        },
+        {
+          "id": 10476,
+          "name": "פורסטר",
+          "nameHebrew": "פורסטר"
+        },
+        {
+          "id": 11500,
+          "name": "קרוסטרק",
+          "nameHebrew": "קרוסטרק"
+        }
+      ],
+      "totalModels": 15,
+      "totalSubModels": 0
+    },
+    {
+      "id": 36,
+      "name": "Suzuki",
+      "nameHebrew": "סוזוקי",
+      "models": [
+        {
+          "id": 13057,
+          "name": "S-Cross",
+          "nameHebrew": "S-Cross"
+        },
+        {
+          "id": 10498,
+          "name": "SX4",
+          "nameHebrew": "SX4"
+        },
+        {
+          "id": 10501,
+          "name": "XL7",
+          "nameHebrew": "XL7"
+        },
+        {
+          "id": 10492,
+          "name": "איגניס",
+          "nameHebrew": "איגניס"
+        },
+        {
+          "id": 10486,
+          "name": "אלטו",
+          "nameHebrew": "אלטו"
+        },
+        {
+          "id": 10487,
+          "name": "בלנו",
+          "nameHebrew": "בלנו"
+        },
+        {
+          "id": 10493,
+          "name": "ג'ימני",
+          "nameHebrew": "ג'ימני"
+        },
+        {
+          "id": 10491,
+          "name": "גרנד ויטרה",
+          "nameHebrew": "גרנד ויטרה"
+        },
+        {
+          "id": 10500,
+          "name": "וואגון R+",
+          "nameHebrew": "וואגון R+"
+        },
+        {
+          "id": 10499,
+          "name": "ויטרה",
+          "nameHebrew": "ויטרה"
+        },
+        {
+          "id": 10494,
+          "name": "ליאנה",
+          "nameHebrew": "ליאנה"
+        },
+        {
+          "id": 10497,
+          "name": "סוויפט",
+          "nameHebrew": "סוויפט"
+        },
+        {
+          "id": 10489,
+          "name": "סלריו",
+          "nameHebrew": "סלריו"
+        },
+        {
+          "id": 10495,
+          "name": "סמוראי",
+          "nameHebrew": "סמוראי"
+        },
+        {
+          "id": 10496,
+          "name": "ספלאש",
+          "nameHebrew": "ספלאש"
+        },
+        {
+          "id": 10488,
+          "name": "קארי",
+          "nameHebrew": "קארי"
+        },
+        {
+          "id": 10490,
+          "name": "קרוסאובר",
+          "nameHebrew": "קרוסאובר"
+        }
+      ],
+      "totalModels": 17,
+      "totalSubModels": 0
+    },
+    {
+      "id": 37,
+      "name": "Seat",
+      "nameHebrew": "סיאט",
+      "models": [
+        {
+          "id": 10510,
+          "name": "Mii",
+          "nameHebrew": "Mii"
+        },
+        {
+          "id": 10505,
+          "name": "אטקה",
+          "nameHebrew": "אטקה"
+        },
+        {
+          "id": 10507,
+          "name": "איביזה",
+          "nameHebrew": "איביזה"
+        },
+        {
+          "id": 10508,
+          "name": "אינקה",
+          "nameHebrew": "אינקה"
+        },
+        {
+          "id": 10502,
+          "name": "אלהמברה",
+          "nameHebrew": "אלהמברה"
+        },
+        {
+          "id": 10503,
+          "name": "אלתיאה",
+          "nameHebrew": "אלתיאה"
+        },
+        {
+          "id": 10504,
+          "name": "ארונה",
+          "nameHebrew": "ארונה"
+        },
+        {
+          "id": 10511,
+          "name": "טולדו",
+          "nameHebrew": "טולדו"
+        },
+        {
+          "id": 11544,
+          "name": "טראקו",
+          "nameHebrew": "טראקו"
+        },
+        {
+          "id": 10509,
+          "name": "לאון",
+          "nameHebrew": "לאון"
+        },
+        {
+          "id": 10506,
+          "name": "קורדובה",
+          "nameHebrew": "קורדובה"
+        }
+      ],
+      "totalModels": 11,
+      "totalSubModels": 0
+    },
+    {
+      "id": 38,
+      "name": "Citroen",
+      "nameHebrew": "סיטרואן",
+      "models": [
+        {
+          "id": 10512,
+          "name": "AX",
+          "nameHebrew": "AX"
+        },
+        {
+          "id": 10525,
+          "name": "C אליזה",
+          "nameHebrew": "C אליזה"
+        },
+        {
+          "id": 10524,
+          "name": "C קרוסר",
+          "nameHebrew": "C קרוסר"
+        },
+        {
+          "id": 10526,
+          "name": "C-זירו",
+          "nameHebrew": "C-זירו"
+        },
+        {
+          "id": 10514,
+          "name": "C1",
+          "nameHebrew": "C1"
+        },
+        {
+          "id": 10515,
+          "name": "C15",
+          "nameHebrew": "C15"
+        },
+        {
+          "id": 10516,
+          "name": "C2",
+          "nameHebrew": "C2"
+        },
+        {
+          "id": 10517,
+          "name": "C3",
+          "nameHebrew": "C3"
+        },
+        {
+          "id": 13432,
+          "name": "C3 איירקרוס",
+          "nameHebrew": "C3 איירקרוס"
+        },
+        {
+          "id": 10518,
+          "name": "C4",
+          "nameHebrew": "C4"
+        },
+        {
+          "id": 10520,
+          "name": "C4 פיקאסו",
+          "nameHebrew": "C4 פיקאסו"
+        },
+        {
+          "id": 13134,
+          "name": "C4x",
+          "nameHebrew": "C4x"
+        },
+        {
+          "id": 10521,
+          "name": "C5",
+          "nameHebrew": "C5"
+        },
+        {
+          "id": 11551,
+          "name": "C5 איירקרוס",
+          "nameHebrew": "C5 איירקרוס"
+        },
+        {
+          "id": 10522,
+          "name": "C6",
+          "nameHebrew": "C6"
+        },
+        {
+          "id": 10523,
+          "name": "C8",
+          "nameHebrew": "C8"
+        },
+        {
+          "id": 10527,
+          "name": "DS3",
+          "nameHebrew": "DS3"
+        },
+        {
+          "id": 10528,
+          "name": "DS4",
+          "nameHebrew": "DS4"
+        },
+        {
+          "id": 10529,
+          "name": "DS5",
+          "nameHebrew": "DS5"
+        },
+        {
+          "id": 10534,
+          "name": "XM",
+          "nameHebrew": "XM"
+        },
+        {
+          "id": 10536,
+          "name": "ZX",
+          "nameHebrew": "ZX"
+        },
+        {
+          "id": 13105,
+          "name": "e-C4",
+          "nameHebrew": "e-C4"
+        },
+        {
+          "id": 13106,
+          "name": "e-C4 X",
+          "nameHebrew": "e-C4 X"
+        },
+        {
+          "id": 10513,
+          "name": "ברלינגו ",
+          "nameHebrew": "ברלינגו "
+        },
+        {
+          "id": 10530,
+          "name": "ג'אמפי",
+          "nameHebrew": "ג'אמפי"
+        },
+        {
+          "id": 10531,
+          "name": "סקסו",
+          "nameHebrew": "סקסו"
+        },
+        {
+          "id": 10533,
+          "name": "קסנטיה",
+          "nameHebrew": "קסנטיה"
+        },
+        {
+          "id": 10535,
+          "name": "קסרה",
+          "nameHebrew": "קסרה"
+        }
+      ],
+      "totalModels": 28,
+      "totalSubModels": 0
+    },
+    {
+      "id": 39,
+      "name": "Smart",
+      "nameHebrew": "סמארט",
+      "models": [
+        {
+          "id": 12934,
+          "name": "#1",
+          "nameHebrew": "#1"
+        },
+        {
+          "id": 13244,
+          "name": "#3",
+          "nameHebrew": "#3"
+        },
+        {
+          "id": 10537,
+          "name": "EQ פורטו",
+          "nameHebrew": "EQ פורטו"
+        },
+        {
+          "id": 10539,
+          "name": "פורטו",
+          "nameHebrew": "פורטו"
+        },
+        {
+          "id": 10538,
+          "name": "פורפור",
+          "nameHebrew": "פורפור"
+        }
+      ],
+      "totalModels": 5,
+      "totalSubModels": 0
+    },
+    {
+      "id": 97,
+      "name": "Cenntro",
+      "nameHebrew": "סנטרו",
+      "models": [
+        {
+          "id": 13157,
+          "name": "לוגיסטאר 100",
+          "nameHebrew": "לוגיסטאר 100"
+        },
+        {
+          "id": 13195,
+          "name": "לוגיסטאר 200",
+          "nameHebrew": "לוגיסטאר 200"
+        },
+        {
+          "id": 10869,
+          "name": "מטרו",
+          "nameHebrew": "מטרו"
+        }
+      ],
+      "totalModels": 3,
+      "totalSubModels": 0
+    },
+    {
+      "id": 40,
+      "name": "Skoda",
+      "nameHebrew": "סקו��ה",
+      "models": [
+        {
+          "id": 10547,
+          "name": "אוקטביה ",
+          "nameHebrew": "אוקטביה "
+        },
+        {
+          "id": 11568,
+          "name": "אניאק iV",
+          "nameHebrew": "אניאק iV"
+        },
+        {
+          "id": 10552,
+          "name": "ייטי",
+          "nameHebrew": "ייטי"
+        },
+        {
+          "id": 10551,
+          "name": "סופרב",
+          "nameHebrew": "סופרב"
+        },
+        {
+          "id": 10540,
+          "name": "סיטיגו",
+          "nameHebrew": "סיטיגו"
+        },
+        {
+          "id": 10550,
+          "name": "סקאלה",
+          "nameHebrew": "סקאלה"
+        },
+        {
+          "id": 10541,
+          "name": "פאביה",
+          "nameHebrew": "פאביה"
+        },
+        {
+          "id": 10543,
+          "name": "פליסיה",
+          "nameHebrew": "פליסיה"
+        },
+        {
+          "id": 10544,
+          "name": "קאמיק",
+          "nameHebrew": "קאמיק"
+        },
+        {
+          "id": 10545,
+          "name": "קארוק",
+          "nameHebrew": "קארוק"
+        },
+        {
+          "id": 10546,
+          "name": "קודיאק",
+          "nameHebrew": "קודיאק"
+        },
+        {
+          "id": 10548,
+          "name": "ראפיד",
+          "nameHebrew": "ראפיד"
+        },
+        {
+          "id": 10549,
+          "name": "רומסטר",
+          "nameHebrew": "רומסטר"
+        }
+      ],
+      "totalModels": 13,
+      "totalSubModels": 0
+    },
+    {
+      "id": 300,
+      "name": "Skywell",
+      "nameHebrew": "סקייוול",
+      "models": [
+        {
+          "id": 13073,
+          "name": "ET5",
+          "nameHebrew": "ET5"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 287,
+      "name": "Seres",
+      "nameHebrew": "סרס",
+      "models": [
+        {
+          "id": 13127,
+          "name": "5",
+          "nameHebrew": "5"
+        },
+        {
+          "id": 13070,
+          "name": "EV-3",
+          "nameHebrew": "EV-3"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 364,
+      "name": "Farizon",
+      "nameHebrew": "פאריזון",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 352,
+      "name": "Foton",
+      "nameHebrew": "פוטון",
+      "models": [
+        {
+          "id": 13364,
+          "name": "eTunland",
+          "nameHebrew": "eTunland"
+        },
+        {
+          "id": 13365,
+          "name": "ויו",
+          "nameHebrew": "ויו"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 231,
+      "name": "Polestar",
+      "nameHebrew": "פולסטאר",
+      "models": [
+        {
+          "id": 12610,
+          "name": "2",
+          "nameHebrew": "2"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 41,
+      "name": "Volkswagen",
+      "nameHebrew": "פולקסווגן",
+      "models": [
+        {
+          "id": 11578,
+          "name": "ID.3",
+          "nameHebrew": "ID.3"
+        },
+        {
+          "id": 11579,
+          "name": "ID.4",
+          "nameHebrew": "ID.4"
+        },
+        {
+          "id": 12928,
+          "name": "ID.5",
+          "nameHebrew": "ID.5"
+        },
+        {
+          "id": 11580,
+          "name": "ID.6",
+          "nameHebrew": "ID.6"
+        },
+        {
+          "id": 13261,
+          "name": "ID.7",
+          "nameHebrew": "ID.7"
+        },
+        {
+          "id": 11581,
+          "name": "ID.Buzz",
+          "nameHebrew": "ID.Buzz"
+        },
+        {
+          "id": 10565,
+          "name": "LT",
+          "nameHebrew": "LT"
+        },
+        {
+          "id": 10566,
+          "name": "LT 35",
+          "nameHebrew": "LT 35"
+        },
+        {
+          "id": 10573,
+          "name": "T-קרוס",
+          "nameHebrew": "T-קרוס"
+        },
+        {
+          "id": 10577,
+          "name": "T-רוק",
+          "nameHebrew": "T-רוק"
+        },
+        {
+          "id": 10555,
+          "name": "אטלס",
+          "nameHebrew": "אטלס"
+        },
+        {
+          "id": 10561,
+          "name": "איוס",
+          "nameHebrew": "איוס"
+        },
+        {
+          "id": 10553,
+          "name": "אמארוק",
+          "nameHebrew": "אמארוק"
+        },
+        {
+          "id": 10578,
+          "name": "אפ",
+          "nameHebrew": "אפ"
+        },
+        {
+          "id": 10554,
+          "name": "ארטאון",
+          "nameHebrew": "ארטאון"
+        },
+        {
+          "id": 10557,
+          "name": "בורה",
+          "nameHebrew": "בורה"
+        },
+        {
+          "id": 10564,
+          "name": "ג'טה ",
+          "nameHebrew": "ג'טה "
+        },
+        {
+          "id": 10562,
+          "name": "גולף",
+          "nameHebrew": "גולף"
+        },
+        {
+          "id": 10579,
+          "name": "ונטו",
+          "nameHebrew": "ונטו"
+        },
+        {
+          "id": 10556,
+          "name": "חיפושית",
+          "nameHebrew": "חיפושית"
+        },
+        {
+          "id": 12973,
+          "name": "טאיגו",
+          "nameHebrew": "טאיגו"
+        },
+        {
+          "id": 11599,
+          "name": "טארו",
+          "nameHebrew": "טארו"
+        },
+        {
+          "id": 10575,
+          "name": "טוארג",
+          "nameHebrew": "טוארג"
+        },
+        {
+          "id": 10576,
+          "name": "טוראן",
+          "nameHebrew": "טוראן"
+        },
+        {
+          "id": 10574,
+          "name": "טיגואן",
+          "nameHebrew": "טיגואן"
+        },
+        {
+          "id": 13689,
+          "name": "טיגואן אולספייס",
+          "nameHebrew": "טיגואן אולספייס"
+        },
+        {
+          "id": 10567,
+          "name": "טרנספורטר",
+          "nameHebrew": "טרנספורטר"
+        },
+        {
+          "id": 11589,
+          "name": "מולטיוואן",
+          "nameHebrew": "מולטיוואן"
+        },
+        {
+          "id": 10568,
+          "name": "פאסאט",
+          "nameHebrew": "פאסאט"
+        },
+        {
+          "id": 10569,
+          "name": "פאסאט CC",
+          "nameHebrew": "פאסאט CC"
+        },
+        {
+          "id": 10571,
+          "name": "פולו ",
+          "nameHebrew": "פולו "
+        },
+        {
+          "id": 10570,
+          "name": "פייטון",
+          "nameHebrew": "פייטון"
+        },
+        {
+          "id": 10558,
+          "name": "קאדי",
+          "nameHebrew": "קאדי"
+        },
+        {
+          "id": 13218,
+          "name": "קליפורניה",
+          "nameHebrew": "קליפורניה"
+        },
+        {
+          "id": 13107,
+          "name": "קראוול",
+          "nameHebrew": "קראוול"
+        },
+        {
+          "id": 10560,
+          "name": "קראפטר",
+          "nameHebrew": "קראפטר"
+        },
+        {
+          "id": 10572,
+          "name": "שירוקו",
+          "nameHebrew": "שירוקו"
+        }
+      ],
+      "totalModels": 37,
+      "totalSubModels": 0
+    },
+    {
+      "id": 42,
+      "name": "Pontiac",
+      "nameHebrew": "פונטיאק",
+      "models": [
+        {
+          "id": 10582,
+          "name": "גרנד פרי",
+          "nameHebrew": "גרנד פרי"
+        },
+        {
+          "id": 10583,
+          "name": "סולסטיס",
+          "nameHebrew": "סולסטיס"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 43,
+      "name": "Ford",
+      "nameHebrew": "פורד",
+      "models": [
+        {
+          "id": 10594,
+          "name": "F-150",
+          "nameHebrew": "F-150"
+        },
+        {
+          "id": 10595,
+          "name": "F-250",
+          "nameHebrew": "F-250"
+        },
+        {
+          "id": 10596,
+          "name": "F-350",
+          "nameHebrew": "F-350"
+        },
+        {
+          "id": 10608,
+          "name": "S-מקס",
+          "nameHebrew": "S-מקס"
+        },
+        {
+          "id": 10590,
+          "name": "אדג'",
+          "nameHebrew": "אדג'"
+        },
+        {
+          "id": 10592,
+          "name": "אסקורט",
+          "nameHebrew": "אסקורט"
+        },
+        {
+          "id": 10591,
+          "name": "אסקייפ",
+          "nameHebrew": "אסקייפ"
+        },
+        {
+          "id": 10589,
+          "name": "אקונוליין",
+          "nameHebrew": "אקונוליין"
+        },
+        {
+          "id": 11632,
+          "name": "אקספדישן",
+          "nameHebrew": "אקספדישן"
+        },
+        {
+          "id": 10593,
+          "name": "אקספלורר",
+          "nameHebrew": "אקספלורר"
+        },
+        {
+          "id": 10587,
+          "name": "ברונקו",
+          "nameHebrew": "ברונקו"
+        },
+        {
+          "id": 11621,
+          "name": "ברונקו ספורט",
+          "nameHebrew": "ברונקו ספורט"
+        },
+        {
+          "id": 10600,
+          "name": "גלאקסי",
+          "nameHebrew": "גלאקסי"
+        },
+        {
+          "id": 10614,
+          "name": "ווינדסטאר",
+          "nameHebrew": "ווינדסטאר"
+        },
+        {
+          "id": 10609,
+          "name": "טאורוס",
+          "nameHebrew": "טאורוס"
+        },
+        {
+          "id": 11662,
+          "name": "טורנאו קאסטום",
+          "nameHebrew": "טורנאו קאסטום"
+        },
+        {
+          "id": 10610,
+          "name": "טורנאו קונקט",
+          "nameHebrew": "טורנאו קונקט"
+        },
+        {
+          "id": 10611,
+          "name": "טרייסר",
+          "nameHebrew": "טרייסר"
+        },
+        {
+          "id": 10612,
+          "name": "טרנזיט",
+          "nameHebrew": "טרנזיט"
+        },
+        {
+          "id": 10613,
+          "name": "טרנזיט קוסטום",
+          "nameHebrew": "טרנזיט קוסטום"
+        },
+        {
+          "id": 11649,
+          "name": "מאבריק",
+          "nameHebrew": "מאבריק"
+        },
+        {
+          "id": 10603,
+          "name": "מונדאו",
+          "nameHebrew": "מונדאו"
+        },
+        {
+          "id": 10604,
+          "name": "מוסטנג",
+          "nameHebrew": "מוסטנג"
+        },
+        {
+          "id": 11650,
+          "name": "מוסטנג Mach-E",
+          "nameHebrew": "מוסטנג Mach-E"
+        },
+        {
+          "id": 10605,
+          "name": "פומה",
+          "nameHebrew": "פומה"
+        },
+        {
+          "id": 10598,
+          "name": "פוקוס",
+          "nameHebrew": "פוקוס"
+        },
+        {
+          "id": 10597,
+          "name": "פיאסטה",
+          "nameHebrew": "פיאסטה"
+        },
+        {
+          "id": 10599,
+          "name": "פיוז'ן",
+          "nameHebrew": "פיוז'ן"
+        },
+        {
+          "id": 10601,
+          "name": "קוגה",
+          "nameHebrew": "קוגה"
+        },
+        {
+          "id": 10606,
+          "name": "ריינג'ר",
+          "nameHebrew": "ריינג'ר"
+        }
+      ],
+      "totalModels": 30,
+      "totalSubModels": 0
+    },
+    {
+      "id": 44,
+      "name": "Porsche",
+      "nameHebrew": "פורשה",
+      "models": [
+        {
+          "id": 10615,
+          "name": "718",
+          "nameHebrew": "718"
+        },
+        {
+          "id": 10616,
+          "name": "911",
+          "nameHebrew": "911"
+        },
+        {
+          "id": 10617,
+          "name": "911 קאררה",
+          "nameHebrew": "911 קאררה"
+        },
+        {
+          "id": 10618,
+          "name": "בוקסטר",
+          "nameHebrew": "בוקסטר"
+        },
+        {
+          "id": 10623,
+          "name": "טייקן",
+          "nameHebrew": "טייקן"
+        },
+        {
+          "id": 10621,
+          "name": "מקאן",
+          "nameHebrew": "מקאן"
+        },
+        {
+          "id": 10622,
+          "name": "פאנאמרה",
+          "nameHebrew": "פאנאמרה"
+        },
+        {
+          "id": 10620,
+          "name": "קאיימן",
+          "nameHebrew": "קאיימן"
+        },
+        {
+          "id": 10619,
+          "name": "קאיין",
+          "nameHebrew": "קאיין"
+        }
+      ],
+      "totalModels": 9,
+      "totalSubModels": 0
+    },
+    {
+      "id": 334,
+      "name": "Forthing",
+      "nameHebrew": "פורתינג",
+      "models": [
+        {
+          "id": 13450,
+          "name": "S7",
+          "nameHebrew": "S7"
+        },
+        {
+          "id": 13190,
+          "name": "פריידי",
+          "nameHebrew": "פריידי"
+        }
+      ],
+      "totalModels": 2,
+      "totalSubModels": 0
+    },
+    {
+      "id": 90,
+      "name": "Piaggio",
+      "nameHebrew": "פיאג'ו",
+      "models": [
+        {
+          "id": 10862,
+          "name": "פורטר",
+          "nameHebrew": "פורטר"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 45,
+      "name": "Fiat",
+      "nameHebrew": "פיאט",
+      "models": [
+        {
+          "id": 10627,
+          "name": "500",
+          "nameHebrew": "500"
+        },
+        {
+          "id": 12875,
+          "name": "500E",
+          "nameHebrew": "500E"
+        },
+        {
+          "id": 12874,
+          "name": "500L",
+          "nameHebrew": "500L"
+        },
+        {
+          "id": 10628,
+          "name": "500X",
+          "nameHebrew": "500X"
+        },
+        {
+          "id": 13061,
+          "name": "Matrix",
+          "nameHebrew": "Matrix"
+        },
+        {
+          "id": 13236,
+          "name": "V60SP",
+          "nameHebrew": "V60SP"
+        },
+        {
+          "id": 10649,
+          "name": "אוליזה",
+          "nameHebrew": "אוליזה"
+        },
+        {
+          "id": 10650,
+          "name": "אונו",
+          "nameHebrew": "אונו"
+        },
+        {
+          "id": 10629,
+          "name": "אלבאה",
+          "nameHebrew": "אלבאה"
+        },
+        {
+          "id": 10630,
+          "name": "בראבה",
+          "nameHebrew": "בראבה"
+        },
+        {
+          "id": 10631,
+          "name": "בראבו",
+          "nameHebrew": "בראבו"
+        },
+        {
+          "id": 10634,
+          "name": "דובלו",
+          "nameHebrew": "דובלו"
+        },
+        {
+          "id": 10635,
+          "name": "דוקאטו",
+          "nameHebrew": "דוקאטו"
+        },
+        {
+          "id": 10648,
+          "name": "טיפו",
+          "nameHebrew": "טיפו"
+        },
+        {
+          "id": 10647,
+          "name": "טמפרה",
+          "nameHebrew": "טמפרה"
+        },
+        {
+          "id": 10633,
+          "name": "כרומה",
+          "nameHebrew": "כרומה"
+        },
+        {
+          "id": 10651,
+          "name": "לידו",
+          "nameHebrew": "לידו"
+        },
+        {
+          "id": 10638,
+          "name": "לינאה",
+          "nameHebrew": "לינאה"
+        },
+        {
+          "id": 10640,
+          "name": "מולטיפלה",
+          "nameHebrew": "מולטיפלה"
+        },
+        {
+          "id": 10639,
+          "name": "מריאה",
+          "nameHebrew": "מריאה"
+        },
+        {
+          "id": 10646,
+          "name": "סדיצ'י",
+          "nameHebrew": "סדיצ'י"
+        },
+        {
+          "id": 10645,
+          "name": "סקודו",
+          "nameHebrew": "סקודו"
+        },
+        {
+          "id": 10637,
+          "name": "פולבק",
+          "nameHebrew": "פולבק"
+        },
+        {
+          "id": 10643,
+          "name": "פונטו",
+          "nameHebrew": "פונטו"
+        },
+        {
+          "id": 10636,
+          "name": "פיורינו",
+          "nameHebrew": "פיורינו"
+        },
+        {
+          "id": 10641,
+          "name": "פליו",
+          "nameHebrew": "פליו"
+        },
+        {
+          "id": 10642,
+          "name": "פנדה",
+          "nameHebrew": "פנדה"
+        },
+        {
+          "id": 10644,
+          "name": "קובו",
+          "nameHebrew": "קובו"
+        },
+        {
+          "id": 10632,
+          "name": "קופה",
+          "nameHebrew": "קופה"
+        }
+      ],
+      "totalModels": 29,
+      "totalSubModels": 0
+    },
+    {
+      "id": 46,
+      "name": "Peugeot",
+      "nameHebrew": "פיג'ו",
+      "models": [
+        {
+          "id": 10652,
+          "name": "106",
+          "nameHebrew": "106"
+        },
+        {
+          "id": 10653,
+          "name": "107",
+          "nameHebrew": "107"
+        },
+        {
+          "id": 10654,
+          "name": "108",
+          "nameHebrew": "108"
+        },
+        {
+          "id": 10655,
+          "name": "2008",
+          "nameHebrew": "2008"
+        },
+        {
+          "id": 10656,
+          "name": "205",
+          "nameHebrew": "205"
+        },
+        {
+          "id": 10657,
+          "name": "206",
+          "nameHebrew": "206"
+        },
+        {
+          "id": 10658,
+          "name": "207",
+          "nameHebrew": "207"
+        },
+        {
+          "id": 10659,
+          "name": "208",
+          "nameHebrew": "208"
+        },
+        {
+          "id": 10661,
+          "name": "3008",
+          "nameHebrew": "3008"
+        },
+        {
+          "id": 10662,
+          "name": "301",
+          "nameHebrew": "301"
+        },
+        {
+          "id": 10663,
+          "name": "306",
+          "nameHebrew": "306"
+        },
+        {
+          "id": 10664,
+          "name": "307",
+          "nameHebrew": "307"
+        },
+        {
+          "id": 10665,
+          "name": "308",
+          "nameHebrew": "308"
+        },
+        {
+          "id": 10666,
+          "name": "405",
+          "nameHebrew": "405"
+        },
+        {
+          "id": 10667,
+          "name": "406",
+          "nameHebrew": "406"
+        },
+        {
+          "id": 10668,
+          "name": "407",
+          "nameHebrew": "407"
+        },
+        {
+          "id": 11710,
+          "name": "408",
+          "nameHebrew": "408"
+        },
+        {
+          "id": 10669,
+          "name": "5008",
+          "nameHebrew": "5008"
+        },
+        {
+          "id": 10670,
+          "name": "508",
+          "nameHebrew": "508"
+        },
+        {
+          "id": 10671,
+          "name": "605",
+          "nameHebrew": "605"
+        },
+        {
+          "id": 10672,
+          "name": "607",
+          "nameHebrew": "607"
+        },
+        {
+          "id": 10678,
+          "name": "RCZ",
+          "nameHebrew": "RCZ"
+        },
+        {
+          "id": 10676,
+          "name": "iOn",
+          "nameHebrew": "iOn"
+        },
+        {
+          "id": 10675,
+          "name": "אקספרט",
+          "nameHebrew": "אקספרט"
+        },
+        {
+          "id": 10674,
+          "name": "בוקסר",
+          "nameHebrew": "בוקסר"
+        },
+        {
+          "id": 10673,
+          "name": "ביפר",
+          "nameHebrew": "ביפר"
+        },
+        {
+          "id": 11721,
+          "name": "טראוולר",
+          "nameHebrew": "טראוולר"
+        },
+        {
+          "id": 10677,
+          "name": "פרטנר",
+          "nameHebrew": "פרטנר"
+        },
+        {
+          "id": 11720,
+          "name": "ריפטר",
+          "nameHebrew": "ריפטר"
+        }
+      ],
+      "totalModels": 29,
+      "totalSubModels": 0
+    },
+    {
+      "id": 57,
+      "name": "Ferrari",
+      "nameHebrew": "פרארי",
+      "models": [
+        {
+          "id": 11884,
+          "name": "296 GTB",
+          "nameHebrew": "296 GTB"
+        },
+        {
+          "id": 10819,
+          "name": "458",
+          "nameHebrew": "458"
+        },
+        {
+          "id": 10820,
+          "name": "488",
+          "nameHebrew": "488"
+        },
+        {
+          "id": 10821,
+          "name": "575M מרנלו",
+          "nameHebrew": "575M מרנלו"
+        },
+        {
+          "id": 11897,
+          "name": "812 GTS",
+          "nameHebrew": "812 GTS"
+        },
+        {
+          "id": 10822,
+          "name": "812 סופרפאסט",
+          "nameHebrew": "812 סופרפאסט"
+        },
+        {
+          "id": 10824,
+          "name": "F12",
+          "nameHebrew": "F12"
+        },
+        {
+          "id": 13036,
+          "name": "F8 טריבוטו",
+          "nameHebrew": "F8 טריבוטו"
+        },
+        {
+          "id": 10825,
+          "name": "F8 ספיידר",
+          "nameHebrew": "F8 ספיידר"
+        },
+        {
+          "id": 10828,
+          "name": "GTC4Lusso",
+          "nameHebrew": "GTC4Lusso"
+        },
+        {
+          "id": 13037,
+          "name": "GTS 296",
+          "nameHebrew": "GTS 296"
+        },
+        {
+          "id": 11911,
+          "name": "SF90",
+          "nameHebrew": "SF90"
+        },
+        {
+          "id": 13262,
+          "name": "פורוסאנגווה",
+          "nameHebrew": "פורוסאנגווה"
+        },
+        {
+          "id": 10829,
+          "name": "פורטופינו",
+          "nameHebrew": "פורטופינו"
+        },
+        {
+          "id": 10823,
+          "name": "קליפורניה",
+          "nameHebrew": "קליפורניה"
+        },
+        {
+          "id": 11910,
+          "name": "רומא",
+          "nameHebrew": "רומא"
+        }
+      ],
+      "totalModels": 16,
+      "totalSubModels": 0
+    },
+    {
+      "id": 147,
+      "name": "Chery",
+      "nameHebrew": "צ׳רי",
+      "models": [
+        {
+          "id": 13053,
+          "name": "FX",
+          "nameHebrew": "FX"
+        },
+        {
+          "id": 13471,
+          "name": "אריזו 8",
+          "nameHebrew": "אריזו 8"
+        },
+        {
+          "id": 13479,
+          "name": "טיאגו 4 פרו",
+          "nameHebrew": "טיאגו 4 פרו"
+        },
+        {
+          "id": 13051,
+          "name": "טיגו 7 פרו",
+          "nameHebrew": "טיגו 7 פרו"
+        },
+        {
+          "id": 13052,
+          "name": "טיגו 8 פרו",
+          "nameHebrew": "טיגו 8 פרו"
+        }
+      ],
+      "totalModels": 5,
+      "totalSubModels": 0
+    },
+    {
+      "id": 47,
+      "name": "Cadillac",
+      "nameHebrew": "קאדילק",
+      "models": [
+        {
+          "id": 10679,
+          "name": "ATS",
+          "nameHebrew": "ATS"
+        },
+        {
+          "id": 10680,
+          "name": "CT5",
+          "nameHebrew": "CT5"
+        },
+        {
+          "id": 10681,
+          "name": "CT6",
+          "nameHebrew": "CT6"
+        },
+        {
+          "id": 10682,
+          "name": "CTS",
+          "nameHebrew": "CTS"
+        },
+        {
+          "id": 11728,
+          "name": "DTS",
+          "nameHebrew": "DTS"
+        },
+        {
+          "id": 10687,
+          "name": "SRX",
+          "nameHebrew": "SRX"
+        },
+        {
+          "id": 10688,
+          "name": "STS",
+          "nameHebrew": "STS"
+        },
+        {
+          "id": 10690,
+          "name": "XT4",
+          "nameHebrew": "XT4"
+        },
+        {
+          "id": 10691,
+          "name": "XT5",
+          "nameHebrew": "XT5"
+        },
+        {
+          "id": 10692,
+          "name": "XT6",
+          "nameHebrew": "XT6"
+        },
+        {
+          "id": 10693,
+          "name": "XTS",
+          "nameHebrew": "XTS"
+        },
+        {
+          "id": 10684,
+          "name": "אסקלייד",
+          "nameHebrew": "אסקלייד"
+        },
+        {
+          "id": 10686,
+          "name": "סוויל",
+          "nameHebrew": "סוויל"
+        },
+        {
+          "id": 10685,
+          "name": "פליטווד",
+          "nameHebrew": "פליטווד"
+        }
+      ],
+      "totalModels": 14,
+      "totalSubModels": 0
+    },
+    {
+      "id": 203,
+      "name": "Karma",
+      "nameHebrew": "קארמה",
+      "models": [
+        {
+          "id": 13055,
+          "name": "GS-6",
+          "nameHebrew": "GS-6"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 92,
+      "name": "Cupra",
+      "nameHebrew": "קופרה",
+      "models": [
+        {
+          "id": 12132,
+          "name": "אטקה",
+          "nameHebrew": "אטקה"
+        },
+        {
+          "id": 12133,
+          "name": "בורן",
+          "nameHebrew": "בורן"
+        },
+        {
+          "id": 13133,
+          "name": "טווסקאן",
+          "nameHebrew": "טווסקאן"
+        },
+        {
+          "id": 12135,
+          "name": "לאון",
+          "nameHebrew": "לאון"
+        },
+        {
+          "id": 12134,
+          "name": "פורמנטור",
+          "nameHebrew": "פורמנטור"
+        }
+      ],
+      "totalModels": 5,
+      "totalSubModels": 0
+    },
+    {
+      "id": 48,
+      "name": "Kia",
+      "nameHebrew": "קיה",
+      "models": [
+        {
+          "id": 11740,
+          "name": "EV6",
+          "nameHebrew": "EV6"
+        },
+        {
+          "id": 13283,
+          "name": "EV9",
+          "nameHebrew": "EV9"
+        },
+        {
+          "id": 10703,
+          "name": "K2500",
+          "nameHebrew": "K2500"
+        },
+        {
+          "id": 10704,
+          "name": "K9",
+          "nameHebrew": "K9"
+        },
+        {
+          "id": 10724,
+          "name": "XCeed",
+          "nameHebrew": "XCeed"
+        },
+        {
+          "id": 10710,
+          "name": "אופטימה",
+          "nameHebrew": "אופטימה"
+        },
+        {
+          "id": 10709,
+          "name": "אופירוס",
+          "nameHebrew": "אופירוס"
+        },
+        {
+          "id": 10702,
+          "name": "ג'ויס",
+          "nameHebrew": "ג'ויס"
+        },
+        {
+          "id": 10723,
+          "name": "טלורייד",
+          "nameHebrew": "טלורייד"
+        },
+        {
+          "id": 10705,
+          "name": "מג'נטיס",
+          "nameHebrew": "מג'נטיס"
+        },
+        {
+          "id": 10707,
+          "name": "מנטור/ספיה",
+          "nameHebrew": "מנטור/ספיה"
+        },
+        {
+          "id": 10708,
+          "name": "נירו",
+          "nameHebrew": "נירו"
+        },
+        {
+          "id": 13158,
+          "name": "נירו פלוס",
+          "nameHebrew": "נירו פלוס"
+        },
+        {
+          "id": 10719,
+          "name": "סול",
+          "nameHebrew": "סול"
+        },
+        {
+          "id": 10718,
+          "name": "סורנטו",
+          "nameHebrew": "סורנטו"
+        },
+        {
+          "id": 10722,
+          "name": "סטוניק",
+          "nameHebrew": "סטוניק"
+        },
+        {
+          "id": 10721,
+          "name": "סטינגר",
+          "nameHebrew": "סטינגר"
+        },
+        {
+          "id": 10698,
+          "name": "סיד",
+          "nameHebrew": "סיד"
+        },
+        {
+          "id": 10715,
+          "name": "סלטוס",
+          "nameHebrew": "סלטוס"
+        },
+        {
+          "id": 10720,
+          "name": "ספורטז'",
+          "nameHebrew": "ספורטז'"
+        },
+        {
+          "id": 10716,
+          "name": "ספיה",
+          "nameHebrew": "ספיה"
+        },
+        {
+          "id": 10699,
+          "name": "סראטו",
+          "nameHebrew": "סראטו"
+        },
+        {
+          "id": 10701,
+          "name": "פורטה ",
+          "nameHebrew": "פורטה "
+        },
+        {
+          "id": 10711,
+          "name": "פיקנטו",
+          "nameHebrew": "פיקנטו"
+        },
+        {
+          "id": 10712,
+          "name": "פרג'יו",
+          "nameHebrew": "פרג'יו"
+        },
+        {
+          "id": 10713,
+          "name": "פרייד",
+          "nameHebrew": "פרייד"
+        },
+        {
+          "id": 10696,
+          "name": "קארנס",
+          "nameHebrew": "קארנס"
+        },
+        {
+          "id": 10695,
+          "name": "קדנזה ",
+          "nameHebrew": "קדנזה "
+        },
+        {
+          "id": 10700,
+          "name": "קלארוס",
+          "nameHebrew": "קלארוס"
+        },
+        {
+          "id": 10697,
+          "name": "קרניבל",
+          "nameHebrew": "קרניבל"
+        },
+        {
+          "id": 10714,
+          "name": "ריו",
+          "nameHebrew": "ריו"
+        },
+        {
+          "id": 10717,
+          "name": "שומה",
+          "nameHebrew": "שומה"
+        }
+      ],
+      "totalModels": 32,
+      "totalSubModels": 0
+    },
+    {
+      "id": 344,
+      "name": "KGM",
+      "nameHebrew": "קיי גי אם ",
+      "models": [
+        {
+          "id": 13286,
+          "name": "טורס",
+          "nameHebrew": "טורס"
+        },
+        {
+          "id": 13285,
+          "name": "טיבולי",
+          "nameHebrew": "טיבולי"
+        },
+        {
+          "id": 13366,
+          "name": "מוסו",
+          "nameHebrew": "מוסו"
+        },
+        {
+          "id": 13291,
+          "name": "רקסטון",
+          "nameHebrew": "רקסטון"
+        }
+      ],
+      "totalModels": 4,
+      "totalSubModels": 0
+    },
+    {
+      "id": 49,
+      "name": "Chrysler",
+      "nameHebrew": "קרייזלר",
+      "models": [
+        {
+          "id": 10725,
+          "name": "300",
+          "nameHebrew": "300"
+        },
+        {
+          "id": 10727,
+          "name": "300M",
+          "nameHebrew": "300M"
+        },
+        {
+          "id": 10732,
+          "name": "PT קרוזר",
+          "nameHebrew": "PT קרוזר"
+        },
+        {
+          "id": 10729,
+          "name": "גראנד וויאג'ר",
+          "nameHebrew": "גראנד וויאג'ר"
+        },
+        {
+          "id": 10737,
+          "name": "וויאג'ר",
+          "nameHebrew": "וויאג'ר"
+        },
+        {
+          "id": 10736,
+          "name": "טאון אנד קאנטרי",
+          "nameHebrew": "טאון אנד קאנטרי"
+        },
+        {
+          "id": 10730,
+          "name": "נאון",
+          "nameHebrew": "נאון"
+        },
+        {
+          "id": 10734,
+          "name": "סברינג",
+          "nameHebrew": "סברינג"
+        },
+        {
+          "id": 10735,
+          "name": "סטרטוס",
+          "nameHebrew": "סטרטוס"
+        },
+        {
+          "id": 10733,
+          "name": "סרטוגה",
+          "nameHebrew": "סרטוגה"
+        },
+        {
+          "id": 10731,
+          "name": "פסיפיקה",
+          "nameHebrew": "פסיפיקה"
+        },
+        {
+          "id": 10728,
+          "name": "קרוספייר",
+          "nameHebrew": "קרוספייר"
+        }
+      ],
+      "totalModels": 12,
+      "totalSubModels": 0
+    },
+    {
+      "id": 91,
+      "name": "RAM",
+      "nameHebrew": "ראם",
+      "models": [
+        {
+          "id": 12130,
+          "name": "1500",
+          "nameHebrew": "1500"
+        },
+        {
+          "id": 12131,
+          "name": "2500",
+          "nameHebrew": "2500"
+        },
+        {
+          "id": 13303,
+          "name": "3500",
+          "nameHebrew": "3500"
+        }
+      ],
+      "totalModels": 3,
+      "totalSubModels": 0
+    },
+    {
+      "id": 50,
+      "name": "Rover",
+      "nameHebrew": "רובר",
+      "models": [
+        {
+          "id": 10738,
+          "name": "200",
+          "nameHebrew": "200"
+        },
+        {
+          "id": 10739,
+          "name": "25",
+          "nameHebrew": "25"
+        },
+        {
+          "id": 10740,
+          "name": "400",
+          "nameHebrew": "400"
+        },
+        {
+          "id": 10741,
+          "name": "420",
+          "nameHebrew": "420"
+        },
+        {
+          "id": 10742,
+          "name": "45",
+          "nameHebrew": "45"
+        },
+        {
+          "id": 10743,
+          "name": "600",
+          "nameHebrew": "600"
+        },
+        {
+          "id": 10744,
+          "name": "75",
+          "nameHebrew": "75"
+        },
+        {
+          "id": 10745,
+          "name": "800",
+          "nameHebrew": "800"
+        },
+        {
+          "id": 10747,
+          "name": "MGF",
+          "nameHebrew": "MGF"
+        }
+      ],
+      "totalModels": 9,
+      "totalSubModels": 0
+    },
+    {
+      "id": 58,
+      "name": "Rolls-Royce",
+      "nameHebrew": "רולס רויס",
+      "models": [
+        {
+          "id": 13247,
+          "name": "ספקטר",
+          "nameHebrew": "ספקטר"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    },
+    {
+      "id": 361,
+      "name": "ReHigh",
+      "nameHebrew": "ריהיי",
+      "models": [],
+      "totalModels": 0,
+      "totalSubModels": 0
+    },
+    {
+      "id": 51,
+      "name": "Renault",
+      "nameHebrew": "רנו",
+      "models": [
+        {
+          "id": 10748,
+          "name": "19",
+          "nameHebrew": "19"
+        },
+        {
+          "id": 13094,
+          "name": "אוסטרל",
+          "nameHebrew": "אוסטרל"
+        },
+        {
+          "id": 10753,
+          "name": "אקספרס",
+          "nameHebrew": "אקספרס"
+        },
+        {
+          "id": 11795,
+          "name": "ארקנה",
+          "nameHebrew": "ארקנה"
+        },
+        {
+          "id": 10769,
+          "name": "וול-סאטיס",
+          "nameHebrew": "וול-סאטיס"
+        },
+        {
+          "id": 10770,
+          "name": "זואי",
+          "nameHebrew": "זואי"
+        },
+        {
+          "id": 10768,
+          "name": "טווינגו",
+          "nameHebrew": "טווינגו"
+        },
+        {
+          "id": 10766,
+          "name": "טליה/סימבול",
+          "nameHebrew": "טליה/סימבול"
+        },
+        {
+          "id": 10767,
+          "name": "טראפיק",
+          "nameHebrew": "טראפיק"
+        },
+        {
+          "id": 10758,
+          "name": "לגונה",
+          "nameHebrew": "לגונה"
+        },
+        {
+          "id": 10760,
+          "name": "לוגאן",
+          "nameHebrew": "לוגאן"
+        },
+        {
+          "id": 10759,
+          "name": "לטיטוד",
+          "nameHebrew": "לטיטוד"
+        },
+        {
+          "id": 10761,
+          "name": "מאסטר",
+          "nameHebrew": "מאסטר"
+        },
+        {
+          "id": 10762,
+          "name": "מגאן",
+          "nameHebrew": "מגאן"
+        },
+        {
+          "id": 13056,
+          "name": "מגאן E-Tech",
+          "nameHebrew": "מגאן E-Tech"
+        },
+        {
+          "id": 10764,
+          "name": "סנדרו",
+          "nameHebrew": "סנדרו"
+        },
+        {
+          "id": 10765,
+          "name": "סניק",
+          "nameHebrew": "סניק"
+        },
+        {
+          "id": 10763,
+          "name": "ספרן",
+          "nameHebrew": "ספרן"
+        },
+        {
+          "id": 10754,
+          "name": "פלואנס",
+          "nameHebrew": "פלואנס"
+        },
+        {
+          "id": 10755,
+          "name": "קדגא'ר ",
+          "nameHebrew": "קדגא'ר "
+        },
+        {
+          "id": 10757,
+          "name": "קוליאוס",
+          "nameHebrew": "קוליאוס"
+        },
+        {
+          "id": 10751,
+          "name": "קליאו",
+          "nameHebrew": "קליאו"
+        },
+        {
+          "id": 10756,
+          "name": "קנגו",
+          "nameHebrew": "קנגו"
+        },
+        {
+          "id": 10750,
+          "name": "קפצ'ור",
+          "nameHebrew": "קפצ'ור"
+        }
+      ],
+      "totalModels": 24,
+      "totalSubModels": 0
+    },
+    {
+      "id": 52,
+      "name": "Chevrolet",
+      "nameHebrew": "שברולט",
+      "models": [
+        {
+          "id": 10773,
+          "name": "אבאו",
+          "nameHebrew": "אבאו"
+        },
+        {
+          "id": 10791,
+          "name": "אופטרה",
+          "nameHebrew": "אופטרה"
+        },
+        {
+          "id": 10792,
+          "name": "אורלנדו",
+          "nameHebrew": "אורלנדו"
+        },
+        {
+          "id": 10785,
+          "name": "אימפלה",
+          "nameHebrew": "אימפלה"
+        },
+        {
+          "id": 10771,
+          "name": "אלרו",
+          "nameHebrew": "אלרו"
+        },
+        {
+          "id": 10772,
+          "name": "אסטרו",
+          "nameHebrew": "אסטרו"
+        },
+        {
+          "id": 10783,
+          "name": "אפיקה",
+          "nameHebrew": "אפיקה"
+        },
+        {
+          "id": 10802,
+          "name": "אפלנדר",
+          "nameHebrew": "אפלנדר"
+        },
+        {
+          "id": 10784,
+          "name": "אקווינוקס ",
+          "nameHebrew": "אקווינוקס "
+        },
+        {
+          "id": 11825,
+          "name": "בולט EUV",
+          "nameHebrew": "בולט EUV"
+        },
+        {
+          "id": 11826,
+          "name": "בולט EV",
+          "nameHebrew": "בולט EV"
+        },
+        {
+          "id": 10774,
+          "name": "בלייזר",
+          "nameHebrew": "בלייזר"
+        },
+        {
+          "id": 10804,
+          "name": "וולט",
+          "nameHebrew": "וולט"
+        },
+        {
+          "id": 10803,
+          "name": "ויואנט/רזו",
+          "nameHebrew": "ויואנט/רזו"
+        },
+        {
+          "id": 10798,
+          "name": "טאהו ",
+          "nameHebrew": "טאהו "
+        },
+        {
+          "id": 10800,
+          "name": "טראוורס",
+          "nameHebrew": "טראוורס"
+        },
+        {
+          "id": 10801,
+          "name": "טראקס",
+          "nameHebrew": "טראקס"
+        },
+        {
+          "id": 10799,
+          "name": "טרייל בלייזר",
+          "nameHebrew": "טרייל בלייזר"
+        },
+        {
+          "id": 10787,
+          "name": "לומינה מיניוואן",
+          "nameHebrew": "לומינה מיניוואן"
+        },
+        {
+          "id": 10788,
+          "name": "מאליבו",
+          "nameHebrew": "מאליבו"
+        },
+        {
+          "id": 10789,
+          "name": "מונטה קרלו",
+          "nameHebrew": "מונטה קרלו"
+        },
+        {
+          "id": 10797,
+          "name": "סוברבן",
+          "nameHebrew": "סוברבן"
+        },
+        {
+          "id": 10793,
+          "name": "סוואנה",
+          "nameHebrew": "סוואנה"
+        },
+        {
+          "id": 10795,
+          "name": "סוניק",
+          "nameHebrew": "סוניק"
+        },
+        {
+          "id": 10794,
+          "name": "סילברדו",
+          "nameHebrew": "סילברדו"
+        },
+        {
+          "id": 13374,
+          "name": "סילברדו EV",
+          "nameHebrew": "סילברדו EV"
+        },
+        {
+          "id": 10796,
+          "name": "ספארק",
+          "nameHebrew": "ספארק"
+        },
+        {
+          "id": 10775,
+          "name": "קאמארו",
+          "nameHebrew": "קאמארו"
+        },
+        {
+          "id": 10777,
+          "name": "קוואליר",
+          "nameHebrew": "קוואליר"
+        },
+        {
+          "id": 10779,
+          "name": "קולורדו",
+          "nameHebrew": "קולורדו"
+        },
+        {
+          "id": 10781,
+          "name": "קורבט",
+          "nameHebrew": "קורבט"
+        },
+        {
+          "id": 10780,
+          "name": "קורסיקה",
+          "nameHebrew": "קורסיקה"
+        },
+        {
+          "id": 10776,
+          "name": "קפטיבה",
+          "nameHebrew": "קפטיבה"
+        },
+        {
+          "id": 10782,
+          "name": "קרוז",
+          "nameHebrew": "קרוז"
+        }
+      ],
+      "totalModels": 34,
+      "totalSubModels": 0
+    },
+    {
+      "id": 59,
+      "name": "Automotive Industries",
+      "nameHebrew": "תעשיות רכב",
+      "models": [
+        {
+          "id": 10831,
+          "name": "סופה",
+          "nameHebrew": "סופה"
+        }
+      ],
+      "totalModels": 1,
+      "totalSubModels": 0
+    }
+  ]
+}

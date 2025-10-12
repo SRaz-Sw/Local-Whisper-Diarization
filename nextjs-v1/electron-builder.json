@@ -1,0 +1,88 @@
+{
+  "appId": "com.whisper.diarization",
+  "productName": "Whisper Diarization",
+  "copyright": "Copyright © 2025",
+  "directories": {
+    "output": "dist",
+    "buildResources": "electron/resources"
+  },
+  "files": ["out/**/*", "electron/**/*", "public/**/*", "package.json"],
+  "extraResources": [
+    {
+      "from": "public/workers",
+      "to": "workers",
+      "filter": ["**/*"]
+    }
+  ],
+  "mac": {
+    "category": "public.app-category.productivity",
+    "icon": "electron/resources/icon.icns",
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64", "arm64"]
+      },
+      {
+        "target": "zip",
+        "arch": ["x64", "arm64"]
+      }
+    ],
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false,
+    "entitlements": "electron/entitlements.mac.plist",
+    "entitlementsInherit": "electron/entitlements.mac.plist"
+  },
+  "dmg": {
+    "contents": [
+      {
+        "x": 130,
+        "y": 220
+      },
+      {
+        "x": 410,
+        "y": 220,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ],
+    "window": {
+      "width": 540,
+      "height": 380
+    }
+  },
+  "win": {
+    "icon": "electron/resources/icon.ico",
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64", "ia32"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Whisper Diarization"
+  },
+  "linux": {
+    "icon": "electron/resources/icon.png",
+    "target": [
+      {
+        "target": "AppImage",
+        "arch": ["x64"]
+      },
+      {
+        "target": "deb",
+        "arch": ["x64"]
+      }
+    ],
+    "category": "Utility"
+  },
+  "publish": null
+}
