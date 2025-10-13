@@ -12,7 +12,7 @@ const cspDirectives = [
   "media-src 'self' blob: data:",
   "font-src 'self'",
   "frame-src 'self'",
-  "connect-src 'self' data: blob: https://huggingface.co https://cdn-lfs.huggingface.co https://cdn-lfs-us-1.huggingface.co",
+  "connect-src 'self' data: blob: https://huggingface.co https://cdn-lfs.huggingface.co https://cdn-lfs-us-1.huggingface.co https://cas-bridge.xethub.hf.co https://*.hf.co",
   "worker-src 'self' blob:",
 ];
 

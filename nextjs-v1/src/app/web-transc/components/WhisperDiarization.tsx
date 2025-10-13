@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import WhisperProgress from "./WhisperProgress";
 import MediaFileUpload from "./MediaFileUpload";
 import WhisperTranscript from "./WhisperTranscript";
@@ -167,6 +168,14 @@ function WhisperDiarization() {
           // Processing status update
           console.log("🔄 Update:", e.data.data);
           setProcessingMessage(e.data.data);
+          break;
+
+        case "warning":
+          // Warning message (e.g., fallback to segment-level timestamps)
+          console.warn("⚠️ Warning:", e.data.data);
+          toast.warning(e.data.data, {
+            duration: 5000,
+          });
           break;
 
         case "transcribing":

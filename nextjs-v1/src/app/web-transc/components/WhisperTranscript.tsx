@@ -74,9 +74,43 @@ const WhisperTranscript = ({
 
   // Post-process the transcript to highlight speaker changes
   const postProcessedTranscript = useMemo(() => {
-    let prev = 0;
     const words = transcript.chunks;
 
+    // Handle case where chunks is undefined (no timestamps mode)
+    if (!words || words.length === 0) {
+      // Fallback: Create simple text-only segments without word-level timestamps
+      const result: Array<{
+        label: string;
+        start: number;
+        end: number;
+        chunks: Array<{ text: string; timestamp: [number, number] }>;
+      }> = [];
+
+      // Use the plain text and split it roughly by speaker segments
+      const fullText = transcript.text || "";
+
+      for (const segment of segments) {
+        const { label, start, end } = segment;
+        if (label === "NO_SPEAKER") continue;
+
+        // Create a single chunk for this segment with the plain text
+        // We'll just show the full text since we don't have word boundaries
+        result.push({
+          ...segment,
+          chunks: [
+            {
+              text: fullText, // Show full text for now - better than nothing
+              timestamp: [start, end],
+            },
+          ],
+        });
+      }
+
+      return result;
+    }
+
+    // Normal path: We have word-level chunks
+    let prev = 0;
     const result: Array<{
       label: string;
       start: number;

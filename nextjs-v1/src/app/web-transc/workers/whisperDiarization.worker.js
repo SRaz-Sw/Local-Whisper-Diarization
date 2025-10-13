@@ -111,9 +111,11 @@ async function load({ device, model }) {
       data: "Compiling shaders and warming up model...",
     });
 
-    await transcriber(new Float32Array(16_000), {
-      language: "en",
-    });
+    // Check if model is English-only (doesn't accept language parameter)
+    const isEnglishOnly = PipelineSingeton.asr_model_id.includes(".en");
+    const warmupOptions = isEnglishOnly ? {} : { language: "en" };
+
+    await transcriber(new Float32Array(16_000), warmupOptions);
   }
 
   self.postMessage({ status: "loaded" });
@@ -236,46 +238,152 @@ async function run({ audio, language, resumeFromBackup = false }) {
     "🔥 WORKER: Created WhisperTextStreamer, starting transcription...",
   );
 
-  // Run transcription with streaming
-  const transcriptPromise = transcriber(audio, {
-    language,
+  // Check if model is English-only (doesn't accept language parameter)
+  const isEnglishOnly = PipelineSingeton.asr_model_id.includes(".en");
+
+  // Build transcription options - only include language for multilingual models
+  const transcriptionOptions = {
     return_timestamps: "word",
     chunk_length_s: 30,
     streamer, // Use WhisperTextStreamer instead of callback_function
-  });
+  };
 
-  // Show diarization status
-  self.postMessage({
-    status: "update",
-    data: "Identifying speakers...",
-  });
-
-  // Run segmentation in parallel with transcription
-  const [transcript, segments] = await Promise.all([
-    transcriptPromise,
-    segment(segmentation_processor, segmentation_model, audio),
-  ]);
-
-  console.table(segments, ["start", "end", "id", "label", "confidence"]);
-
-  const end = performance.now();
-
-  // Clear backup interval and state
-  if (backupIntervalId) {
-    clearInterval(backupIntervalId);
-    backupIntervalId = null;
+  // Only add language parameter for multilingual models
+  if (!isEnglishOnly && language) {
+    transcriptionOptions.language = language;
   }
-  currentBackupState = null;
 
-  // Delete backup from storage
-  deleteBackupFromIndexedDB();
+  let transcript;
+  let usedFallback = false;
 
-  // Send final complete result with diarization
-  self.postMessage({
-    status: "complete",
-    result: { transcript, segments },
-    time: end - start,
-  });
+  // Try word-level timestamps first, fall back to segment-level if alignment_heads are missing
+  try {
+    // Run transcription with streaming
+    const transcriptPromise = transcriber(audio, transcriptionOptions);
+
+    // Show diarization status
+    self.postMessage({
+      status: "update",
+      data: "Identifying speakers...",
+    });
+
+    // Run segmentation in parallel with transcription
+    const results = await Promise.all([
+      transcriptPromise,
+      segment(segmentation_processor, segmentation_model, audio),
+    ]);
+
+    transcript = results[0];
+    const segments = results[1];
+
+    console.table(segments, ["start", "end", "id", "label", "confidence"]);
+
+    const end = performance.now();
+
+    // Clear backup interval and state
+    if (backupIntervalId) {
+      clearInterval(backupIntervalId);
+      backupIntervalId = null;
+    }
+    currentBackupState = null;
+
+    // Delete backup from storage
+    deleteBackupFromIndexedDB();
+
+    // Send final complete result with diarization
+    self.postMessage({
+      status: "complete",
+      result: { transcript, segments },
+      time: end - start,
+    });
+  } catch (error) {
+    // Check if error is due to missing alignment_heads or token_ids
+    if (
+      error.message &&
+      (error.message.includes("alignment_heads") ||
+        error.message.includes("token_ids"))
+    ) {
+      console.warn(
+        "⚠️ This model doesn't support proper timestamps. Transcription will continue without timestamps.",
+      );
+
+      // Send warning to UI
+      self.postMessage({
+        status: "warning",
+        data: "Model doesn't support timestamps properly. Using basic transcription mode.",
+      });
+
+      // Final fallback: Try without any timestamps at all
+      // This should work for any Whisper model
+      const fallbackOptions = {
+        chunk_length_s: 30,
+        // No return_timestamps - just get the text
+        // No streamer
+      };
+
+      // Only add language parameter for multilingual models
+      if (!isEnglishOnly && language) {
+        fallbackOptions.language = language;
+      }
+
+      usedFallback = true;
+
+      console.log(
+        "🔧 Attempting basic transcription without timestamps...",
+      );
+
+      const transcriptPromise = transcriber(audio, fallbackOptions);
+
+      // Show diarization status
+      self.postMessage({
+        status: "update",
+        data: "Identifying speakers...",
+      });
+
+      // Run segmentation in parallel with transcription
+      const results = await Promise.all([
+        transcriptPromise,
+        segment(segmentation_processor, segmentation_model, audio),
+      ]);
+
+      transcript = results[0];
+      const segments = results[1];
+
+      console.log("✅ Basic transcription completed");
+      console.table(segments, [
+        "start",
+        "end",
+        "id",
+        "label",
+        "confidence",
+      ]);
+
+      const end = performance.now();
+
+      // Clear backup interval and state
+      if (backupIntervalId) {
+        clearInterval(backupIntervalId);
+        backupIntervalId = null;
+      }
+      currentBackupState = null;
+
+      // Delete backup from storage
+      deleteBackupFromIndexedDB();
+
+      // Send final complete result with diarization
+      // Note: transcript.chunks will be empty without timestamps, but we have text
+      self.postMessage({
+        status: "complete",
+        result: { transcript, segments },
+        time: end - start,
+        fallbackUsed: true,
+        noTimestamps: true, // Flag to indicate no word/segment timestamps available
+      });
+    } else {
+      // Re-throw other errors
+      throw error;
+    }
+  }
 }
 
 // IndexedDB backup functions
