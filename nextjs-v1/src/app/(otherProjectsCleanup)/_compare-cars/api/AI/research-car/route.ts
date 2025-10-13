@@ -5,6 +5,10 @@ import { openai } from "@ai-sdk/openai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
+
+// Required for static export in Next.js
+export const dynamic = "force-static";
+export const revalidate = false;
 import {
   findManufacturer,
   findModel,

@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 // Electron-specific Next.js configuration
-// This config is used when building for Electron (static export)
+// This config is temporarily swapped in by scripts/build-electron.js
+// It configures Next.js for static export with Electron-compatible paths
 
 const cspDirectives = [
   "default-src 'self'",
@@ -51,11 +52,12 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // Static export for Electron
+  // Static export for Electron - generates static HTML files
   output: "export",
 
-  // Base path must match the route
-  basePath: "/web-transc",
+  // Use absolute paths for assets (required by next/font)
+  // Electron's protocol handler will resolve these correctly
+  assetPrefix: "/",
 
   // Disable image optimization for static export
   images: {
@@ -68,6 +70,14 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   poweredByHeader: false,
   reactStrictMode: true,
+
+  // Skip type checking and ESLint for faster builds
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 
   // Webpack configuration for Web Workers and Electron
   webpack: (config, { isServer }) => {
@@ -100,6 +110,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-
-

@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Required for static export in Next.js
+export const dynamic = "force-static";
+export const revalidate = false;
+
 // Rate limiting: Simple in-memory store (use Redis in production for multi-instance)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute

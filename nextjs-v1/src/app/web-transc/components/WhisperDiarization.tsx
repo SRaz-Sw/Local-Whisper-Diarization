@@ -88,19 +88,33 @@ function WhisperDiarization() {
     if (!worker.current) {
       // Create the worker if it does not yet exist.
       try {
-        worker.current = new Worker(
-          new URL(
-            "../workers/whisperDiarization.worker.js",
-            import.meta.url,
-          ),
-          {
-            type: "module",
-          },
-        );
+        // In production (Electron), use the bundled worker from /workers
+        // In development, use the source worker
+        const isDev = process.env.NODE_ENV === "development";
+
+        if (isDev) {
+          worker.current = new Worker(
+            new URL(
+              "../workers/whisperDiarization.worker.js",
+              import.meta.url,
+            ),
+            {
+              type: "module",
+            },
+          );
+        } else {
+          // Production: use bundled worker (not a module)
+          // publicPath is set to "auto" so webpack will figure out the correct path
+          worker.current = new Worker(
+            "/workers/whisperDiarization.worker.js",
+          );
+        }
         console.log("✅ Worker created successfully");
       } catch (error) {
         console.error("❌ Failed to create worker:", error);
-        alert("Failed to initialize worker. Check console for details.");
+        alert(
+          `Failed to initialize worker: ${error?.message || "Unknown error"}. Check console for details.`,
+        );
         return;
       }
     }
