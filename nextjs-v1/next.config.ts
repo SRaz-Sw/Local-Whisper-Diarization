@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 // Electron-specific Next.js configuration
-// This config is used when building for Electron (static export)
+// This config is temporarily swapped in by scripts/build-electron.js
+// It configures Next.js for static export with Electron-compatible paths
 
 const cspDirectives = [
   "default-src 'self'",
@@ -51,14 +52,12 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // Static export for Electron
+  // Static export for Electron - generates static HTML files
   output: "export",
 
-  // No basePath for Electron - assets must be relative
-  // basePath removed to work with file:// protocol
-  
-  // Use relative asset prefix for file:// protocol
-  assetPrefix: "./",
+  // Use absolute paths for assets (required by next/font)
+  // Electron's protocol handler will resolve these correctly
+  assetPrefix: "/",
 
   // Disable image optimization for static export
   images: {
@@ -111,6 +110,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-
-
