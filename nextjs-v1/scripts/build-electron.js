@@ -90,7 +90,38 @@ try {
   if (fs.existsSync(backupConfig)) {
     fs.copyFileSync(backupConfig, originalConfig);
     fs.unlinkSync(backupConfig);
-    console.log("✅ Restored next.config.ts\n");
+    console.log("✅ Restored next.config.ts");
+  }
+
+  // Step 7: Verify restoration
+  console.log("🔍 Verifying config restoration...");
+  try {
+    const restoredConfig = fs.readFileSync(originalConfig, "utf8");
+    if (restoredConfig.includes('output: "export"')) {
+      console.error("\n❌ ERROR: Config was not properly restored!");
+      console.error(
+        "   The web config should not have 'output: export' property.",
+      );
+      console.error("\n   Attempting automatic fix from git history...");
+      try {
+        execSync("git checkout 47031a6 -- nextjs-v1/next.config.ts", {
+          cwd: path.join(rootDir, ".."),
+          stdio: "inherit",
+        });
+        console.log("✅ Config automatically restored from git\n");
+      } catch (gitError) {
+        console.error(
+          "   ⚠️  Manual fix required: git checkout 47031a6 -- nextjs-v1/next.config.ts",
+        );
+      }
+    } else {
+      console.log("✅ Config properly restored for web development\n");
+    }
+  } catch (verifyError) {
+    console.warn(
+      "⚠️  Could not verify config restoration:",
+      verifyError.message,
+    );
   }
 }
 
