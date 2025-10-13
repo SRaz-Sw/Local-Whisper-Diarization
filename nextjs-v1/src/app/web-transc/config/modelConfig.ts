@@ -19,19 +19,20 @@ export interface ModelConfig {
 }
 
 export const AVAILABLE_MODELS: Record<string, ModelConfig> = {
-  "onnx-community/whisper-tiny_timestamped": {
-    id: "onnx-community/whisper-tiny_timestamped",
-    name: "Whisper Tiny",
-    description:
-      "Smallest and fastest model. Good for quick transcriptions.",
-    sizes: {
-      webgpu: 103,
-      wasm: 41,
-    },
-    languages: "multilingual",
-    accuracy: "basic",
-    speed: "fastest",
-  },
+  // These aren't working. (TODO)
+  // "onnx-community/whisper-tiny_timestamped": {
+  //   id: "onnx-community/whisper-tiny_timestamped",
+  //   name: "Whisper Tiny",
+  //   description:
+  //     "Smallest and fastest model. Good for quick transcriptions.",
+  //   sizes: {
+  //     webgpu: 103,
+  //     wasm: 41,
+  //   },
+  //   languages: "multilingual",
+  //   accuracy: "basic",
+  //   speed: "fastest",
+  // },
   "onnx-community/whisper-base_timestamped": {
     id: "onnx-community/whisper-base_timestamped",
     name: "Whisper Base",
@@ -56,31 +57,33 @@ export const AVAILABLE_MODELS: Record<string, ModelConfig> = {
     accuracy: "better",
     speed: "medium",
   },
-  "onnx-community/whisper-medium_timestamped": {
-    id: "onnx-community/whisper-medium_timestamped",
-    name: "Whisper Medium",
-    description: "High accuracy. Slower but more precise transcriptions.",
-    sizes: {
-      webgpu: 1980,
-      wasm: 776,
-    },
-    languages: "multilingual",
-    accuracy: "best",
-    speed: "slow",
-  },
-  "onnx-community/whisper-large-v3_timestamped": {
-    id: "onnx-community/whisper-large-v3_timestamped",
-    name: "Whisper Large v3",
-    description:
-      "Most accurate model. Best quality but slowest processing.",
-    sizes: {
-      webgpu: 3140,
-      wasm: 1550,
-    },
-    languages: "multilingual",
-    accuracy: "excellent",
-    speed: "slowest",
-  },
+  // These aren't working. (TODO)
+  // "onnx-community/distil-medium.en_timestamped": {
+  //   id: "onnx-community/distil-medium.en_timestamped",
+  //   name: "Whisper Distil-Medium (EN)",
+  //   description:
+  //     "Distilled model for English. Fast and accurate for English-only content.",
+  //   sizes: {
+  //     webgpu: 800,
+  //     wasm: 400,
+  //   },
+  //   languages: "english-only",
+  //   accuracy: "best",
+  //   speed: "medium",
+  // },
+  // "onnx-community/whisper-large-v3-turbo_timestamped": {
+  //   id: "onnx-community/whisper-large-v3-turbo_timestamped",
+  //   name: "Whisper Large v3 (Turbo)",
+  //   description:
+  //     "Most accurate model. Requires high-end hardware with 16GB+ RAM. May not work on all systems.",
+  //   sizes: {
+  //     webgpu: 3140,
+  //     wasm: 1550,
+  //   },
+  //   languages: "multilingual",
+  //   accuracy: "excellent",
+  //   speed: "slowest",
+  // },
 };
 
 export const DEFAULT_MODEL = "onnx-community/whisper-base_timestamped";
