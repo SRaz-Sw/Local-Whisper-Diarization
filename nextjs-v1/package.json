@@ -14,19 +14,21 @@
   },
   "main": "electron/main.js",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "_______________DEVELOPMENT_______________": "",
+    "dev": "node scripts/verify-web-config.js && next dev --turbopack",
+    "electron:start": "node scripts/verify-web-config.js && cross-env NODE_ENV=development concurrently \"next dev --turbopack\" \"wait-on http://localhost:3000/web-transc && electron .\"",
+    "_______________WEB_DEPLOYMENT_(Vercel)___": "",
     "build": "bun install --force && NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production next build",
-    "build-local": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "clean": "chmod -R u+w node_modules/@sraz-sw 2>/dev/null || true && rm -rf .next node_modules bun.lockb",
-    "electron:dev": "cross-env NODE_ENV=development electron .",
-    "worker:build": "webpack --config webpack.worker.config.js",
+    "_______________ELECTRON_BUILDS___________": "",
     "electron:build": "bun run worker:build && node scripts/build-electron.js && electron-builder",
     "electron:build:mac": "bun run worker:build && node scripts/build-electron.js && electron-builder --mac",
     "electron:build:win": "bun run worker:build && node scripts/build-electron.js && electron-builder --win",
     "electron:build:linux": "bun run worker:build && node scripts/build-electron.js && electron-builder --linux",
-    "electron:start": "cross-env NODE_ENV=development concurrently \"next dev --turbopack\" \"wait-on http://localhost:3000/web-transc && electron .\""
+    "_______________UTILITIES_________________": "",
+    "worker:build": "webpack --config webpack.worker.config.js",
+    "lint": "next lint",
+    "clean": "chmod -R u+w node_modules/@sraz-sw 2>/dev/null || true && rm -rf .next node_modules bun.lockb"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.11",
