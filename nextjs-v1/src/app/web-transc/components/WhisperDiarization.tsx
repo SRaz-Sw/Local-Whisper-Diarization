@@ -13,10 +13,15 @@ import { StreamingTranscript } from "./StreamingTranscript";
 import { IntroSection } from "./IntroSection";
 import { ThemeToggle } from "./ThemeToggle";
 import { ModelSelector } from "./ModelSelector";
-import { DEFAULT_MODEL, getModelSize } from "../config/modelConfig";
+import {
+  DEFAULT_MODEL,
+  getModelSize,
+  AVAILABLE_MODELS,
+} from "../config/modelConfig";
 import { remapSpeakerLabels } from "../utils/transcriptFormatter";
 import { useTranscripts } from "../hooks/useTranscripts";
 import { exposeStorageUtilsToWindow } from "@/lib/localStorage/utils";
+import { useWhisperStore } from "../store/useWhisperStore";
 import type {
   TranscriptionStatus,
   ProgressItem,
@@ -56,34 +61,107 @@ function WhisperDiarization() {
     getWithAudio,
   } = useTranscripts();
 
-  // Model loading and progress
-  const [status, setStatus] = useState<TranscriptionStatus>(null);
-  const [loadingMessage, setLoadingMessage] = useState("");
-  const [progressItems, setProgressItems] = useState<ProgressItem[]>([]);
+  // Storage State from Zustand
+  const setSavedTranscripts = useWhisperStore(
+    (state) => state.setSavedTranscripts,
+  );
+  const setTranscriptsLoading = useWhisperStore(
+    (state) => state.setTranscriptsLoading,
+  );
+
+  // Sync useTranscripts hook state to Zustand for global access
+  useEffect(() => {
+    setSavedTranscripts(
+      savedTranscripts.map((t) => ({
+        id: t.id,
+        fileName: t.metadata.fileName,
+        duration: t.metadata.duration,
+        updatedAt: t.metadata.updatedAt,
+      })),
+    );
+    setTranscriptsLoading(transcriptsLoading);
+  }, [
+    savedTranscripts,
+    transcriptsLoading,
+    setSavedTranscripts,
+    setTranscriptsLoading,
+  ]);
+
+  // Model State from Zustand
+  const status = useWhisperStore((state) => state.model.status);
+  const setStatus = useWhisperStore((state) => state.setStatus);
+  const device = useWhisperStore((state) => state.model.device);
+  const setDevice = useWhisperStore((state) => state.setDevice);
+  const model = useWhisperStore((state) => state.model.model);
+  const setModel = useWhisperStore((state) => state.setModel);
+  const modelSize = useWhisperStore((state) => state.model.modelSize);
+  const setModelSize = useWhisperStore((state) => state.setModelSize);
+
+  // Loading State from Zustand
+  const loadingMessage = useWhisperStore((state) => state.loading.loadingMessage);
+  const setLoadingMessage = useWhisperStore((state) => state.setLoadingMessage);
+  const progressItems = useWhisperStore((state) => state.loading.progressItems);
+  const setProgressItems = useWhisperStore((state) => state.setProgressItems);
+  const addProgressItem = useWhisperStore((state) => state.addProgressItem);
+  const updateProgressItem = useWhisperStore((state) => state.updateProgressItem);
+  const removeProgressItem = useWhisperStore((state) => state.removeProgressItem);
 
   const mediaInputRef = useRef<WhisperMediaInputRef>(null);
-  const [audio, setAudio] = useState<Float32Array | null>(null);
-  const [language, setLanguage] = useState("en");
-  const [audioFileName, setAudioFileName] = useState<string>("");
 
-  const [result, setResult] = useState<TranscriptionResult | null>(null);
-  const [streamingWords, setStreamingWords] = useState<
-    Array<{ text: string; timestamp: number }>
-  >([]);
-  const [time, setTime] = useState<number | null>(null);
+  // Audio State from Zustand
+  const audio = useWhisperStore((state) => state.audio.audio);
+  const setAudio = useWhisperStore((state) => state.setAudio);
+  const language = useWhisperStore((state) => state.audio.language);
+  const setLanguage = useWhisperStore((state) => state.setLanguage);
+  const audioFileName = useWhisperStore((state) => state.audio.audioFileName);
+  const setAudioFileName = useWhisperStore((state) => state.setAudioFileName);
+
+  // Transcription State from Zustand
+  const result = useWhisperStore((state) => state.transcription.result);
+  const setResult = useWhisperStore((state) => state.setResult);
+  const streamingWords = useWhisperStore(
+    (state) => state.transcription.streamingWords,
+  );
+  const setStreamingWords = useWhisperStore((state) => state.setStreamingWords);
+  const addStreamingWord = useWhisperStore((state) => state.addStreamingWord);
+  const generationTime = useWhisperStore(
+    (state) => state.transcription.generationTime,
+  );
+  const setGenerationTime = useWhisperStore((state) => state.setGenerationTime);
+
   const [currentTime, setCurrentTime] = useState(0);
-  const [processingMessage, setProcessingMessage] = useState("");
-  const [processedSeconds, setProcessedSeconds] = useState(0);
-  const [totalSeconds, setTotalSeconds] = useState(0);
-  const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<
-    number | null
-  >(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const isLoadingFromStorageRef = useRef(false);
 
-  const [device, setDevice] = useState<DeviceType>("webgpu"); // Try use WebGPU first
-  const [model, setModel] = useState<string>(DEFAULT_MODEL);
-  const [modelSize, setModelSize] = useState(77); // Default to WASM size, will update after WebGPU check
+  // Processing State from Zustand
+  const processingMessage = useWhisperStore(
+    (state) => state.processing.processingMessage,
+  );
+  const setProcessingMessage = useWhisperStore(
+    (state) => state.setProcessingMessage,
+  );
+  const processedSeconds = useWhisperStore(
+    (state) => state.processing.processedSeconds,
+  );
+  const setProcessedSeconds = useWhisperStore(
+    (state) => state.setProcessedSeconds,
+  );
+  const totalSeconds = useWhisperStore((state) => state.processing.totalSeconds);
+  const setTotalSeconds = useWhisperStore((state) => state.setTotalSeconds);
+  const estimatedTimeRemaining = useWhisperStore(
+    (state) => state.processing.estimatedTimeRemaining,
+  );
+  const setEstimatedTimeRemaining = useWhisperStore(
+    (state) => state.setEstimatedTimeRemaining,
+  );
+
+  // UI State from Zustand (replacing useState and ref)
+  const isSaving = useWhisperStore((state) => state.ui.isSaving);
+  const setIsSaving = useWhisperStore((state) => state.setIsSaving);
+  const isLoadingFromStorage = useWhisperStore(
+    (state) => state.ui.isLoadingFromStorage,
+  );
+  const setIsLoadingFromStorage = useWhisperStore(
+    (state) => state.setIsLoadingFromStorage,
+  );
 
   // Store event handlers in refs so they can be reused when recreating worker
   const onMessageReceivedRef = useRef<((e: MessageEvent) => void) | null>(
@@ -171,27 +249,18 @@ function WhisperDiarization() {
 
         case "initiate":
           console.log("🆕 Initiating download:", e.data.file);
-          setProgressItems((prev) => [...prev, e.data]);
+          addProgressItem(e.data);
           break;
 
         case "progress":
           // Model file progress: update one of the progress items.
-          setProgressItems((prev) =>
-            prev.map((item) => {
-              if (item.file === e.data.file) {
-                return { ...item, ...e.data };
-              }
-              return item;
-            }),
-          );
+          updateProgressItem(e.data.file, e.data);
           break;
 
         case "done":
           // Model file loaded: remove the progress item from the list.
           console.log("✅ Download complete:", e.data.file);
-          setProgressItems((prev) =>
-            prev.filter((item) => item.file !== e.data.file),
-          );
+          removeProgressItem(e.data.file);
           break;
 
         case "loaded":
@@ -213,13 +282,10 @@ function WhisperDiarization() {
           console.log("📝 Current status:", status);
           // Accumulate words with timestamps
           if (e.data.data?.text) {
-            setStreamingWords((prev) => [
-              ...prev,
-              {
-                text: e.data.data.text,
-                timestamp: e.data.data.timestamp,
-              },
-            ]);
+            addStreamingWord({
+              text: e.data.data.text,
+              timestamp: e.data.data.timestamp,
+            });
           }
           break;
 
@@ -247,7 +313,7 @@ function WhisperDiarization() {
           };
           setResult(remappedResult);
           setStreamingWords([]); // Clear streaming words
-          setTime(e.data.time);
+          setGenerationTime(e.data.time);
           setStatus("ready");
           setProcessingMessage("");
           setProcessedSeconds(0);
@@ -331,7 +397,7 @@ function WhisperDiarization() {
   const handleClick = useCallback(() => {
     setResult(null);
     setStreamingWords([]);
-    setTime(null);
+    setGenerationTime(null);
     setProcessingMessage("");
     setProcessedSeconds(0);
     setTotalSeconds(0);
@@ -377,7 +443,7 @@ function WhisperDiarization() {
         setStatus(null);
         setResult(null);
         setStreamingWords([]);
-        setTime(null);
+        setGenerationTime(null);
         setProcessingMessage("");
         alert(
           "Model changed. Please click 'Load model' to load the new model before transcribing.",
@@ -409,7 +475,7 @@ function WhisperDiarization() {
     setAudio(null);
     setResult(null);
     setStreamingWords([]);
-    setTime(null);
+    setGenerationTime(null);
     setProcessingMessage("");
     setCurrentTime(0);
     setProcessedSeconds(0);
@@ -436,23 +502,44 @@ function WhisperDiarization() {
       }));
 
       // Load the transcript data into the result state
+      console.log("📄 Setting result from storage:", {
+        chunks: data.transcript.chunks.length,
+        segments: segmentsWithMissingProps.length,
+      });
       setResult({
         transcript: data.transcript,
         segments: segmentsWithMissingProps,
       });
 
       // Set a time value to show the result properly (use 0 as placeholder)
-      setTime(0);
+      setGenerationTime(0);
 
       setAudioFileName(data.metadata.fileName);
       setLanguage(data.metadata.language);
-      setModel(data.metadata.model);
+
+      // Validate model ID - fallback to default if not found in AVAILABLE_MODELS
+      const loadedModel = data.metadata.model;
+      const validModel = AVAILABLE_MODELS[loadedModel]
+        ? loadedModel
+        : DEFAULT_MODEL;
+
+      if (loadedModel !== validModel) {
+        console.warn(
+          `Model "${loadedModel}" not found in AVAILABLE_MODELS. Using default: "${validModel}"`,
+        );
+        toast.info("Model updated", {
+          description: `The saved model is no longer available. Using ${AVAILABLE_MODELS[validModel].name} instead.`,
+        });
+      }
+
+      setModel(validModel);
 
       // Load audio blob if available
       if (audioBlob && mediaInputRef.current) {
-        console.log("Loading audio blob for transcript:", transcriptId);
+        console.log("🎵 Loading audio blob for transcript:", transcriptId);
         // Set flag to prevent clearing the result when audio loads
-        isLoadingFromStorageRef.current = true;
+        console.log("🚩 Setting isLoadingFromStorage = true");
+        setIsLoadingFromStorage(true);
         mediaInputRef.current.loadFromBlob(audioBlob, data.metadata.fileName);
       } else if (!audioBlob) {
         console.warn("No audio blob found for transcript:", transcriptId);
@@ -592,13 +679,20 @@ function WhisperDiarization() {
               <MediaFileUpload
                 ref={mediaInputRef}
                 onInputChange={(audio) => {
+                  // Read the flag directly from Zustand store to avoid stale closures
+                  const currentFlag = useWhisperStore.getState().ui.isLoadingFromStorage;
+                  console.log("📥 onInputChange called, isLoadingFromStorage:", currentFlag);
+
                   // Only clear result if we're NOT loading from storage
-                  if (!isLoadingFromStorageRef.current) {
+                  if (!currentFlag) {
+                    console.log("🗑️ Clearing result (not loading from storage)");
                     setResult(null);
+                  } else {
+                    console.log("✅ Preserving result (loading from storage)");
                   }
                   setAudio(audio);
                   // Reset the flag after audio is loaded
-                  isLoadingFromStorageRef.current = false;
+                  setIsLoadingFromStorage(false);
                 }}
                 onTimeUpdate={(time) => setCurrentTime(time)}
                 onFileNameChange={(fileName) => setAudioFileName(fileName)}
@@ -832,7 +926,7 @@ function WhisperDiarization() {
                 )}
 
                 {/* Show final result with speaker diarization */}
-                {result && time !== null && (
+                {result && generationTime !== null && (
                   <div className="w-full space-y-4 pt-24">
                     {/* Action buttons at top */}
                     <div className="flex flex-wrap items-center justify-center gap-3">
@@ -1013,11 +1107,11 @@ function WhisperDiarization() {
                       />
                     </Card>
 
-                    {time > 0 && (
+                    {generationTime !== null && generationTime > 0 && (
                       <p className="text-muted-foreground text-end text-xs">
                         Generation time:{" "}
                         <span className="font-semibold">
-                          {time.toFixed(2)}ms
+                          {generationTime.toFixed(2)}ms
                         </span>
                       </p>
                     )}

@@ -247,7 +247,7 @@ export function ModelSelector({
               <p className="text-sm text-yellow-700 dark:text-yellow-300">
                 ⚠️ <strong>Note:</strong> Changing the model will require
                 downloading new model files{" "}
-                {selectedModel && (
+                {selectedModel && AVAILABLE_MODELS[selectedModel] && (
                   <>
                     (~
                     {AVAILABLE_MODELS[selectedModel].sizes[device]}
