@@ -3,21 +3,13 @@
 import { useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useWhisperStore } from "../store/useWhisperStore";
 
-interface TranscriptWord {
-  text: string;
-  timestamp: number;
-}
-
-interface StreamingTranscriptProps {
-  words: TranscriptWord[];
-  isActive: boolean;
-}
-
-export function StreamingTranscript({
-  words,
-  isActive,
-}: StreamingTranscriptProps) {
+export function StreamingTranscript() {
+  // Read state directly from Zustand - no more prop drilling!
+  const words = useWhisperStore((state) => state.transcription.streamingWords);
+  const status = useWhisperStore((state) => state.model.status);
+  const isActive = status === "running";
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new words arrive

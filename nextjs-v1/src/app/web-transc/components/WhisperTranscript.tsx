@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ExportToLLMModal } from "./ExportToLLMModal";
-import type { ChunkProps, WhisperTranscriptProps } from "../types";
+import type { ChunkProps } from "../types";
 import { motion } from "framer-motion";
+import { useWhisperStore } from "../store/useWhisperStore";
 
 const Chunk = ({ chunk, currentTime, onClick }: ChunkProps) => {
   const spanRef = useRef<HTMLSpanElement>(null);
@@ -42,14 +43,25 @@ const Chunk = ({ chunk, currentTime, onClick }: ChunkProps) => {
   );
 };
 
+interface WhisperTranscriptProps {
+  currentTime: number;
+  setCurrentTime: (time: number) => void;
+  className?: string;
+}
+
 const WhisperTranscript = ({
-  transcript,
-  segments,
   currentTime,
   setCurrentTime,
   className,
   ...props
 }: WhisperTranscriptProps) => {
+  // Read transcript and segments from Zustand - no more prop drilling!
+  const result = useWhisperStore((state) => state.transcription.result);
+
+  // Early return if no result
+  if (!result) return null;
+
+  const { transcript, segments } = result;
   const [showExportModal, setShowExportModal] = useState(false);
 
   // Listen for export modal trigger from parent

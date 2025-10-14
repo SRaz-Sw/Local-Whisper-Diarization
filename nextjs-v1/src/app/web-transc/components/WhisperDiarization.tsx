@@ -502,10 +502,6 @@ function WhisperDiarization() {
       }));
 
       // Load the transcript data into the result state
-      console.log("📄 Setting result from storage:", {
-        chunks: data.transcript.chunks.length,
-        segments: segmentsWithMissingProps.length,
-      });
       setResult({
         transcript: data.transcript,
         segments: segmentsWithMissingProps,
@@ -536,9 +532,7 @@ function WhisperDiarization() {
 
       // Load audio blob if available
       if (audioBlob && mediaInputRef.current) {
-        console.log("🎵 Loading audio blob for transcript:", transcriptId);
         // Set flag to prevent clearing the result when audio loads
-        console.log("🚩 Setting isLoadingFromStorage = true");
         setIsLoadingFromStorage(true);
         mediaInputRef.current.loadFromBlob(audioBlob, data.metadata.fileName);
       } else if (!audioBlob) {
@@ -681,14 +675,10 @@ function WhisperDiarization() {
                 onInputChange={(audio) => {
                   // Read the flag directly from Zustand store to avoid stale closures
                   const currentFlag = useWhisperStore.getState().ui.isLoadingFromStorage;
-                  console.log("📥 onInputChange called, isLoadingFromStorage:", currentFlag);
 
                   // Only clear result if we're NOT loading from storage
                   if (!currentFlag) {
-                    console.log("🗑️ Clearing result (not loading from storage)");
                     setResult(null);
-                  } else {
-                    console.log("✅ Preserving result (loading from storage)");
                   }
                   setAudio(audio);
                   // Reset the flag after audio is loaded
@@ -753,8 +743,6 @@ function WhisperDiarization() {
 
                     {/* Model selector - show always */}
                     <ModelSelector
-                      currentModel={model}
-                      device={device}
                       disabled={status === "running"}
                       onModelChange={handleModelChange}
                     />
@@ -772,11 +760,7 @@ function WhisperDiarization() {
                       <span className="text-muted-foreground text-xs">
                         Language:
                       </span>
-                      <WhisperLanguageSelector
-                        className="w-[120px]"
-                        language={language}
-                        setLanguage={setLanguage}
-                      />
+                      <WhisperLanguageSelector className="w-[120px]" />
                     </motion.div>
                   )}
                 </motion.div>
@@ -807,10 +791,7 @@ function WhisperDiarization() {
                 )}
 
                 {/* Show streaming transcription with new component */}
-                <StreamingTranscript
-                  words={streamingWords}
-                  isActive={status === "running"}
-                />
+                <StreamingTranscript />
 
                 {/* Saved Transcripts Section - Show when not running and no result */}
                 {!result && status !== "running" && savedTranscripts.length > 0 && (
@@ -1097,8 +1078,6 @@ function WhisperDiarization() {
                     <Card>
                       <WhisperTranscript
                         className="p-4"
-                        transcript={result.transcript}
-                        segments={result.segments}
                         currentTime={currentTime}
                         setCurrentTime={(time) => {
                           setCurrentTime(time);
