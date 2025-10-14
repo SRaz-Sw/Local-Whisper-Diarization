@@ -79,12 +79,15 @@ export interface WhisperLanguageSelectorProps {
 export interface WhisperMediaInputProps {
   onInputChange: (audio: Float32Array) => void;
   onTimeUpdate: (time: number) => void;
+  onFileNameChange?: (fileName: string) => void;
   className?: string;
 }
 
 export interface WhisperMediaInputRef {
   setMediaTime: (time: number) => void;
   reset: () => void;
+  loadFromBlob: (blob: Blob, fileName: string) => void;
+  getFile: () => File | null;
 }
 
 export interface WhisperTranscriptProps {

@@ -120,7 +120,7 @@ const UploadIllustration = () => (
 const MediaFileUpload = forwardRef<
   WhisperMediaInputRef,
   WhisperMediaInputProps
->(({ onInputChange, onTimeUpdate, className, ...props }, ref) => {
+>(({ onInputChange, onTimeUpdate, onFileNameChange, className, ...props }, ref) => {
   const [status, setStatus] = useState<FileStatus>("idle");
   const [error, setError] = useState<FileError | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -158,8 +158,36 @@ const MediaFileUpload = forwardRef<
         setMediaUrl(null);
         setPlaybackSpeed(1);
       },
+      loadFromBlob(blob: Blob, fileName: string) {
+        setError(null);
+        setStatus("processing");
+
+        // Create a File object from the blob for consistency
+        const file = new File([blob], fileName, { type: blob.type });
+        setFile(file);
+
+        // Notify parent component of the file name
+        if (onFileNameChange) {
+          onFileNameChange(fileName);
+        }
+
+        // Convert blob to ArrayBuffer and process
+        blob.arrayBuffer().then((arrayBuffer) => {
+          onBufferLoad(arrayBuffer, blob.type);
+        }).catch((error) => {
+          console.error("Failed to load blob:", error);
+          setError({
+            message: "Failed to load audio file",
+            code: "BLOB_LOAD_ERROR",
+          });
+          setStatus("error");
+        });
+      },
+      getFile(): File | null {
+        return file;
+      },
     }),
-    [mediaUrl],
+    [mediaUrl, onFileNameChange, file],
   );
 
   const updateTime = useCallback(() => {
@@ -236,6 +264,11 @@ const MediaFileUpload = forwardRef<
     setError(null);
     setFile(selectedFile);
     setStatus("processing");
+
+    // Notify parent component of the file name
+    if (onFileNameChange) {
+      onFileNameChange(selectedFile.name);
+    }
 
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -327,7 +360,14 @@ const MediaFileUpload = forwardRef<
     setStatus("processing");
     try {
       const buffer = await fetch(EXAMPLE_URL).then((r) => r.arrayBuffer());
-      setFile(new File([buffer], "example.webm", { type: "video/webm" }));
+      const fileName = "example.webm";
+      setFile(new File([buffer], fileName, { type: "video/webm" }));
+
+      // Notify parent component of the file name
+      if (onFileNameChange) {
+        onFileNameChange(fileName);
+      }
+
       onBufferLoad(buffer, "video/webm");
     } catch (err) {
       setError({

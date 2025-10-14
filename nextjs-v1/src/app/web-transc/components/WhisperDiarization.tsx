@@ -1,9 +1,10 @@
-/// <reference types="@webgpu/types" />
+"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import WhisperProgress from "./WhisperProgress";
 import MediaFileUpload from "./MediaFileUpload";
 import WhisperTranscript from "./WhisperTranscript";
@@ -14,6 +15,8 @@ import { ThemeToggle } from "./ThemeToggle";
 import { ModelSelector } from "./ModelSelector";
 import { DEFAULT_MODEL, getModelSize } from "../config/modelConfig";
 import { remapSpeakerLabels } from "../utils/transcriptFormatter";
+import { useTranscripts } from "../hooks/useTranscripts";
+import { exposeStorageUtilsToWindow } from "@/lib/localStorage/utils";
 import type {
   TranscriptionStatus,
   ProgressItem,
@@ -44,6 +47,15 @@ function WhisperDiarization() {
   // Create a reference to the worker object.
   const worker = useRef<Worker | null>(null);
 
+  // Storage hook for saving and loading transcripts
+  const {
+    save: saveTranscript,
+    transcripts: savedTranscripts,
+    loading: transcriptsLoading,
+    remove: removeTranscript,
+    getWithAudio,
+  } = useTranscripts();
+
   // Model loading and progress
   const [status, setStatus] = useState<TranscriptionStatus>(null);
   const [loadingMessage, setLoadingMessage] = useState("");
@@ -52,6 +64,7 @@ function WhisperDiarization() {
   const mediaInputRef = useRef<WhisperMediaInputRef>(null);
   const [audio, setAudio] = useState<Float32Array | null>(null);
   const [language, setLanguage] = useState("en");
+  const [audioFileName, setAudioFileName] = useState<string>("");
 
   const [result, setResult] = useState<TranscriptionResult | null>(null);
   const [streamingWords, setStreamingWords] = useState<
@@ -65,6 +78,8 @@ function WhisperDiarization() {
   const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<
     number | null
   >(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingFromStorage, setIsLoadingFromStorage] = useState(false);
 
   const [device, setDevice] = useState<DeviceType>("webgpu"); // Try use WebGPU first
   const [model, setModel] = useState<string>(DEFAULT_MODEL);
@@ -82,6 +97,11 @@ function WhisperDiarization() {
       setDevice(detectedDevice);
       setModelSize(getModelSize(model, detectedDevice));
     });
+
+    // Expose storage utilities to browser console for debugging
+    if (process.env.NODE_ENV === "development") {
+      exposeStorageUtilsToWindow();
+    }
   }, []);
 
   // Update model size when model changes
@@ -397,6 +417,63 @@ function WhisperDiarization() {
     setEstimatedTimeRemaining(null);
   }, [status, initializeWorker]);
 
+  const handleLoadTranscript = useCallback(async (transcriptId: string) => {
+    try {
+      // Get transcript with audio blob
+      const result = await getWithAudio(transcriptId);
+      if (!result) {
+        toast.error("Transcript not found");
+        return;
+      }
+
+      const { transcript: data, audioBlob } = result;
+
+      // Map segments to include missing properties (id and confidence)
+      const segmentsWithMissingProps = data.segments.map((segment, index) => ({
+        ...segment,
+        id: index,
+        confidence: 1.0, // Default confidence since it's not stored
+      }));
+
+      // Load the transcript data into the result state
+      setResult({
+        transcript: data.transcript,
+        segments: segmentsWithMissingProps,
+      });
+
+      // Set a time value to show the result properly (use 0 as placeholder)
+      setTime(0);
+
+      setAudioFileName(data.metadata.fileName);
+      setLanguage(data.metadata.language);
+      setModel(data.metadata.model);
+
+      // Load audio blob if available
+      if (audioBlob && mediaInputRef.current) {
+        console.log("Loading audio blob for transcript:", transcriptId);
+        // Set flag to prevent clearing the result when audio loads
+        setIsLoadingFromStorage(true);
+        mediaInputRef.current.loadFromBlob(audioBlob, data.metadata.fileName);
+      } else if (!audioBlob) {
+        console.warn("No audio blob found for transcript:", transcriptId);
+        toast.info("Transcript loaded without audio", {
+          description: "Audio file was not saved with this transcript",
+        });
+      }
+
+      toast.success("Transcript loaded!", {
+        description: `Loaded "${data.metadata.fileName}"`,
+      });
+
+      console.log("✅ Transcript loaded:", transcriptId);
+    } catch (error) {
+      console.error("Failed to load transcript:", error);
+      toast.error("Failed to load transcript", {
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    }
+  }, [getWithAudio]);
+
   return (
     <div className="relative min-h-screen">
       {/* Animated gradient background */}
@@ -515,10 +592,16 @@ function WhisperDiarization() {
               <MediaFileUpload
                 ref={mediaInputRef}
                 onInputChange={(audio) => {
-                  setResult(null);
+                  // Only clear result if we're NOT loading from storage
+                  if (!isLoadingFromStorage) {
+                    setResult(null);
+                  }
                   setAudio(audio);
+                  // Reset the flag after audio is loaded
+                  setIsLoadingFromStorage(false);
                 }}
                 onTimeUpdate={(time) => setCurrentTime(time)}
+                onFileNameChange={(fileName) => setAudioFileName(fileName)}
               />
             </div>
           </div>
@@ -635,8 +718,121 @@ function WhisperDiarization() {
                   isActive={status === "running"}
                 />
 
+                {/* Saved Transcripts Section - Show when not running and no result */}
+                {!result && status !== "running" && savedTranscripts.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
+                    className="w-full space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-foreground">
+                        Saved Transcripts
+                      </h3>
+                      <span className="text-xs text-muted-foreground">
+                        {savedTranscripts.length} saved
+                      </span>
+                    </div>
+
+                    <div className="max-h-[300px] space-y-2 overflow-y-auto rounded-lg border border-muted/50 bg-muted/20 p-3">
+                      {transcriptsLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                        </div>
+                      ) : (
+                        savedTranscripts.map((transcript) => (
+                          <motion.div
+                            key={transcript.id}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            whileHover={{ scale: 1.01 }}
+                            onDoubleClick={() => handleLoadTranscript(transcript.id)}
+                            className="group cursor-pointer rounded-md border border-muted/50 bg-card/50 p-3 transition-all hover:border-primary/50 hover:bg-card/80 hover:shadow-md"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <h4 className="truncate text-sm font-medium text-foreground">
+                                  {transcript.metadata.fileName}
+                                </h4>
+                                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <svg
+                                      className="h-3 w-3"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                      />
+                                    </svg>
+                                    {formatTime(transcript.metadata.duration)}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <svg
+                                      className="h-3 w-3"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                      />
+                                    </svg>
+                                    {transcript.metadata.speakerCount} speaker{transcript.metadata.speakerCount !== 1 ? 's' : ''}
+                                  </span>
+                                  <span>
+                                    {new Date(transcript.metadata.updatedAt).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (confirm(`Delete "${transcript.metadata.fileName}"?`)) {
+                                    removeTranscript(transcript.id).catch(err => {
+                                      toast.error("Failed to delete transcript", {
+                                        description: err.message
+                                      });
+                                    });
+                                  }
+                                }}
+                                className="flex-shrink-0 rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+                              >
+                                <svg
+                                  className="h-4 w-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                            <p className="mt-1 text-xs text-muted-foreground/70">
+                              Double-click to load
+                            </p>
+                          </motion.div>
+                        ))
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* Show final result with speaker diarization */}
-                {result && time && (
+                {result && time !== null && (
                   <div className="w-full space-y-4 pt-24">
                     {/* Action buttons at top */}
                     <div className="flex flex-wrap items-center justify-center gap-3">
@@ -717,14 +913,52 @@ function WhisperDiarization() {
                       {/* Secondary actions */}
                       <div className="flex flex-wrap gap-2">
                         <Button
-                          onClick={() => {
-                            alert(
-                              "Save functionality coming soon! This will allow you to save transcripts for future reference.",
-                            );
+                          onClick={async () => {
+                            if (!result) return;
+
+                            setIsSaving(true);
+                            try {
+                              // Get the audio file from the media component
+                              const audioFile = mediaInputRef.current?.getFile();
+
+                              const id = await saveTranscript({
+                                transcript: result.transcript,
+                                segments: result.segments,
+                                fileName: audioFileName || "untitled",
+                                language: language,
+                                model: model,
+                                audioBlob: audioFile || undefined, // Include audio blob if available
+                              });
+
+                              toast.success(
+                                "Transcript saved successfully!",
+                                {
+                                  description: audioFile
+                                    ? `Saved "${audioFileName || "untitled"}" with audio`
+                                    : `Saved "${audioFileName || "untitled"}" (without audio)`,
+                                },
+                              );
+
+                              console.log("Transcript saved with ID:", id, audioFile ? "with audio" : "without audio");
+                            } catch (error) {
+                              console.error(
+                                "Failed to save transcript:",
+                                error,
+                              );
+                              toast.error("Failed to save transcript", {
+                                description:
+                                  error instanceof Error
+                                    ? error.message
+                                    : "Unknown error occurred",
+                              });
+                            } finally {
+                              setIsSaving(false);
+                            }
                           }}
                           variant="outline"
                           className="gap-2"
                           size="sm"
+                          disabled={isSaving}
                         >
                           <svg
                             className="h-4 w-4"
@@ -739,7 +973,7 @@ function WhisperDiarization() {
                               d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
                             />
                           </svg>
-                          Save
+                          {isSaving ? "Saving..." : "Save"}
                         </Button>
                         <Button
                           onClick={handleReset}
@@ -779,12 +1013,14 @@ function WhisperDiarization() {
                       />
                     </Card>
 
-                    <p className="text-muted-foreground text-end text-xs">
-                      Generation time:{" "}
-                      <span className="font-semibold">
-                        {time.toFixed(2)}ms
-                      </span>
-                    </p>
+                    {time > 0 && (
+                      <p className="text-muted-foreground text-end text-xs">
+                        Generation time:{" "}
+                        <span className="font-semibold">
+                          {time.toFixed(2)}ms
+                        </span>
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
