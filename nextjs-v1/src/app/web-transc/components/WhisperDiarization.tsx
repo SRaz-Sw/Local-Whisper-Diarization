@@ -79,7 +79,7 @@ function WhisperDiarization() {
     number | null
   >(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoadingFromStorage, setIsLoadingFromStorage] = useState(false);
+  const isLoadingFromStorageRef = useRef(false);
 
   const [device, setDevice] = useState<DeviceType>("webgpu"); // Try use WebGPU first
   const [model, setModel] = useState<string>(DEFAULT_MODEL);
@@ -452,7 +452,7 @@ function WhisperDiarization() {
       if (audioBlob && mediaInputRef.current) {
         console.log("Loading audio blob for transcript:", transcriptId);
         // Set flag to prevent clearing the result when audio loads
-        setIsLoadingFromStorage(true);
+        isLoadingFromStorageRef.current = true;
         mediaInputRef.current.loadFromBlob(audioBlob, data.metadata.fileName);
       } else if (!audioBlob) {
         console.warn("No audio blob found for transcript:", transcriptId);
@@ -593,12 +593,12 @@ function WhisperDiarization() {
                 ref={mediaInputRef}
                 onInputChange={(audio) => {
                   // Only clear result if we're NOT loading from storage
-                  if (!isLoadingFromStorage) {
+                  if (!isLoadingFromStorageRef.current) {
                     setResult(null);
                   }
                   setAudio(audio);
                   // Reset the flag after audio is loaded
-                  setIsLoadingFromStorage(false);
+                  isLoadingFromStorageRef.current = false;
                 }}
                 onTimeUpdate={(time) => setCurrentTime(time)}
                 onFileNameChange={(fileName) => setAudioFileName(fileName)}
