@@ -45,7 +45,7 @@ const UploadIllustration = () => (
       className="h-full w-full"
       aria-label="Upload illustration"
     >
-      <title>Upload Media File</title>
+      <title>Select Media File</title>
       <circle
         cx="50"
         cy="50"

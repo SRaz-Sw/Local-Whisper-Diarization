@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Download, Sparkles } from "lucide-react";
 import { ExportToLLMModal } from "./ExportToLLMModal";
 import type { ChunkProps, WhisperTranscriptProps } from "../types";
+import { motion } from "framer-motion";
 
 const Chunk = ({ chunk, currentTime, onClick }: ChunkProps) => {
   const spanRef = useRef<HTMLSpanElement>(null);
@@ -54,23 +52,16 @@ const WhisperTranscript = ({
 }: WhisperTranscriptProps) => {
   const [showExportModal, setShowExportModal] = useState(false);
 
-  const jsonTranscript = useMemo(() => {
-    return (
-      JSON.stringify(
-        {
-          ...transcript,
-          segments,
-        },
-        null,
-        2,
-      )
-        // post-process the JSON to make it more readable
-        .replace(
-          /( {4}"timestamp": )\[\s+(\S+)\s+(\S+)\s+\]/gm,
-          "$1[$2 $3]",
-        )
-    );
-  }, [transcript, segments]);
+  // Listen for export modal trigger from parent
+  useEffect(() => {
+    const handleExportTrigger = () => {
+      setShowExportModal(true);
+    };
+    window.addEventListener("export-to-llm", handleExportTrigger);
+    return () => {
+      window.removeEventListener("export-to-llm", handleExportTrigger);
+    };
+  }, []);
 
   // Post-process the transcript to highlight speaker changes
   const postProcessedTranscript = useMemo(() => {
@@ -109,20 +100,8 @@ const WhisperTranscript = ({
     return result;
   }, [transcript, segments]);
 
-  const downloadTranscript = () => {
-    const blob = new Blob([jsonTranscript], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "whisper-transcript.json";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // Generate speaker colors
-  const getSpeakerColor = (index: number) => {
+  // Generate speaker colors - map speaker labels to consistent colors
+  const speakerColorMap = useMemo(() => {
     const colors = [
       "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
       "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
@@ -131,62 +110,149 @@ const WhisperTranscript = ({
       "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
       "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
     ];
-    return colors[index % colors.length];
+
+    // Get unique speakers in order of appearance
+    const uniqueSpeakers: string[] = [];
+    const seen = new Set<string>();
+    for (const segment of segments) {
+      if (segment.label !== "NO_SPEAKER" && !seen.has(segment.label)) {
+        uniqueSpeakers.push(segment.label);
+        seen.add(segment.label);
+      }
+    }
+
+    // Map each speaker to a color
+    const map = new Map<string, string>();
+    uniqueSpeakers.forEach((speaker, index) => {
+      map.set(speaker, colors[index % colors.length]);
+    });
+
+    return map;
+  }, [segments]);
+
+  const getSpeakerColor = (label: string) => {
+    return (
+      speakerColorMap.get(label) ||
+      "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+    );
+  };
+
+  // Animation variants
+  const containerVariants = {
+    default: {
+      paddingTop: 6,
+      paddingBottom: 6,
+    },
+    hover: {
+      paddingTop: 20,
+      paddingBottom: 12,
+    },
+  };
+
+  const dotLabelWrapperVariants = {
+    default: {
+      y: 0,
+    },
+    hover: {
+      y: -28, // Move the entire wrapper up by a fixed amount
+    },
+  };
+
+  const labelVariants = {
+    default: {
+      opacity: 0,
+      x: -10,
+    },
+    hover: {
+      opacity: 1,
+      x: 0,
+    },
+  };
+
+  const textVariants = {
+    default: {
+      y: 0,
+    },
+    hover: {
+      y: 20,
+    },
   };
 
   return (
     <>
-      <ScrollArea className="h-[300px]">
-        <div {...props} className={className}>
-          {postProcessedTranscript.map(
-            ({ label, start, end, chunks }, i) => (
-              <div className="border-t py-3 first:border-t-0" key={i}>
-                <div className="mb-2 flex items-center justify-between">
-                  <Badge
-                    variant="secondary"
-                    className={getSpeakerColor(i)}
+      <div {...props} className={className}>
+        {postProcessedTranscript.map(
+          ({ label, start, end, chunks }, i) => (
+            <motion.div
+              key={i}
+              className="border-border/50 hover:border-border/100 flex gap-4 border-b last:border-b-0"
+              variants={containerVariants}
+              initial="default"
+              whileHover="hover"
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              {/* Left side: Vertical line with dot */}
+              <div className="relative flex min-h-[80px] w-px flex-col">
+                {/* Vertical line - full height */}
+                <div className="b absolute inset-0 w-px" />
+
+                {/* Dot container - centered vertically by flexbox */}
+                <div
+                  className={`flex flex-1 items-center justify-center ${getSpeakerColor(label)}`}
+                >
+                  {/* Wrapper that moves both dot and label together */}
+                  <motion.div
+                    className="relative"
+                    variants={dotLabelWrapperVariants}
+                    transition={{
+                      type: "tween",
+                      duration: 0.15,
+                    }}
                   >
-                    {label}
-                  </Badge>
-                  <span className="text-muted-foreground text-xs">
-                    {start.toFixed(2)} → {end.toFixed(2)}
-                  </span>
-                </div>
-                <div className="leading-relaxed">
-                  {chunks.map((chunk, j) => (
-                    <Chunk
-                      key={j}
-                      chunk={chunk}
-                      currentTime={currentTime}
-                      onClick={() => setCurrentTime(chunk.timestamp[0])}
+                    {/* Animated dot */}
+                    <div
+                      className={`h-3 w-3 rounded-full ${getSpeakerColor(label)}`}
                     />
-                  ))}
+
+                    {/* Speaker label - only fades and slides, no Y movement */}
+                    <motion.div
+                      className={`absolute top-1/2 left-4 -translate-y-1/2 rounded-lg px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${getSpeakerColor(label)}`}
+                      variants={labelVariants}
+                      transition={{
+                        type: "spring",
+                        stiffness: 200,
+                        damping: 25,
+                        delay: 0.1,
+                      }}
+                    >
+                      {label}
+                    </motion.div>
+                  </motion.div>
                 </div>
               </div>
-            ),
-          )}
-        </div>
-      </ScrollArea>
 
-      <div className="flex justify-center gap-2 border-t p-3">
-        <Button
-          onClick={() => setShowExportModal(true)}
-          variant="default"
-          className="gap-2"
-          size="sm"
-        >
-          <Sparkles className="h-4 w-4" />
-          Export to LLM
-        </Button>
-        <Button
-          onClick={downloadTranscript}
-          variant="outline"
-          className="gap-2"
-          size="sm"
-        >
-          <Download className="h-4 w-4" />
-          Download JSON
-        </Button>
+              {/* Right side: Text content */}
+              <motion.div
+                className="flex-1 py-2 leading-relaxed"
+                variants={textVariants}
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 30,
+                }}
+              >
+                {chunks.map((chunk, j) => (
+                  <Chunk
+                    key={j}
+                    chunk={chunk}
+                    currentTime={currentTime}
+                    onClick={() => setCurrentTime(chunk.timestamp[0])}
+                  />
+                ))}
+              </motion.div>
+            </motion.div>
+          ),
+        )}
       </div>
 
       <ExportToLLMModal

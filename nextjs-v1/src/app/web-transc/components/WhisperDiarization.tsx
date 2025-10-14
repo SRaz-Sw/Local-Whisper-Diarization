@@ -70,6 +70,12 @@ function WhisperDiarization() {
   const [model, setModel] = useState<string>(DEFAULT_MODEL);
   const [modelSize, setModelSize] = useState(77); // Default to WASM size, will update after WebGPU check
 
+  // Store event handlers in refs so they can be reused when recreating worker
+  const onMessageReceivedRef = useRef<((e: MessageEvent) => void) | null>(
+    null,
+  );
+  const onErrorRef = useRef<((error: ErrorEvent) => void) | null>(null);
+
   useEffect(() => {
     hasWebGPU().then((b) => {
       const detectedDevice = b ? "webgpu" : "wasm";
@@ -83,42 +89,54 @@ function WhisperDiarization() {
     setModelSize(getModelSize(model, device));
   }, [model, device]);
 
+  // Helper function to create and initialize worker with event listeners
+  const initializeWorker = useCallback(() => {
+    try {
+      const isDev = process.env.NODE_ENV === "development";
+
+      if (isDev) {
+        worker.current = new Worker(
+          new URL(
+            "../workers/whisperDiarization.worker.js",
+            import.meta.url,
+          ),
+          { type: "module" },
+        );
+      } else {
+        worker.current = new Worker(
+          "/workers/whisperDiarization.worker.js",
+        );
+      }
+
+      console.log("✅ Worker created successfully");
+
+      // Attach event listeners if handlers exist
+      if (onMessageReceivedRef.current && worker.current) {
+        worker.current.addEventListener(
+          "message",
+          onMessageReceivedRef.current,
+        );
+      }
+      if (onErrorRef.current && worker.current) {
+        worker.current.addEventListener("error", onErrorRef.current);
+      }
+
+      return true;
+    } catch (error) {
+      console.error("❌ Failed to create worker:", error);
+      const errorMessage =
+        typeof error === "object" && error !== null && "message" in error
+          ? (error as { message: string }).message
+          : "Unknown error";
+      alert(
+        `Failed to initialize worker: ${errorMessage}. Check console for details.`,
+      );
+      return false;
+    }
+  }, []);
+
   // We use the `useEffect` hook to setup the worker as soon as the `WhisperDiarization` component is mounted.
   useEffect(() => {
-    if (!worker.current) {
-      // Create the worker if it does not yet exist.
-      try {
-        // In production (Electron), use the bundled worker from /workers
-        // In development, use the source worker
-        const isDev = process.env.NODE_ENV === "development";
-
-        if (isDev) {
-          worker.current = new Worker(
-            new URL(
-              "../workers/whisperDiarization.worker.js",
-              import.meta.url,
-            ),
-            {
-              type: "module",
-            },
-          );
-        } else {
-          // Production: use bundled worker (not a module)
-          // publicPath is set to "auto" so webpack will figure out the correct path
-          worker.current = new Worker(
-            "/workers/whisperDiarization.worker.js",
-          );
-        }
-        console.log("✅ Worker created successfully");
-      } catch (error) {
-        console.error("❌ Failed to create worker:", error);
-        alert(
-          `Failed to initialize worker: ${error?.message || "Unknown error"}. Check console for details.`,
-        );
-        return;
-      }
-    }
-
     // Create a callback function for messages from the worker thread.
     const onMessageReceived = (e: MessageEvent) => {
       console.log("📨 Worker message received:", e.data);
@@ -270,16 +288,25 @@ function WhisperDiarization() {
       setStatus(null);
     };
 
-    // Attach the callback function as an event listener.
-    worker.current.addEventListener("message", onMessageReceived);
-    worker.current.addEventListener("error", onError);
+    // Store handlers in refs so they can be reused
+    onMessageReceivedRef.current = onMessageReceived;
+    onErrorRef.current = onError;
+
+    // Create worker if it doesn't exist
+    if (!worker.current) {
+      initializeWorker();
+    } else {
+      // If worker exists, attach listeners
+      worker.current.addEventListener("message", onMessageReceived);
+      worker.current.addEventListener("error", onError);
+    }
 
     // Define a cleanup function for when the component is unmounted.
     return () => {
       worker.current?.removeEventListener("message", onMessageReceived);
       worker.current?.removeEventListener("error", onError);
     };
-  }, []);
+  }, [initializeWorker]);
 
   const handleClick = useCallback(() => {
     setResult(null);
@@ -341,6 +368,21 @@ function WhisperDiarization() {
   );
 
   const handleReset = useCallback(() => {
+    // If running, terminate the worker and recreate it
+    if (status === "running") {
+      worker.current?.terminate();
+
+      // Recreate worker with event listeners
+      const success = initializeWorker();
+
+      if (success) {
+        console.log("✅ Worker recreated after reset");
+      }
+
+      // Reset status to null so user needs to reload model
+      setStatus(null);
+    }
+
     // Reset media component
     mediaInputRef.current?.reset();
     // Reset all states
@@ -353,12 +395,12 @@ function WhisperDiarization() {
     setProcessedSeconds(0);
     setTotalSeconds(0);
     setEstimatedTimeRemaining(null);
-  }, []);
+  }, [status, initializeWorker]);
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen">
       {/* Animated gradient background */}
-      <div className="pointer-events-none fixed inset-0 z-0">
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <motion.div
           className="absolute inset-0"
           style={{
@@ -399,7 +441,7 @@ function WhisperDiarization() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm"
           >
             <div className="w-[90%] max-w-[500px] space-y-4">
               <p className="mb-3 text-center text-lg font-semibold text-white">
@@ -431,7 +473,7 @@ function WhisperDiarization() {
 
         <div className="my-auto space-y-8">
           {/* Theme toggle button - fixed position */}
-          <div className="fixed top-4 right-4 z-50 sm:top-6 sm:right-6">
+          <div className="fixed top-4 right-4 z-[55] sm:top-6 sm:right-6">
             <ThemeToggle />
           </div>
 
@@ -461,20 +503,29 @@ function WhisperDiarization() {
             </motion.p>
           </motion.div>
 
+          {/* Audio player - always rendered outside Card to avoid backdrop-blur containing block issue */}
+          <div
+            className={
+              result
+                ? "bg-background/95 fixed top-0 right-0 left-0 z-50 border-b shadow-lg backdrop-blur-sm"
+                : "relative"
+            }
+          >
+            <div className={result ? "mx-auto max-w-6xl px-4 py-3" : ""}>
+              <MediaFileUpload
+                ref={mediaInputRef}
+                onInputChange={(audio) => {
+                  setResult(null);
+                  setAudio(audio);
+                }}
+                onTimeUpdate={(time) => setCurrentTime(time)}
+              />
+            </div>
+          </div>
+
           <Card className="border-muted/50 bg-card/50 backdrop-blur-sm">
             <CardContent className="pt-6">
               <div className="flex min-h-[220px] w-full flex-col items-center justify-center space-y-6">
-                <div className="w-full">
-                  <MediaFileUpload
-                    ref={mediaInputRef}
-                    onInputChange={(audio) => {
-                      setResult(null);
-                      setAudio(audio);
-                    }}
-                    onTimeUpdate={(time) => setCurrentTime(time)}
-                  />
-                </div>
-
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -514,7 +565,6 @@ function WhisperDiarization() {
                       >
                         <Button
                           onClick={handleReset}
-                          disabled={status === "running"}
                           size="lg"
                           variant="outline"
                           className="shadow-lg transition-shadow hover:shadow-xl"
@@ -533,11 +583,12 @@ function WhisperDiarization() {
                     />
                   </div>
 
-                  {/* Language selector - show when model is loaded */}
-                  {status !== null && (
+                  {/* Language selector - show when model is loaded but not running */}
+                  {status === "ready" && !result && (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.4 }}
                       className="flex flex-col items-center space-y-1"
                     >
@@ -586,7 +637,135 @@ function WhisperDiarization() {
 
                 {/* Show final result with speaker diarization */}
                 {result && time && (
-                  <div className="w-full space-y-2">
+                  <div className="w-full space-y-4 pt-24">
+                    {/* Action buttons at top */}
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                      {/* Primary actions */}
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          onClick={() => {
+                            // We'll need to expose a method to trigger export modal
+                            const event = new CustomEvent("export-to-llm");
+                            window.dispatchEvent(event);
+                          }}
+                          variant="default"
+                          className="gap-2"
+                          size="sm"
+                        >
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                            />
+                          </svg>
+                          Export to LLM
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            const jsonTranscript = JSON.stringify(
+                              {
+                                ...result.transcript,
+                                segments: result.segments,
+                              },
+                              null,
+                              2,
+                            ).replace(
+                              /( {4}"timestamp": )\[\s+(\S+)\s+(\S+)\s+\]/gm,
+                              "$1[$2 $3]",
+                            );
+                            const blob = new Blob([jsonTranscript], {
+                              type: "application/json",
+                            });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = "whisper-transcript.json";
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                          variant="outline"
+                          className="gap-2"
+                          size="sm"
+                        >
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                            />
+                          </svg>
+                          Download JSON
+                        </Button>
+                      </div>
+
+                      {/* Separator */}
+                      <div className="border-muted bg-border h-6 w-px" />
+
+                      {/* Secondary actions */}
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          onClick={() => {
+                            alert(
+                              "Save functionality coming soon! This will allow you to save transcripts for future reference.",
+                            );
+                          }}
+                          variant="outline"
+                          className="gap-2"
+                          size="sm"
+                        >
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+                            />
+                          </svg>
+                          Save
+                        </Button>
+                        <Button
+                          onClick={handleReset}
+                          variant="outline"
+                          className="gap-2"
+                          size="sm"
+                        >
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                            />
+                          </svg>
+                          Back to Home
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Transcript card */}
                     <Card>
                       <WhisperTranscript
                         className="p-4"
@@ -599,6 +778,7 @@ function WhisperDiarization() {
                         }}
                       />
                     </Card>
+
                     <p className="text-muted-foreground text-end text-xs">
                       Generation time:{" "}
                       <span className="font-semibold">
