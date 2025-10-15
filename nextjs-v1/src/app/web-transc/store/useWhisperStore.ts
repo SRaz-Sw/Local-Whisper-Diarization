@@ -86,13 +86,16 @@ interface WhisperStore {
   setLoadingMessage: (message: string) => void;
   setProgressItems: (items: ProgressItem[]) => void;
   addProgressItem: (item: ProgressItem) => void;
-  updateProgressItem: (file: string, updates: Partial<ProgressItem>) => void;
+  updateProgressItem: (
+    file: string,
+    updates: Partial<ProgressItem>,
+  ) => void;
   removeProgressItem: (file: string) => void;
 
   // Transcription actions
   setResult: (result: TranscriptionResult | null) => void;
   setStreamingWords: (
-    words: Array<{ text: string; timestamp: number }>
+    words: Array<{ text: string; timestamp: number }>,
   ) => void;
   addStreamingWord: (word: { text: string; timestamp: number }) => void;
   clearStreamingWords: () => void;
@@ -110,7 +113,7 @@ interface WhisperStore {
 
   // Storage actions
   setSavedTranscripts: (
-    transcripts: StorageState["savedTranscripts"]
+    transcripts: StorageState["savedTranscripts"],
   ) => void;
   setTranscriptsLoading: (loading: boolean) => void;
 
@@ -173,6 +176,9 @@ const initialStorageState: StorageState = {
 
 // ==================== Store Implementation ====================
 
+// Debounce helper for null values
+let nullTimeoutRef: NodeJS.Timeout | null = null;
+
 export const useWhisperStore = create<WhisperStore>()(
   devtools(
     persist(
@@ -191,25 +197,27 @@ export const useWhisperStore = create<WhisperStore>()(
           set(
             (state) => ({ audio: { ...state.audio, audio } }),
             false,
-            "setAudio"
+            "setAudio",
           ),
         setAudioFileName: (fileName) =>
           set(
-            (state) => ({ audio: { ...state.audio, audioFileName: fileName } }),
+            (state) => ({
+              audio: { ...state.audio, audioFileName: fileName },
+            }),
             false,
-            "setAudioFileName"
+            "setAudioFileName",
           ),
         setLanguage: (language) =>
           set(
             (state) => ({ audio: { ...state.audio, language } }),
             false,
-            "setLanguage"
+            "setLanguage",
           ),
         setCurrentTime: (time) =>
           set(
             (state) => ({ audio: { ...state.audio, currentTime: time } }),
             false,
-            "setCurrentTime"
+            "setCurrentTime",
           ),
 
         // Model actions
@@ -217,25 +225,25 @@ export const useWhisperStore = create<WhisperStore>()(
           set(
             (state) => ({ model: { ...state.model, status } }),
             false,
-            "setStatus"
+            "setStatus",
           ),
         setDevice: (device) =>
           set(
             (state) => ({ model: { ...state.model, device } }),
             false,
-            "setDevice"
+            "setDevice",
           ),
         setModel: (model) =>
           set(
             (state) => ({ model: { ...state.model, model } }),
             false,
-            "setModel"
+            "setModel",
           ),
         setModelSize: (size) =>
           set(
             (state) => ({ model: { ...state.model, modelSize: size } }),
             false,
-            "setModelSize"
+            "setModelSize",
           ),
 
         // Loading actions
@@ -245,13 +253,15 @@ export const useWhisperStore = create<WhisperStore>()(
               loading: { ...state.loading, loadingMessage: message },
             }),
             false,
-            "setLoadingMessage"
+            "setLoadingMessage",
           ),
         setProgressItems: (items) =>
           set(
-            (state) => ({ loading: { ...state.loading, progressItems: items } }),
+            (state) => ({
+              loading: { ...state.loading, progressItems: items },
+            }),
             false,
-            "setProgressItems"
+            "setProgressItems",
           ),
         addProgressItem: (item) =>
           set(
@@ -262,7 +272,7 @@ export const useWhisperStore = create<WhisperStore>()(
               },
             }),
             false,
-            "addProgressItem"
+            "addProgressItem",
           ),
         updateProgressItem: (file, updates) =>
           set(
@@ -270,12 +280,12 @@ export const useWhisperStore = create<WhisperStore>()(
               loading: {
                 ...state.loading,
                 progressItems: state.loading.progressItems.map((item) =>
-                  item.file === file ? { ...item, ...updates } : item
+                  item.file === file ? { ...item, ...updates } : item,
                 ),
               },
             }),
             false,
-            "updateProgressItem"
+            "updateProgressItem",
           ),
         removeProgressItem: (file) =>
           set(
@@ -283,28 +293,33 @@ export const useWhisperStore = create<WhisperStore>()(
               loading: {
                 ...state.loading,
                 progressItems: state.loading.progressItems.filter(
-                  (item) => item.file !== file
+                  (item) => item.file !== file,
                 ),
               },
             }),
             false,
-            "removeProgressItem"
+            "removeProgressItem",
           ),
 
         // Transcription actions
         setResult: (result) =>
           set(
-            (state) => ({ transcription: { ...state.transcription, result } }),
+            (state) => ({
+              transcription: { ...state.transcription, result },
+            }),
             false,
-            "setResult"
+            "setResult",
           ),
         setStreamingWords: (words) =>
           set(
             (state) => ({
-              transcription: { ...state.transcription, streamingWords: words },
+              transcription: {
+                ...state.transcription,
+                streamingWords: words,
+              },
             }),
             false,
-            "setStreamingWords"
+            "setStreamingWords",
           ),
         addStreamingWord: (word) =>
           set(
@@ -318,41 +333,53 @@ export const useWhisperStore = create<WhisperStore>()(
               },
             }),
             false,
-            "addStreamingWord"
+            "addStreamingWord",
           ),
         clearStreamingWords: () =>
           set(
             (state) => ({
-              transcription: { ...state.transcription, streamingWords: [] },
+              transcription: {
+                ...state.transcription,
+                streamingWords: [],
+              },
             }),
             false,
-            "clearStreamingWords"
+            "clearStreamingWords",
           ),
         setGenerationTime: (time) =>
           set(
             (state) => ({
-              transcription: { ...state.transcription, generationTime: time },
+              transcription: {
+                ...state.transcription,
+                generationTime: time,
+              },
             }),
             false,
-            "setGenerationTime"
+            "setGenerationTime",
           ),
 
         // Processing actions
         setProcessingMessage: (message) =>
           set(
             (state) => ({
-              processing: { ...state.processing, processingMessage: message },
+              processing: {
+                ...state.processing,
+                processingMessage: message,
+              },
             }),
             false,
-            "setProcessingMessage"
+            "setProcessingMessage",
           ),
         setProcessedSeconds: (seconds) =>
           set(
             (state) => ({
-              processing: { ...state.processing, processedSeconds: seconds },
+              processing: {
+                ...state.processing,
+                processedSeconds: seconds,
+              },
             }),
             false,
-            "setProcessedSeconds"
+            "setProcessedSeconds",
           ),
         setTotalSeconds: (seconds) =>
           set(
@@ -360,32 +387,74 @@ export const useWhisperStore = create<WhisperStore>()(
               processing: { ...state.processing, totalSeconds: seconds },
             }),
             false,
-            "setTotalSeconds"
+            "setTotalSeconds",
           ),
-        setEstimatedTimeRemaining: (time) =>
-          set(
-            (state) => ({
-              processing: {
-                ...state.processing,
-                estimatedTimeRemaining: time,
-              },
-            }),
-            false,
-            "setEstimatedTimeRemaining"
-          ),
+
+        // setEstimatedTimeRemaining: (time) =>
+        //   set(
+        //     (state) => ({
+        //       processing: {
+        //         ...state.processing,
+        //         estimatedTimeRemaining: time,
+        //       },
+        //     }),
+        //     false,
+        //     "setEstimatedTimeRemaining"
+        //   ),
+        // Debounced version of setEstimatedTimeRemaining
+        setEstimatedTimeRemaining: (time) => {
+          if (time === null) {
+            // Clear any existing timeout
+            if (nullTimeoutRef) clearTimeout(nullTimeoutRef);
+
+            // Debounce null values
+            nullTimeoutRef = setTimeout(() => {
+              set(
+                (state) => ({
+                  processing: {
+                    ...state.processing,
+                    estimatedTimeRemaining: null,
+                  },
+                }),
+                false,
+                "setEstimatedTimeRemaining",
+              );
+              nullTimeoutRef = null;
+            }, 300);
+          } else {
+            // Cancel pending null update and set immediately
+            if (nullTimeoutRef) {
+              clearTimeout(nullTimeoutRef);
+              nullTimeoutRef = null;
+            }
+
+            set(
+              (state) => ({
+                processing: {
+                  ...state.processing,
+                  estimatedTimeRemaining: time,
+                },
+              }),
+              false,
+              "setEstimatedTimeRemaining",
+            );
+          }
+        },
 
         // UI actions
         setIsSaving: (saving) =>
           set(
             (state) => ({ ui: { ...state.ui, isSaving: saving } }),
             false,
-            "setIsSaving"
+            "setIsSaving",
           ),
         setIsLoadingFromStorage: (loading) =>
           set(
-            (state) => ({ ui: { ...state.ui, isLoadingFromStorage: loading } }),
+            (state) => ({
+              ui: { ...state.ui, isLoadingFromStorage: loading },
+            }),
             false,
-            "setIsLoadingFromStorage"
+            "setIsLoadingFromStorage",
           ),
 
         // Storage actions
@@ -395,7 +464,7 @@ export const useWhisperStore = create<WhisperStore>()(
               storage: { ...state.storage, savedTranscripts: transcripts },
             }),
             false,
-            "setSavedTranscripts"
+            "setSavedTranscripts",
           ),
         setTranscriptsLoading: (loading) =>
           set(
@@ -403,7 +472,7 @@ export const useWhisperStore = create<WhisperStore>()(
               storage: { ...state.storage, transcriptsLoading: loading },
             }),
             false,
-            "setTranscriptsLoading"
+            "setTranscriptsLoading",
           ),
 
         // Compound actions
@@ -418,7 +487,7 @@ export const useWhisperStore = create<WhisperStore>()(
               ui: initialUIState,
             },
             false,
-            "reset"
+            "reset",
           ),
 
         resetForNewTranscription: () =>
@@ -429,7 +498,7 @@ export const useWhisperStore = create<WhisperStore>()(
               loading: initialLoadingState,
             },
             false,
-            "resetForNewTranscription"
+            "resetForNewTranscription",
           ),
 
         loadTranscriptFromStorage: (data) =>
@@ -455,7 +524,7 @@ export const useWhisperStore = create<WhisperStore>()(
               },
             }),
             false,
-            "loadTranscriptFromStorage"
+            "loadTranscriptFromStorage",
           ),
       }),
       {
@@ -470,9 +539,9 @@ export const useWhisperStore = create<WhisperStore>()(
             language: state.audio.language,
           },
         }),
-      }
-    )
-  )
+      },
+    ),
+  ),
 );
 
 // ==================== Selectors ====================
@@ -480,17 +549,21 @@ export const useWhisperStore = create<WhisperStore>()(
 
 export const useAudioState = () => useWhisperStore((state) => state.audio);
 export const useModelState = () => useWhisperStore((state) => state.model);
-export const useLoadingState = () => useWhisperStore((state) => state.loading);
+export const useLoadingState = () =>
+  useWhisperStore((state) => state.loading);
 export const useTranscriptionState = () =>
   useWhisperStore((state) => state.transcription);
 export const useProcessingState = () =>
   useWhisperStore((state) => state.processing);
 export const useUIState = () => useWhisperStore((state) => state.ui);
-export const useStorageState = () => useWhisperStore((state) => state.storage);
+export const useStorageState = () =>
+  useWhisperStore((state) => state.storage);
 
 // Granular selectors for specific values
-export const useStatus = () => useWhisperStore((state) => state.model.status);
-export const useAudio = () => useWhisperStore((state) => state.audio.audio);
+export const useStatus = () =>
+  useWhisperStore((state) => state.model.status);
+export const useAudio = () =>
+  useWhisperStore((state) => state.audio.audio);
 export const useResult = () =>
   useWhisperStore((state) => state.transcription.result);
 export const useIsLoadingFromStorage = () =>

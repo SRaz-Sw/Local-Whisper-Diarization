@@ -98,13 +98,27 @@ function WhisperDiarization() {
   const setModelSize = useWhisperStore((state) => state.setModelSize);
 
   // Loading State from Zustand
-  const loadingMessage = useWhisperStore((state) => state.loading.loadingMessage);
-  const setLoadingMessage = useWhisperStore((state) => state.setLoadingMessage);
-  const progressItems = useWhisperStore((state) => state.loading.progressItems);
-  const setProgressItems = useWhisperStore((state) => state.setProgressItems);
-  const addProgressItem = useWhisperStore((state) => state.addProgressItem);
-  const updateProgressItem = useWhisperStore((state) => state.updateProgressItem);
-  const removeProgressItem = useWhisperStore((state) => state.removeProgressItem);
+  const loadingMessage = useWhisperStore(
+    (state) => state.loading.loadingMessage,
+  );
+  const setLoadingMessage = useWhisperStore(
+    (state) => state.setLoadingMessage,
+  );
+  const progressItems = useWhisperStore(
+    (state) => state.loading.progressItems,
+  );
+  const setProgressItems = useWhisperStore(
+    (state) => state.setProgressItems,
+  );
+  const addProgressItem = useWhisperStore(
+    (state) => state.addProgressItem,
+  );
+  const updateProgressItem = useWhisperStore(
+    (state) => state.updateProgressItem,
+  );
+  const removeProgressItem = useWhisperStore(
+    (state) => state.removeProgressItem,
+  );
 
   const mediaInputRef = useRef<WhisperMediaInputRef>(null);
 
@@ -113,8 +127,12 @@ function WhisperDiarization() {
   const setAudio = useWhisperStore((state) => state.setAudio);
   const language = useWhisperStore((state) => state.audio.language);
   const setLanguage = useWhisperStore((state) => state.setLanguage);
-  const audioFileName = useWhisperStore((state) => state.audio.audioFileName);
-  const setAudioFileName = useWhisperStore((state) => state.setAudioFileName);
+  const audioFileName = useWhisperStore(
+    (state) => state.audio.audioFileName,
+  );
+  const setAudioFileName = useWhisperStore(
+    (state) => state.setAudioFileName,
+  );
 
   // Transcription State from Zustand
   const result = useWhisperStore((state) => state.transcription.result);
@@ -122,12 +140,18 @@ function WhisperDiarization() {
   const streamingWords = useWhisperStore(
     (state) => state.transcription.streamingWords,
   );
-  const setStreamingWords = useWhisperStore((state) => state.setStreamingWords);
-  const addStreamingWord = useWhisperStore((state) => state.addStreamingWord);
+  const setStreamingWords = useWhisperStore(
+    (state) => state.setStreamingWords,
+  );
+  const addStreamingWord = useWhisperStore(
+    (state) => state.addStreamingWord,
+  );
   const generationTime = useWhisperStore(
     (state) => state.transcription.generationTime,
   );
-  const setGenerationTime = useWhisperStore((state) => state.setGenerationTime);
+  const setGenerationTime = useWhisperStore(
+    (state) => state.setGenerationTime,
+  );
 
   const [currentTime, setCurrentTime] = useState(0);
 
@@ -144,8 +168,12 @@ function WhisperDiarization() {
   const setProcessedSeconds = useWhisperStore(
     (state) => state.setProcessedSeconds,
   );
-  const totalSeconds = useWhisperStore((state) => state.processing.totalSeconds);
-  const setTotalSeconds = useWhisperStore((state) => state.setTotalSeconds);
+  const totalSeconds = useWhisperStore(
+    (state) => state.processing.totalSeconds,
+  );
+  const setTotalSeconds = useWhisperStore(
+    (state) => state.setTotalSeconds,
+  );
   const estimatedTimeRemaining = useWhisperStore(
     (state) => state.processing.estimatedTimeRemaining,
   );
@@ -483,77 +511,91 @@ function WhisperDiarization() {
     setEstimatedTimeRemaining(null);
   }, [status, initializeWorker]);
 
-  const handleLoadTranscript = useCallback(async (transcriptId: string) => {
-    try {
-      // Get transcript with audio blob
-      const result = await getWithAudio(transcriptId);
-      if (!result) {
-        toast.error("Transcript not found");
-        return;
-      }
+  const handleLoadTranscript = useCallback(
+    async (transcriptId: string) => {
+      try {
+        // Get transcript with audio blob
+        const result = await getWithAudio(transcriptId);
+        if (!result) {
+          toast.error("Transcript not found");
+          return;
+        }
 
-      const { transcript: data, audioBlob } = result;
+        const { transcript: data, audioBlob } = result;
 
-      // Map segments to include missing properties (id and confidence)
-      const segmentsWithMissingProps = data.segments.map((segment, index) => ({
-        ...segment,
-        id: index,
-        confidence: 1.0, // Default confidence since it's not stored
-      }));
-
-      // Load the transcript data into the result state
-      setResult({
-        transcript: data.transcript,
-        segments: segmentsWithMissingProps,
-      });
-
-      // Set a time value to show the result properly (use 0 as placeholder)
-      setGenerationTime(0);
-
-      setAudioFileName(data.metadata.fileName);
-      setLanguage(data.metadata.language);
-
-      // Validate model ID - fallback to default if not found in AVAILABLE_MODELS
-      const loadedModel = data.metadata.model;
-      const validModel = AVAILABLE_MODELS[loadedModel]
-        ? loadedModel
-        : DEFAULT_MODEL;
-
-      if (loadedModel !== validModel) {
-        console.warn(
-          `Model "${loadedModel}" not found in AVAILABLE_MODELS. Using default: "${validModel}"`,
+        // Map segments to include missing properties (id and confidence)
+        const segmentsWithMissingProps = data.segments.map(
+          (segment, index) => ({
+            ...segment,
+            id: index,
+            confidence: 1.0, // Default confidence since it's not stored
+          }),
         );
-        toast.info("Model updated", {
-          description: `The saved model is no longer available. Using ${AVAILABLE_MODELS[validModel].name} instead.`,
+
+        // Load the transcript data into the result state
+        setResult({
+          transcript: data.transcript,
+          segments: segmentsWithMissingProps,
+        });
+
+        // Set a time value to show the result properly (use 0 as placeholder)
+        setGenerationTime(0);
+
+        setAudioFileName(data.metadata.fileName);
+        setLanguage(data.metadata.language);
+
+        // Validate model ID - fallback to default if not found in AVAILABLE_MODELS
+        const loadedModel = data.metadata.model;
+        const validModel = AVAILABLE_MODELS[loadedModel]
+          ? loadedModel
+          : DEFAULT_MODEL;
+
+        if (loadedModel !== validModel) {
+          console.warn(
+            `Model "${loadedModel}" not found in AVAILABLE_MODELS. Using default: "${validModel}"`,
+          );
+          toast.info("Model updated", {
+            description: `The saved model is no longer available. Using ${AVAILABLE_MODELS[validModel].name} instead.`,
+          });
+        }
+
+        setModel(validModel);
+
+        // Load audio blob if available
+        if (audioBlob && mediaInputRef.current) {
+          // Set flag to prevent clearing the result when audio loads
+          setIsLoadingFromStorage(true);
+          mediaInputRef.current.loadFromBlob(
+            audioBlob,
+            data.metadata.fileName,
+          );
+        } else if (!audioBlob) {
+          console.warn(
+            "No audio blob found for transcript:",
+            transcriptId,
+          );
+          toast.info("Transcript loaded without audio", {
+            description: "Audio file was not saved with this transcript",
+          });
+        }
+
+        toast.success("Transcript loaded!", {
+          description: `Loaded "${data.metadata.fileName}"`,
+        });
+
+        console.log("✅ Transcript loaded:", transcriptId);
+      } catch (error) {
+        console.error("Failed to load transcript:", error);
+        toast.error("Failed to load transcript", {
+          description:
+            error instanceof Error
+              ? error.message
+              : "Unknown error occurred",
         });
       }
-
-      setModel(validModel);
-
-      // Load audio blob if available
-      if (audioBlob && mediaInputRef.current) {
-        // Set flag to prevent clearing the result when audio loads
-        setIsLoadingFromStorage(true);
-        mediaInputRef.current.loadFromBlob(audioBlob, data.metadata.fileName);
-      } else if (!audioBlob) {
-        console.warn("No audio blob found for transcript:", transcriptId);
-        toast.info("Transcript loaded without audio", {
-          description: "Audio file was not saved with this transcript",
-        });
-      }
-
-      toast.success("Transcript loaded!", {
-        description: `Loaded "${data.metadata.fileName}"`,
-      });
-
-      console.log("✅ Transcript loaded:", transcriptId);
-    } catch (error) {
-      console.error("Failed to load transcript:", error);
-      toast.error("Failed to load transcript", {
-        description: error instanceof Error ? error.message : "Unknown error occurred",
-      });
-    }
-  }, [getWithAudio]);
+    },
+    [getWithAudio],
+  );
 
   return (
     <div className="relative min-h-screen">
@@ -605,26 +647,15 @@ function WhisperDiarization() {
               <p className="mb-3 text-center text-lg font-semibold text-white">
                 {loadingMessage || "Loading models..."}
               </p>
-              {progressItems.length > 0 ? (
-                progressItems.map(({ file, progress, total }, i) => (
-                  <WhisperProgress
-                    key={i}
-                    text={file}
-                    percentage={progress}
-                    total={total}
-                  />
-                ))
-              ) : (
-                <div className="text-center">
-                  <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-white border-t-transparent"></div>
-                  <p className="mt-3 text-sm text-gray-300">
-                    Initializing worker and downloading models...
-                  </p>
-                  <p className="mt-1 text-xs text-gray-400">
-                    This may take a few moments on first load
-                  </p>
-                </div>
-              )}
+              <div className="text-center">
+                <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-white border-t-transparent"></div>
+                <p className="mt-3 text-sm text-gray-300">
+                  Initializing worker and downloading models...
+                </p>
+                <p className="mt-1 text-xs text-gray-400">
+                  This may take a few moments on first load
+                </p>
+              </div>
             </div>
           </motion.div>
         )}
@@ -674,7 +705,8 @@ function WhisperDiarization() {
                 ref={mediaInputRef}
                 onInputChange={(audio) => {
                   // Read the flag directly from Zustand store to avoid stale closures
-                  const currentFlag = useWhisperStore.getState().ui.isLoadingFromStorage;
+                  const currentFlag =
+                    useWhisperStore.getState().ui.isLoadingFromStorage;
 
                   // Only clear result if we're NOT loading from storage
                   if (!currentFlag) {
@@ -765,146 +797,143 @@ function WhisperDiarization() {
                   )}
                 </motion.div>
 
-                {/* Show processing message and progress when running */}
-                {status === "running" && (
-                  <div className="w-full space-y-3">
-                    {processingMessage && (
-                      <div className="text-center">
-                        <p className="text-muted-foreground animate-pulse text-sm">
-                          {processingMessage}
-                        </p>
-                      </div>
-                    )}
-                    {totalSeconds > 0 && (
-                      <div className="w-full">
-                        <WhisperProgress
-                          text={`Processing audio: ${formatTime(processedSeconds)} / ${formatTime(totalSeconds)}`}
-                          percentage={
-                            (processedSeconds / totalSeconds) * 100
-                          }
-                          total={totalSeconds}
-                          estimatedTimeRemaining={estimatedTimeRemaining}
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-
                 {/* Show streaming transcription with new component */}
                 <StreamingTranscript />
 
                 {/* Saved Transcripts Section - Show when not running and no result */}
-                {!result && status !== "running" && savedTranscripts.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.1 }}
-                    className="w-full space-y-3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-foreground">
-                        Saved Transcripts
-                      </h3>
-                      <span className="text-xs text-muted-foreground">
-                        {savedTranscripts.length} saved
-                      </span>
-                    </div>
+                {!result &&
+                  status !== "running" &&
+                  savedTranscripts.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.1 }}
+                      className="w-full space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-foreground text-sm font-semibold">
+                          Saved Transcripts
+                        </h3>
+                        <span className="text-muted-foreground text-xs">
+                          {savedTranscripts.length} saved
+                        </span>
+                      </div>
 
-                    <div className="max-h-[300px] space-y-2 overflow-y-auto rounded-lg border border-muted/50 bg-muted/20 p-3">
-                      {transcriptsLoading ? (
-                        <div className="flex items-center justify-center py-8">
-                          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                        </div>
-                      ) : (
-                        savedTranscripts.map((transcript) => (
-                          <motion.div
-                            key={transcript.id}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            whileHover={{ scale: 1.01 }}
-                            onDoubleClick={() => handleLoadTranscript(transcript.id)}
-                            className="group cursor-pointer rounded-md border border-muted/50 bg-card/50 p-3 transition-all hover:border-primary/50 hover:bg-card/80 hover:shadow-md"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0 flex-1">
-                                <h4 className="truncate text-sm font-medium text-foreground">
-                                  {transcript.metadata.fileName}
-                                </h4>
-                                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                                  <span className="flex items-center gap-1">
-                                    <svg
-                                      className="h-3 w-3"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      stroke="currentColor"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                      />
-                                    </svg>
-                                    {formatTime(transcript.metadata.duration)}
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <svg
-                                      className="h-3 w-3"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      stroke="currentColor"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                                      />
-                                    </svg>
-                                    {transcript.metadata.speakerCount} speaker{transcript.metadata.speakerCount !== 1 ? 's' : ''}
-                                  </span>
-                                  <span>
-                                    {new Date(transcript.metadata.updatedAt).toLocaleDateString()}
-                                  </span>
+                      <div className="border-muted/50 bg-muted/20 max-h-[300px] space-y-2 overflow-y-auto rounded-lg border p-3">
+                        {transcriptsLoading ? (
+                          <div className="flex items-center justify-center py-8">
+                            <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent"></div>
+                          </div>
+                        ) : (
+                          savedTranscripts.map((transcript) => (
+                            <motion.div
+                              key={transcript.id}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              whileHover={{ scale: 1.01 }}
+                              onDoubleClick={() =>
+                                handleLoadTranscript(transcript.id)
+                              }
+                              className="group border-muted/50 bg-card/50 hover:border-primary/50 hover:bg-card/80 cursor-pointer rounded-md border p-3 transition-all hover:shadow-md"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="min-w-0 flex-1">
+                                  <h4 className="text-foreground truncate text-sm font-medium">
+                                    {transcript.metadata.fileName}
+                                  </h4>
+                                  <div className="text-muted-foreground mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                                    <span className="flex items-center gap-1">
+                                      <svg
+                                        className="h-3 w-3"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        />
+                                      </svg>
+                                      {formatTime(
+                                        transcript.metadata.duration,
+                                      )}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <svg
+                                        className="h-3 w-3"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                        />
+                                      </svg>
+                                      {transcript.metadata.speakerCount}{" "}
+                                      speaker
+                                      {transcript.metadata.speakerCount !==
+                                      1
+                                        ? "s"
+                                        : ""}
+                                    </span>
+                                    <span>
+                                      {new Date(
+                                        transcript.metadata.updatedAt,
+                                      ).toLocaleDateString()}
+                                    </span>
+                                  </div>
                                 </div>
-                              </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (confirm(`Delete "${transcript.metadata.fileName}"?`)) {
-                                    removeTranscript(transcript.id).catch(err => {
-                                      toast.error("Failed to delete transcript", {
-                                        description: err.message
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (
+                                      confirm(
+                                        `Delete "${transcript.metadata.fileName}"?`,
+                                      )
+                                    ) {
+                                      removeTranscript(
+                                        transcript.id,
+                                      ).catch((err) => {
+                                        toast.error(
+                                          "Failed to delete transcript",
+                                          {
+                                            description: err.message,
+                                          },
+                                        );
                                       });
-                                    });
-                                  }
-                                }}
-                                className="flex-shrink-0 rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
-                              >
-                                <svg
-                                  className="h-4 w-4"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
+                                    }
+                                  }}
+                                  className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex-shrink-0 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100"
                                 >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                            <p className="mt-1 text-xs text-muted-foreground/70">
-                              Double-click to load
-                            </p>
-                          </motion.div>
-                        ))
-                      )}
-                    </div>
-                  </motion.div>
-                )}
+                                  <svg
+                                    className="h-4 w-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
+                              <p className="text-muted-foreground/70 mt-1 text-xs">
+                                Double-click to load
+                              </p>
+                            </motion.div>
+                          ))
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
 
                 {/* Show final result with speaker diarization */}
                 {result && generationTime !== null && (
@@ -994,7 +1023,8 @@ function WhisperDiarization() {
                             setIsSaving(true);
                             try {
                               // Get the audio file from the media component
-                              const audioFile = mediaInputRef.current?.getFile();
+                              const audioFile =
+                                mediaInputRef.current?.getFile();
 
                               const id = await saveTranscript({
                                 transcript: result.transcript,
@@ -1014,7 +1044,11 @@ function WhisperDiarization() {
                                 },
                               );
 
-                              console.log("Transcript saved with ID:", id, audioFile ? "with audio" : "without audio");
+                              console.log(
+                                "Transcript saved with ID:",
+                                id,
+                                audioFile ? "with audio" : "without audio",
+                              );
                             } catch (error) {
                               console.error(
                                 "Failed to save transcript:",

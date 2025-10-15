@@ -145,10 +145,23 @@ async function run({ audio, language, resumeFromBackup = false }) {
   let accumulatedChunks = [];
   let processingStartTime = Date.now();
 
+  // Track chunk count and offset for sliding window
+  const chunk_length_s = 30;
+  const stride_length_s = 5;
+  let chunk_count = 0;
+
   // Send status update that transcription is starting
   self.postMessage({
     status: "update",
     data: "Transcribing audio...",
+  });
+
+  // Send initial progress with totalSeconds immediately
+  self.postMessage({
+    status: "processing_progress",
+    processedSeconds: 0,
+    totalSeconds,
+    estimatedTimeRemaining: null,
   });
 
   // Initialize backup state
@@ -192,24 +205,54 @@ async function run({ audio, language, resumeFromBackup = false }) {
         },
       });
     },
-    on_chunk_start: (chunkIndex) => {
-      console.log("🔥 WORKER: Chunk started:", chunkIndex);
+    on_chunk_start: (startTimestamp) => {
+      // Calculate offset based on which window we're processing
+      const offset = (chunk_length_s - stride_length_s) * chunk_count;
+      // Cap at totalSeconds to prevent going over 100%
+      const actualAudioPosition = Math.min(offset + startTimestamp, totalSeconds);
+
+      // Only update if progress moves forward (prevent backwards movement)
+      const newProcessedSeconds = Math.max(processedSeconds, actualAudioPosition);
+
+      console.log(`🔥 WORKER: Chunk started - Window ${chunk_count}, Offset: ${offset}, Timestamp: ${startTimestamp}, Actual Position: ${actualAudioPosition}, Progress: ${processedSeconds} -> ${newProcessedSeconds}`);
+
+      // Only send progress update if it moved forward
+      if (newProcessedSeconds > processedSeconds) {
+        processedSeconds = newProcessedSeconds;
+        self.postMessage({
+          status: "processing_progress",
+          processedSeconds,
+          totalSeconds,
+          estimatedTimeRemaining: null,
+        });
+      }
+
       self.postMessage({
         status: "chunk_start",
-        data: chunkIndex,
+        data: actualAudioPosition,
       });
     },
-    on_chunk_end: (chunkIndex) => {
-      console.log("🔥 WORKER: Chunk ended:", chunkIndex);
+    on_chunk_end: (endTimestamp) => {
+      // Calculate offset based on which window we're processing
+      const offset = (chunk_length_s - stride_length_s) * chunk_count;
+      // Cap at totalSeconds to prevent going over 100%
+      const actualAudioPosition = Math.min(offset + endTimestamp, totalSeconds);
 
-      // Update progress based on chunks (30s per chunk)
-      processedSeconds = Math.min((chunkIndex + 1) * 30, totalSeconds);
+      console.log(`🔥 WORKER: Chunk ended - Window ${chunk_count}, Offset: ${offset}, Timestamp: ${endTimestamp}, Actual Position: ${actualAudioPosition}`);
+
+      // Update progress with actual audio position (capped), always move forward only
+      processedSeconds = Math.max(processedSeconds, actualAudioPosition);
+
+      // Calculate ETA based on actual progress
       const elapsedMs = Date.now() - processingStartTime;
       const processingRate = processedSeconds / (elapsedMs / 1000);
-      const remainingSeconds = totalSeconds - processedSeconds;
-      const estimatedTimeRemaining = remainingSeconds / processingRate;
+      const remainingSeconds = Math.max(0, totalSeconds - processedSeconds);
+      const estimatedTimeRemaining =
+        processingRate > 0 && remainingSeconds > 0
+          ? remainingSeconds / processingRate
+          : null;
 
-      // Send progress update
+      // Send accurate progress update
       self.postMessage({
         status: "processing_progress",
         processedSeconds,
@@ -224,11 +267,12 @@ async function run({ audio, language, resumeFromBackup = false }) {
 
       self.postMessage({
         status: "chunk_end",
-        data: chunkIndex,
+        data: actualAudioPosition,
       });
     },
     on_finalize: () => {
-      console.log("🔥 WORKER: Transcription finalized");
+      console.log("🔥 WORKER: Transcription finalized, incrementing chunk count");
+      chunk_count++;
     },
   });
 
@@ -237,24 +281,27 @@ async function run({ audio, language, resumeFromBackup = false }) {
   );
 
   // Run transcription with streaming
-  const transcriptPromise = transcriber(audio, {
+  const transcript = await transcriber(audio, {
     language,
-    return_timestamps: "word",
+    return_timestamps: true,  // Changed from "word" - needed for chunk callbacks
     chunk_length_s: 30,
+    stride_length_s: 5,  // Sliding window overlap - REQUIRED for chunk callbacks
+    force_full_sequences: false,  // Enable streaming
     streamer, // Use WhisperTextStreamer instead of callback_function
   });
 
-  // Show diarization status
+  // Show diarization status AFTER transcription completes
   self.postMessage({
     status: "update",
     data: "Identifying speakers...",
   });
 
-  // Run segmentation in parallel with transcription
-  const [transcript, segments] = await Promise.all([
-    transcriptPromise,
-    segment(segmentation_processor, segmentation_model, audio),
-  ]);
+  // Run segmentation after transcription
+  const segments = await segment(
+    segmentation_processor,
+    segmentation_model,
+    audio,
+  );
 
   console.table(segments, ["start", "end", "id", "label", "confidence"]);
 
