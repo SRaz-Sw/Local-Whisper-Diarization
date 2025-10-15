@@ -115,12 +115,12 @@ const WhisperTranscript = ({
   // Generate speaker colors - map speaker labels to consistent colors
   const speakerColorMap = useMemo(() => {
     const colors = [
-      "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-      "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-      "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
-      "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
-      "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
-      "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
+      "bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+      "bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200",
+      "bg-purple-200 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+      "bg-orange-200 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+      "bg-pink-200 text-pink-800 dark:bg-pink-900 dark:text-pink-200",
+      "bg-indigo-200 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200",
     ];
 
     // Get unique speakers in order of appearance
@@ -186,7 +186,7 @@ const WhisperTranscript = ({
       y: 0,
     },
     hover: {
-      y: 20,
+      y: 13,
     },
   };
 
@@ -204,7 +204,7 @@ const WhisperTranscript = ({
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
             >
               {/* Left side: Vertical line with dot */}
-              <div className="relative flex min-h-[80px] w-px flex-col">
+              <div className="relative flex min-h-[70px] w-px flex-col">
                 {/* Vertical line - full height */}
                 <div className="b absolute inset-0 w-px" />
 
@@ -245,7 +245,7 @@ const WhisperTranscript = ({
 
               {/* Right side: Text content */}
               <motion.div
-                className="flex-1 py-2 leading-relaxed"
+                className="my-auto flex-1 py-2 leading-relaxed"
                 variants={textVariants}
                 transition={{
                   type: "spring",
