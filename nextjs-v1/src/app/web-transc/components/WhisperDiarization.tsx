@@ -636,7 +636,7 @@ function WhisperDiarization() {
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-8 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col px-4 pt-4 pb-8 sm:px-6 lg:px-8">
         {status === "loading" && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -667,30 +667,32 @@ function WhisperDiarization() {
           </div>
 
           {/* Modern header with gradient */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col items-center text-center"
-          >
-            <motion.h1
-              className="from-foreground via-foreground/90 to-foreground/70 mb-4 bg-gradient-to-br bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl lg:text-6xl"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+          {!result && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="flex flex-col items-center text-center"
             >
-              Whisper Diarization
-            </motion.h1>
-            <motion.p
-              className="text-muted-foreground max-w-2xl px-4 text-base sm:text-lg"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              In-browser automatic speech recognition with word-level
-              timestamps and speaker segmentation
-            </motion.p>
-          </motion.div>
+              <motion.h1
+                className="from-foreground via-foreground/90 to-foreground/70 mb-4 bg-gradient-to-br bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl lg:text-6xl"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                Whisper Diarization
+              </motion.h1>
+              <motion.p
+                className="text-muted-foreground max-w-2xl px-4 text-base sm:text-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                In-browser automatic speech recognition with word-level
+                timestamps and speaker segmentation
+              </motion.p>
+            </motion.div>
+          )}
 
           {/* Audio player - always rendered outside Card to avoid backdrop-blur containing block issue */}
           <div
@@ -725,77 +727,82 @@ function WhisperDiarization() {
           <Card className="border-muted/50 bg-card/50 backdrop-blur-sm">
             <CardContent className="pt-6">
               <div className="flex min-h-[220px] w-full flex-col items-center justify-center space-y-6">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="relative flex w-full flex-col items-center justify-center gap-4"
-                >
-                  {/* Main action buttons */}
-                  <div className="flex flex-wrap justify-center gap-3">
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button
-                        onClick={handleClick}
-                        disabled={
-                          status === "running" ||
-                          (status !== null && audio === null)
-                        }
-                        size="lg"
-                        className="shadow-lg transition-shadow hover:shadow-xl"
-                      >
-                        {status === null
-                          ? "Load model"
-                          : status === "running"
-                            ? "Running..."
-                            : "Run model"}
-                      </Button>
-                    </motion.div>
-
-                    {audio && (
+                {!result && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="relative flex w-full flex-col items-center justify-center gap-4"
+                  >
+                    {/* Main action buttons */}
+                    <div className="flex flex-wrap justify-center gap-3">
                       <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         <Button
-                          onClick={handleReset}
+                          onClick={handleClick}
+                          disabled={
+                            status === "running" ||
+                            (status !== null && audio === null) ||
+                            audio === undefined
+                          }
                           size="lg"
-                          variant="outline"
                           className="shadow-lg transition-shadow hover:shadow-xl"
                         >
-                          Reset
+                          {status === null
+                            ? "Load model"
+                            : status === "running"
+                              ? "Running..."
+                              : "Run model"}
                         </Button>
                       </motion.div>
+
+                      {audio && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button
+                            onClick={handleReset}
+                            size="lg"
+                            variant="outline"
+                            className="shadow-lg transition-shadow hover:shadow-xl"
+                          >
+                            Reset
+                          </Button>
+                        </motion.div>
+                      )}
+
+                      {/* Model selector - show always */}
+                      <ModelSelector
+                        disabled={
+                          status === "running" || status === "loading"
+                        }
+                        onModelChange={handleModelChange}
+                      />
+                    </div>
+
+                    {/* Language selector - show when model is loaded but not running */}
+                    {status === "ready" && !result && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.4 }}
+                        className="flex flex-col items-center space-y-1"
+                      >
+                        <span className="text-muted-foreground text-xs">
+                          Language:
+                        </span>
+                        <WhisperLanguageSelector className="w-[120px]" />
+                      </motion.div>
                     )}
-
-                    {/* Model selector - show always */}
-                    <ModelSelector
-                      disabled={status === "running"}
-                      onModelChange={handleModelChange}
-                    />
-                  </div>
-
-                  {/* Language selector - show when model is loaded but not running */}
-                  {status === "ready" && !result && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.4 }}
-                      className="flex flex-col items-center space-y-1"
-                    >
-                      <span className="text-muted-foreground text-xs">
-                        Language:
-                      </span>
-                      <WhisperLanguageSelector className="w-[120px]" />
-                    </motion.div>
-                  )}
-                </motion.div>
+                  </motion.div>
+                )}
 
                 {/* Show streaming transcription with new component */}
                 <StreamingTranscript />
@@ -967,7 +974,7 @@ function WhisperDiarization() {
                           </svg>
                           Export to LLM
                         </Button>
-                        <Button
+                        {/* <Button
                           onClick={() => {
                             const jsonTranscript = JSON.stringify(
                               {
@@ -1008,7 +1015,7 @@ function WhisperDiarization() {
                             />
                           </svg>
                           Download JSON
-                        </Button>
+                        </Button> */}
                       </div>
 
                       {/* Separator */}

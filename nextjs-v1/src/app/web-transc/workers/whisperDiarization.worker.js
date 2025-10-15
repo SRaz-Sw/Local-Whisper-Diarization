@@ -149,6 +149,7 @@ async function run({ audio, language, resumeFromBackup = false }) {
   const chunk_length_s = 30;
   const stride_length_s = 5;
   let chunk_count = 0;
+  let lastDisplayedProgress = 0; // Track to prevent backwards movement
 
   // Send status update that transcription is starting
   self.postMessage({
@@ -211,21 +212,10 @@ async function run({ audio, language, resumeFromBackup = false }) {
       // Cap at totalSeconds to prevent going over 100%
       const actualAudioPosition = Math.min(offset + startTimestamp, totalSeconds);
 
-      // Only update if progress moves forward (prevent backwards movement)
-      const newProcessedSeconds = Math.max(processedSeconds, actualAudioPosition);
+      console.log(`🔥 WORKER: Chunk started - Window ${chunk_count}, Offset: ${offset}, Timestamp: ${startTimestamp}, Actual Position: ${actualAudioPosition}`);
 
-      console.log(`🔥 WORKER: Chunk started - Window ${chunk_count}, Offset: ${offset}, Timestamp: ${startTimestamp}, Actual Position: ${actualAudioPosition}, Progress: ${processedSeconds} -> ${newProcessedSeconds}`);
-
-      // Only send progress update if it moved forward
-      if (newProcessedSeconds > processedSeconds) {
-        processedSeconds = newProcessedSeconds;
-        self.postMessage({
-          status: "processing_progress",
-          processedSeconds,
-          totalSeconds,
-          estimatedTimeRemaining: null,
-        });
-      }
+      // Don't send progress update here - let on_chunk_end handle it
+      // (Sending here causes jumps because it bypasses dampening logic)
 
       self.postMessage({
         status: "chunk_start",
@@ -243,19 +233,32 @@ async function run({ audio, language, resumeFromBackup = false }) {
       // Update progress with actual audio position (capped), always move forward only
       processedSeconds = Math.max(processedSeconds, actualAudioPosition);
 
-      // Calculate ETA based on actual progress
+      // Apply dampening to prevent progress from reaching 100% prematurely
+      // (Last chunk token decoding continues after on_chunk_end fires)
+      let displayedProgress = processedSeconds;
+      if (processedSeconds / totalSeconds > 0.90) {
+        const progressPastNinety = processedSeconds - (totalSeconds * 0.90);
+        const dampenedProgress = progressPastNinety * 0.5;
+        displayedProgress = (totalSeconds * 0.90) + dampenedProgress;
+      }
+
+      // Ensure progress never goes backwards (sliding window overlap can cause this)
+      displayedProgress = Math.max(lastDisplayedProgress, displayedProgress);
+      lastDisplayedProgress = displayedProgress;
+
+      // Calculate ETA based on displayed progress
       const elapsedMs = Date.now() - processingStartTime;
-      const processingRate = processedSeconds / (elapsedMs / 1000);
-      const remainingSeconds = Math.max(0, totalSeconds - processedSeconds);
+      const processingRate = displayedProgress / (elapsedMs / 1000);
+      const remainingSeconds = Math.max(0, totalSeconds - displayedProgress);
       const estimatedTimeRemaining =
         processingRate > 0 && remainingSeconds > 0
           ? remainingSeconds / processingRate
           : null;
 
-      // Send accurate progress update
+      // Send progress update with dampening applied
       self.postMessage({
         status: "processing_progress",
-        processedSeconds,
+        processedSeconds: displayedProgress,
         totalSeconds,
         estimatedTimeRemaining,
       });
@@ -271,8 +274,9 @@ async function run({ audio, language, resumeFromBackup = false }) {
       });
     },
     on_finalize: () => {
-      console.log("🔥 WORKER: Transcription finalized, incrementing chunk count");
+      console.log("🔥 WORKER: Chunk finalized, incrementing chunk count");
       chunk_count++;
+      // Don't send progress here - this fires for each chunk, not just at the end!
     },
   });
 
@@ -288,6 +292,14 @@ async function run({ audio, language, resumeFromBackup = false }) {
     stride_length_s: 5,  // Sliding window overlap - REQUIRED for chunk callbacks
     force_full_sequences: false,  // Enable streaming
     streamer, // Use WhisperTextStreamer instead of callback_function
+  });
+
+  // ✅ NOW send 100% completion - transcription is actually done
+  self.postMessage({
+    status: "processing_progress",
+    processedSeconds: totalSeconds,
+    totalSeconds,
+    estimatedTimeRemaining: 0,
   });
 
   // Show diarization status AFTER transcription completes

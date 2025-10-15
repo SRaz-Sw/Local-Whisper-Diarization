@@ -510,7 +510,7 @@ const MediaFileUpload = forwardRef<
                           <span className="flex-1 truncate text-sm font-medium text-gray-700 dark:text-gray-300">
                             {file.name}
                           </span>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="mr-8 text-xs text-gray-500 dark:text-gray-400">
                             {formatBytes(file.size)}
                           </span>
                         </div>
