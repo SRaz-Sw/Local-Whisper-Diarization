@@ -10,7 +10,6 @@ import MediaFileUpload from "./MediaFileUpload";
 import WhisperTranscript from "./WhisperTranscript";
 import WhisperLanguageSelector from "./WhisperLanguageSelector";
 import { StreamingTranscript } from "./StreamingTranscript";
-import { IntroSection } from "./IntroSection";
 import { ThemeToggle } from "./ThemeToggle";
 import { ModelSelector } from "./ModelSelector";
 import { EditConversationModal } from "./EditConversationModal";
@@ -1330,18 +1329,6 @@ function WhisperDiarization() {
             </span>
           </motion.div>
         </div>
-        {/* Intro section - show only when no audio is loaded */}
-        {!audio && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <div className="- mt-100 mb-8">
-              <IntroSection modelSize={modelSize} currentModel={model} />
-            </div>{" "}
-          </motion.div>
-        )}
       </div>
 
       {/* Floating Scroll to Top Button */}
