@@ -185,12 +185,164 @@ _______________________________________________
 
 **Overall Impression:** _______________________________________________
 '''
+
+
 NOTES:
 - For each data-point please the timestamp it was mentioned (by the script). 
 - If the data isn't provided, just leave the field empty with '________' that indicate missing info.
 - The transcription maybe inaccurate sometimes, adjust your logic accordingly)
 - Don't ask any follow-ups, and don't add any text besides the markdown format we want.
-- Write it in a format that is read for copy-paste to a google Docs file with the formatting.
+- Write it in a format that is read for copy-paste to a google Docs file with the formatting (NOT DIRECTLY MARKDOWN!) use artifact if you need
+
+  
+Here's the transcript:\n\nBased on the following conversation transcript, please analyze and provide insights:
+format and data we want to extract:
+'''markdown
+# REALTOR CALL - DATA COLLECTION FORM
+
+## CONTACT INFORMATION
+- **Date of Call:** _______________
+- **Realtor Name:** _______________
+- **Realtor Number:** _______________
+- **Realtor Email:** _______________
+- **Brokerage:** _______________
+
+---
+
+## PROPERTY DETAILS
+- **Property Address:** _______________________________________________
+- **Still Available?** â˜ Yes  â˜ No
+- **Other Properties Available?** â˜ Yes  â˜ No
+
+### Property Specs
+- **Bedrooms:** _____
+- **Bathrooms:** _____
+- **Square Feet:** _____ sqft
+- **Lot Size:** _____
+- **Year Built:** _____
+
+---
+
+## SELLER MOTIVATION
+- **Why Selling?** _______________________________________________
+- **What if doesn't sell?** _______________________________________________
+- **Motivation Level:** â˜ High  â˜ Medium  â˜ Low
+
+---
+
+## AREA INFORMATION
+- **Neighborhood/Zip Code:** _______________
+- **Best Areas for Rentals:** _______________________________________________
+- **Best Areas for Appreciation:** _______________________________________________
+- **Area Rating:** â˜ A  â˜ B  â˜ C  â˜ D
+
+---
+
+## STRATEGY
+- **Best Strategy:** â˜ Rental (Buy & Hold)  â˜ Flip (Buy, Fix, Sell)
+- **Realtor interested in listing if we flip?** â˜ Yes  â˜ No
+
+---
+
+## THE 3 KEY NUMBERS
+
+### 1. PROPERTY VALUE
+- **As-Is Price:** $_______________
+- **Based on:** _______________________________________________
+- **ARV (After Repair Value):** $_______________
+- **Comps Sent?** â˜ Yes  â˜ No
+
+### 2. REPAIR COSTS
+| Item | Needed? | Estimated Cost |
+|------|---------|----------------|
+| Roof | â˜ Yes â˜ No | $_______ |
+| HVAC | â˜ Yes â˜ No | $_______ |
+| Ceilings | â˜ Yes â˜ No | $_______ |
+| Paint | â˜ Yes â˜ No | $_______ |
+| Appliances | â˜ Yes â˜ No | $_______ |
+| Floors | â˜ Yes â˜ No | $_______ |
+| Other: _______ | â˜ Yes â˜ No | $_______ |
+
+**TOTAL REPAIR ESTIMATE:** $_______________
+
+### 3. PURCHASE PRICE
+- **Absolute Lowest Price:** $_______________
+- **Cash Offer Better Price:** $_______________
+
+---
+
+## FINANCIALS
+
+### Monthly/Annual Costs
+- **Estimated Monthly Rent:** $_______________
+- **Based on:** _______________________________________________
+- **Annual Property Taxes:** $_______________
+- **Annual Insurance:** $_______________
+
+### Quick Math Check
+- **Purchase Price:** $_______________
+- **+ Repair Costs:** $_______________
+- **= Total Investment:** $_______________
+- **ARV:** $_______________
+- **Potential Profit (ARV - Total):** $_______________
+
+---
+
+## OTHER OPPORTUNITIES
+- **Other Deals Available?** â˜ Yes  â˜ No
+- **Details:** _______________________________________________
+
+---
+
+## TEAM BUILDING
+
+### Referrals Received:
+- **Contractors:** _______________________________________________
+- **Property Management:** _______________________________________________
+- **Home Inspectors:** _______________________________________________
+- **Title Companies:** _______________________________________________
+
+---
+
+## REALTOR PROFILE
+- **Deals per Year:** _____
+- **Works with Investors?** â˜ Yes  â˜ No
+- **Renovation Experience?** â˜ Yes  â˜ No
+- **Add to Team?** â˜ Yes  â˜ Maybe  â˜ No
+
+---
+
+## NEXT STEPS
+- **Follow-up Date:** _______________
+- **Action Items:** 
+  - â˜ Run numbers
+  - â˜ Get comps
+  - â˜ Schedule inspection
+  - â˜ Submit offer
+  - â˜ Other: _______________
+
+---
+
+## NOTES
+_______________________________________________
+_______________________________________________
+_______________________________________________
+_______________________________________________
+
+---
+
+**Call Rating:** â˜ Excellent  â˜ Good  â˜ OK  â˜ Poor
+
+**Overall Impression:** _______________________________________________
+'''
+
+
+NOTES:
+- For each data-point please the timestamp it was mentioned (by the script). 
+- If the data isn't provided, just leave the field empty with '________' that indicate missing info.
+- The transcription maybe inaccurate sometimes, adjust your logic accordingly)
+- Don't ask any follow-ups, and don't add any text besides the markdown format we want.
+- Write it in a format that is read for copy-paste to a google Docs file with the formatting (NOT DIRECTLY MARKDOWN!) use artifact if you need
 
   
 Here's the transcript:\n\n`,
