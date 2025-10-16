@@ -70,33 +70,23 @@ export interface WhisperProgressProps {
   total: number;
 }
 
-export interface WhisperLanguageSelectorProps {
-  language: string;
-  setLanguage: (lang: string) => void;
-  className?: string;
-}
+// Removed: WhisperLanguageSelectorProps - component now reads from Zustand directly
 
 export interface WhisperMediaInputProps {
   onInputChange: (audio: Float32Array) => void;
   onTimeUpdate: (time: number) => void;
+  onFileNameChange?: (fileName: string) => void;
   className?: string;
 }
 
 export interface WhisperMediaInputRef {
   setMediaTime: (time: number) => void;
   reset: () => void;
+  loadFromBlob: (blob: Blob, fileName: string) => void;
+  getFile: () => File | null;
 }
 
-export interface WhisperTranscriptProps {
-  transcript: {
-    text: string;
-    chunks: TranscriptChunk[];
-  };
-  segments: SpeakerSegment[];
-  currentTime: number;
-  setCurrentTime: (time: number) => void;
-  className?: string;
-}
+// Removed: WhisperTranscriptProps - moved to component file, now reads transcript/segments from Zustand
 
 export interface ChunkProps {
   chunk: TranscriptChunk;

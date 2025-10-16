@@ -50,7 +50,7 @@ import {
   getTemplates,
   saveTemplate,
   deleteTemplate,
-  DEFAULT_TEMPLATE,
+  DEFAULT_TEMPLATES,
   type PromptTemplate,
 } from "../utils/templateStorage";
 import type { TranscriptChunk, SpeakerSegment } from "../types";
@@ -70,10 +70,10 @@ export function ExportToLLMModal({
 }: ExportToLLMModalProps) {
   const [templates, setTemplates] = useState<PromptTemplate[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState(
-    DEFAULT_TEMPLATE.id,
+    DEFAULT_TEMPLATES[0].id,
   );
   const [customPrompt, setCustomPrompt] = useState(
-    DEFAULT_TEMPLATE.content,
+    DEFAULT_TEMPLATES[0].content,
   );
   const [copied, setCopied] = useState(false);
   const [isModified, setIsModified] = useState(false);
@@ -163,8 +163,8 @@ export function ExportToLLMModal({
       const updatedTemplates = getTemplates();
       setTemplates(updatedTemplates);
       // Switch to default template
-      setSelectedTemplateId(DEFAULT_TEMPLATE.id);
-      setCustomPrompt(DEFAULT_TEMPLATE.content);
+      setSelectedTemplateId(DEFAULT_TEMPLATES[0].id);
+      setCustomPrompt(DEFAULT_TEMPLATES[0].content);
     }
     setShowDeleteDialog(false);
     setTemplateToDelete(null);
@@ -234,7 +234,7 @@ export function ExportToLLMModal({
                     Save
                   </Button>
                 )}
-                {selectedTemplateId !== DEFAULT_TEMPLATE.id &&
+                {selectedTemplateId !== DEFAULT_TEMPLATES[0].id &&
                   !isModified && (
                     <Button
                       onClick={() =>

@@ -42,10 +42,9 @@ import {
   type SystemCapabilities,
   type CachedModelInfo,
 } from "../utils/systemInfo";
+import { useWhisperStore } from "../store/useWhisperStore";
 
 interface ModelSelectorProps {
-  currentModel: string;
-  device: DeviceType;
   disabled?: boolean;
   onModelChange: (modelId: string) => void;
 }
@@ -67,11 +66,13 @@ const accuracyColors = {
 };
 
 export function ModelSelector({
-  currentModel,
-  device,
   disabled,
   onModelChange,
 }: ModelSelectorProps) {
+  // Read model and device state directly from Zustand - no more prop drilling!
+  const currentModel = useWhisperStore((state) => state.model.model);
+  const device = useWhisperStore((state) => state.model.device);
+
   const [isOpen, setIsOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState(currentModel);
   const [systemCapabilities, setSystemCapabilities] =
@@ -247,7 +248,7 @@ export function ModelSelector({
               <p className="text-sm text-yellow-700 dark:text-yellow-300">
                 ⚠️ <strong>Note:</strong> Changing the model will require
                 downloading new model files{" "}
-                {selectedModel && (
+                {selectedModel && AVAILABLE_MODELS[selectedModel] && (
                   <>
                     (~
                     {AVAILABLE_MODELS[selectedModel].sizes[device]}

@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { WhisperLanguageSelectorProps } from "../types";
+import { useWhisperStore } from "../store/useWhisperStore";
 
 function titleCase(str: string): string {
   str = str.toLowerCase();
@@ -121,11 +121,17 @@ const LANGUAGES: Record<string, string> = {
   su: "sundanese",
 };
 
+interface WhisperLanguageSelectorProps {
+  className?: string;
+}
+
 export default function WhisperLanguageSelector({
-  language,
-  setLanguage,
   className,
 }: WhisperLanguageSelectorProps) {
+  // Read language state directly from Zustand - no more prop drilling!
+  const language = useWhisperStore((state) => state.audio.language);
+  const setLanguage = useWhisperStore((state) => state.setLanguage);
+
   const languageOptions = Object.entries(LANGUAGES).map(([code, name]) => ({
     code,
     name: titleCase(name),
