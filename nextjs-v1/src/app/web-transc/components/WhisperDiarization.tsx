@@ -175,6 +175,18 @@ function WhisperDiarization() {
     transcript: SavedTranscript | null;
   }>({ open: false, transcript: null });
 
+  // Scroll to top button visibility
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show button when user scrolls down more than 300px
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   // Processing State from Zustand
   const processingMessage = useWhisperStore(
     (state) => state.processing.processingMessage,
@@ -1331,6 +1343,38 @@ function WhisperDiarization() {
           </motion.div>
         )}
       </div>
+
+      {/* Floating Scroll to Top Button */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{
+          opacity: showScrollTop ? 1 : 0,
+          scale: showScrollTop ? 1 : 0.8,
+          y: showScrollTop ? 0 : 20,
+        }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        onClick={() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        className={`bg-primary text-primary-foreground focus:ring-primary fixed bottom-6 left-6 z-50 flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all hover:scale-110 hover:shadow-xl focus:ring-2 focus:ring-offset-2 focus:outline-none active:scale-95 sm:right-8 sm:bottom-8 sm:h-14 sm:w-14 ${
+          showScrollTop ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+        aria-label="Scroll to top"
+      >
+        <svg
+          className="h-6 w-6 sm:h-7 sm:w-7"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 10l7-7m0 0l7 7m-7-7v18"
+          />
+        </svg>
+      </motion.button>
 
       {/* Edit Modals */}
       <EditConversationModal
