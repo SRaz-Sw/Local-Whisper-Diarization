@@ -34,6 +34,8 @@ interface TranscriptionState {
   result: TranscriptionResult | null;
   streamingWords: Array<{ text: string; timestamp: number }>;
   generationTime: number | null;
+  speakerNames: Record<string, string> | null; // Custom speaker names
+  currentTranscriptId: string | null; // ID of currently loaded transcript
 }
 
 interface ProcessingState {
@@ -100,6 +102,8 @@ interface WhisperStore {
   addStreamingWord: (word: { text: string; timestamp: number }) => void;
   clearStreamingWords: () => void;
   setGenerationTime: (time: number | null) => void;
+  setSpeakerNames: (speakerNames: Record<string, string> | null) => void;
+  setCurrentTranscriptId: (id: string | null) => void;
 
   // Processing actions
   setProcessingMessage: (message: string) => void;
@@ -155,6 +159,8 @@ const initialTranscriptionState: TranscriptionState = {
   result: null,
   streamingWords: [],
   generationTime: null,
+  speakerNames: null,
+  currentTranscriptId: null,
 };
 
 const initialProcessingState: ProcessingState = {
@@ -356,6 +362,28 @@ export const useWhisperStore = create<WhisperStore>()(
             }),
             false,
             "setGenerationTime",
+          ),
+        setSpeakerNames: (speakerNames) =>
+          set(
+            (state) => ({
+              transcription: {
+                ...state.transcription,
+                speakerNames,
+              },
+            }),
+            false,
+            "setSpeakerNames",
+          ),
+        setCurrentTranscriptId: (id) =>
+          set(
+            (state) => ({
+              transcription: {
+                ...state.transcription,
+                currentTranscriptId: id,
+              },
+            }),
+            false,
+            "setCurrentTranscriptId",
           ),
 
         // Processing actions

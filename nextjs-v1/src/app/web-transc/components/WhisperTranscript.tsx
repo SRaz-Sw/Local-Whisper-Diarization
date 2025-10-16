@@ -57,6 +57,7 @@ const WhisperTranscript = ({
 }: WhisperTranscriptProps) => {
   // Read transcript and segments from Zustand - no more prop drilling!
   const result = useWhisperStore((state) => state.transcription.result);
+  const speakerNames = useWhisperStore((state) => state.transcription.speakerNames);
 
   // Early return if no result
   if (!result) return null;
@@ -149,6 +150,11 @@ const WhisperTranscript = ({
     );
   };
 
+  // Get display name for speaker (custom name or default label)
+  const getSpeakerDisplayName = (label: string) => {
+    return speakerNames?.[label] || label;
+  };
+
   // Animation variants
   const containerVariants = {
     default: {
@@ -237,7 +243,7 @@ const WhisperTranscript = ({
                         delay: 0.1,
                       }}
                     >
-                      {label}
+                      {getSpeakerDisplayName(label)}
                     </motion.div>
                   </motion.div>
                 </div>

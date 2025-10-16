@@ -302,6 +302,43 @@ export function useTranscripts() {
     [items],
   );
 
+  /**
+   * Update metadata fields (conversation name, speaker names, etc.)
+   *
+   * @param id - ID of transcript to update
+   * @param metadata - Partial metadata to update
+   */
+  const updateMetadata = useCallback(
+    async (
+      id: string,
+      metadata: Partial<Pick<SavedTranscript["metadata"], "conversationName" | "speakerNames">>,
+    ): Promise<void> => {
+      try {
+        const existing = await transcripts.get(id);
+        if (!existing) {
+          throw new Error("Transcript not found");
+        }
+
+        const updated: SavedTranscript = {
+          ...existing,
+          metadata: {
+            ...existing.metadata,
+            ...metadata,
+            updatedAt: Date.now(),
+          },
+        };
+
+        await transcripts.set(id, updated);
+        await load();
+      } catch (err) {
+        const error = err as Error;
+        console.error("Failed to update metadata:", error);
+        throw error;
+      }
+    },
+    [load],
+  );
+
   return {
     // State
     transcripts: items,
@@ -312,6 +349,7 @@ export function useTranscripts() {
     save,
     remove,
     update,
+    updateMetadata,
     get,
     getWithAudio,
     search,

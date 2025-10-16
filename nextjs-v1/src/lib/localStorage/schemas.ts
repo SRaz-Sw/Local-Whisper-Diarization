@@ -48,12 +48,14 @@ export const savedTranscriptSchema = z.object({
   // Metadata
   metadata: z.object({
     fileName: z.string(), // Original file name or custom name
+    conversationName: z.string().optional(), // Custom conversation name (defaults to fileName)
     duration: z.number(), // Duration in seconds
     speakerCount: z.number(), // Number of unique speakers
     language: z.string(), // Language code (e.g., 'en', 'es')
     model: z.string(), // Model used for transcription (e.g., 'whisper-base')
     createdAt: z.number(), // Unix timestamp
     updatedAt: z.number(), // Unix timestamp
+    speakerNames: z.record(z.string(), z.string()).optional(), // Custom speaker names map (e.g., {"SPEAKER_00": "John"})
   }),
 
   // Optional reference to audio blob

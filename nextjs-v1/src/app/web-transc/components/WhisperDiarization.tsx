@@ -13,6 +13,8 @@ import { StreamingTranscript } from "./StreamingTranscript";
 import { IntroSection } from "./IntroSection";
 import { ThemeToggle } from "./ThemeToggle";
 import { ModelSelector } from "./ModelSelector";
+import { EditConversationModal } from "./EditConversationModal";
+import { EditSpeakersModal } from "./EditSpeakersModal";
 import {
   DEFAULT_MODEL,
   getModelSize,
@@ -29,6 +31,7 @@ import type {
   DeviceType,
   WhisperMediaInputRef,
 } from "../types";
+import type { SavedTranscript } from "@/lib/localStorage/schemas";
 
 async function hasWebGPU(): Promise<boolean> {
   if (!navigator.gpu) {
@@ -59,6 +62,7 @@ function WhisperDiarization() {
     loading: transcriptsLoading,
     remove: removeTranscript,
     getWithAudio,
+    updateMetadata,
   } = useTranscripts();
 
   // Storage State from Zustand
@@ -152,8 +156,24 @@ function WhisperDiarization() {
   const setGenerationTime = useWhisperStore(
     (state) => state.setGenerationTime,
   );
+  const setSpeakerNames = useWhisperStore(
+    (state) => state.setSpeakerNames,
+  );
+  const setCurrentTranscriptId = useWhisperStore(
+    (state) => state.setCurrentTranscriptId,
+  );
 
   const [currentTime, setCurrentTime] = useState(0);
+
+  // Modal state for editing
+  const [editConversationModal, setEditConversationModal] = useState<{
+    open: boolean;
+    transcript: SavedTranscript | null;
+  }>({ open: false, transcript: null });
+  const [editSpeakersModal, setEditSpeakersModal] = useState<{
+    open: boolean;
+    transcript: SavedTranscript | null;
+  }>({ open: false, transcript: null });
 
   // Processing State from Zustand
   const processingMessage = useWhisperStore(
@@ -426,6 +446,8 @@ function WhisperDiarization() {
     setResult(null);
     setStreamingWords([]);
     setGenerationTime(null);
+    setSpeakerNames(null);
+    setCurrentTranscriptId(null);
     setProcessingMessage("");
     setProcessedSeconds(0);
     setTotalSeconds(0);
@@ -504,6 +526,8 @@ function WhisperDiarization() {
     setResult(null);
     setStreamingWords([]);
     setGenerationTime(null);
+    setSpeakerNames(null);
+    setCurrentTranscriptId(null);
     setProcessingMessage("");
     setCurrentTime(0);
     setProcessedSeconds(0);
@@ -540,6 +564,12 @@ function WhisperDiarization() {
 
         // Set a time value to show the result properly (use 0 as placeholder)
         setGenerationTime(0);
+
+        // Load speaker names if available
+        setSpeakerNames(data.metadata.speakerNames || null);
+
+        // Set current transcript ID for edit functionality
+        setCurrentTranscriptId(transcriptId);
 
         setAudioFileName(data.metadata.fileName);
         setLanguage(data.metadata.language);
@@ -595,6 +625,56 @@ function WhisperDiarization() {
       }
     },
     [getWithAudio],
+  );
+
+  // Handlers for editing modals
+  const handleSaveConversationName = useCallback(
+    async (conversationName: string) => {
+      if (!editConversationModal.transcript) return;
+
+      try {
+        await updateMetadata(editConversationModal.transcript.id, {
+          conversationName,
+        });
+        toast.success("Conversation name updated!");
+      } catch (error) {
+        toast.error("Failed to update conversation name", {
+          description:
+            error instanceof Error ? error.message : "Unknown error",
+        });
+      }
+    },
+    [editConversationModal.transcript, updateMetadata],
+  );
+
+  const handleSaveSpeakerNames = useCallback(
+    async (speakerNames: Record<string, string>) => {
+      if (!editSpeakersModal.transcript) return;
+
+      try {
+        await updateMetadata(editSpeakersModal.transcript.id, {
+          speakerNames,
+        });
+
+        // Update Zustand store if this is the currently displayed transcript
+        if (result) {
+          setSpeakerNames(speakerNames);
+        }
+
+        toast.success("Speaker names updated!");
+      } catch (error) {
+        toast.error("Failed to update speaker names", {
+          description:
+            error instanceof Error ? error.message : "Unknown error",
+        });
+      }
+    },
+    [
+      editSpeakersModal.transcript,
+      updateMetadata,
+      result,
+      setSpeakerNames,
+    ],
   );
 
   return (
@@ -846,7 +926,9 @@ function WhisperDiarization() {
                               <div className="flex items-start justify-between gap-2">
                                 <div className="min-w-0 flex-1">
                                   <h4 className="text-foreground truncate text-sm font-medium">
-                                    {transcript.metadata.fileName}
+                                    {transcript.metadata
+                                      .conversationName ||
+                                      transcript.metadata.fileName}
                                   </h4>
                                   <div className="text-muted-foreground mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs">
                                     <span className="flex items-center gap-1">
@@ -895,42 +977,98 @@ function WhisperDiarization() {
                                     </span>
                                   </div>
                                 </div>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (
-                                      confirm(
-                                        `Delete "${transcript.metadata.fileName}"?`,
-                                      )
-                                    ) {
-                                      removeTranscript(
-                                        transcript.id,
-                                      ).catch((err) => {
-                                        toast.error(
-                                          "Failed to delete transcript",
-                                          {
-                                            description: err.message,
-                                          },
-                                        );
+                                <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                  {/* Edit conversation name button */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditConversationModal({
+                                        open: true,
+                                        transcript,
                                       });
-                                    }
-                                  }}
-                                  className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex-shrink-0 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100"
-                                >
-                                  <svg
-                                    className="h-4 w-4"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
+                                    }}
+                                    className="text-muted-foreground hover:bg-primary/10 hover:text-primary flex-shrink-0 rounded p-1 transition-colors"
+                                    title="Edit conversation name"
                                   >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                    />
-                                  </svg>
-                                </button>
+                                    <svg
+                                      className="h-4 w-4"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                      />
+                                    </svg>
+                                  </button>
+                                  {/* Edit speakers button */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditSpeakersModal({
+                                        open: true,
+                                        transcript,
+                                      });
+                                    }}
+                                    className="text-muted-foreground hover:bg-primary/10 hover:text-primary flex-shrink-0 rounded p-1 transition-colors"
+                                    title="Edit speaker names"
+                                  >
+                                    <svg
+                                      className="h-4 w-4"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                      />
+                                    </svg>
+                                  </button>
+                                  {/* Delete button */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (
+                                        confirm(
+                                          `Delete "${transcript.metadata.conversationName || transcript.metadata.fileName}"?`,
+                                        )
+                                      ) {
+                                        removeTranscript(
+                                          transcript.id,
+                                        ).catch((err) => {
+                                          toast.error(
+                                            "Failed to delete transcript",
+                                            {
+                                              description: err.message,
+                                            },
+                                          );
+                                        });
+                                      }
+                                    }}
+                                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex-shrink-0 rounded p-1 transition-colors"
+                                    title="Delete transcript"
+                                  >
+                                    <svg
+                                      className="h-4 w-4"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                      />
+                                    </svg>
+                                  </button>
+                                </div>
                               </div>
                               <p className="text-muted-foreground/70 mt-1 text-xs">
                                 Double-click to load
@@ -944,7 +1082,7 @@ function WhisperDiarization() {
 
                 {/* Show final result with speaker diarization */}
                 {result && generationTime !== null && (
-                  <div className="w-full space-y-4 pt-24">
+                  <div className="w-full space-y-4 pt-28">
                     {/* Action buttons at top */}
                     <div className="flex flex-wrap items-center justify-center gap-3">
                       {/* Primary actions */}
@@ -1193,6 +1331,24 @@ function WhisperDiarization() {
           </motion.div>
         )}
       </div>
+
+      {/* Edit Modals */}
+      <EditConversationModal
+        open={editConversationModal.open}
+        onOpenChange={(open) =>
+          setEditConversationModal({ open, transcript: null })
+        }
+        transcript={editConversationModal.transcript}
+        onSave={handleSaveConversationName}
+      />
+      <EditSpeakersModal
+        open={editSpeakersModal.open}
+        onOpenChange={(open) =>
+          setEditSpeakersModal({ open, transcript: null })
+        }
+        transcript={editSpeakersModal.transcript}
+        onSave={handleSaveSpeakerNames}
+      />
     </div>
   );
 }
