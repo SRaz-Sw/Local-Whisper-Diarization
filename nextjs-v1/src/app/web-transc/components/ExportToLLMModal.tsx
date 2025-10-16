@@ -40,6 +40,7 @@ import {
   Users,
   Clock,
 } from "lucide-react";
+import { useWhisperStore } from "../store/useWhisperStore";
 import {
   formatTranscriptForLLM,
   formatTimestamp,
@@ -68,6 +69,11 @@ export function ExportToLLMModal({
   chunks,
   segments,
 }: ExportToLLMModalProps) {
+  // Get speaker names from store
+  const speakerNames = useWhisperStore(
+    (state) => state.transcription.speakerNames,
+  );
+
   const [templates, setTemplates] = useState<PromptTemplate[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState(
     DEFAULT_TEMPLATES[0].id,
@@ -84,7 +90,11 @@ export function ExportToLLMModal({
     null,
   );
 
-  const formattedTranscript = formatTranscriptForLLM(chunks, segments);
+  const formattedTranscript = formatTranscriptForLLM(
+    chunks,
+    segments,
+    speakerNames,
+  );
   const duration = getTranscriptDuration(chunks);
   const speakerCount = getUniqueSpeakerCount(segments);
 

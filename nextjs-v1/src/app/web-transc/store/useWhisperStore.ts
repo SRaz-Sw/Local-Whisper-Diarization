@@ -536,6 +536,8 @@ export const useWhisperStore = create<WhisperStore>()(
                 result: data.result,
                 streamingWords: [],
                 generationTime: 0,
+                speakerNames: null,
+                currentTranscriptId: null,
               },
               audio: {
                 ...state.audio,

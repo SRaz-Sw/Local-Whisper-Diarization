@@ -21,6 +21,7 @@ export function formatTimestamp(seconds: number): string {
 export function formatTranscriptForLLM(
   chunks: TranscriptChunk[],
   segments: SpeakerSegment[],
+  speakerNames?: Record<string, string> | null,
 ): string {
   // Group chunks by speaker segments
   const groupedSegments: Array<{
@@ -62,7 +63,9 @@ export function formatTranscriptForLLM(
   // Format as text with timestamps
   return groupedSegments
     .map(({ label, start, text }) => {
-      return `${formatTimestamp(start)} - ${label}:\n${text}`;
+      // Use custom speaker name if available, otherwise use label
+      const displayName = speakerNames?.[label] || label;
+      return `${formatTimestamp(start)} - ${displayName}:\n${text}`;
     })
     .join("\n\n");
 }

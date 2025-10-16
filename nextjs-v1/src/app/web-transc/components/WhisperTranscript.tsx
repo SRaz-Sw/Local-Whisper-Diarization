@@ -4,6 +4,7 @@ import { ExportToLLMModal } from "./ExportToLLMModal";
 import type { ChunkProps } from "../types";
 import { motion } from "framer-motion";
 import { useWhisperStore } from "../store/useWhisperStore";
+import { formatTimestamp } from "../utils/transcriptFormatter";
 
 const Chunk = ({ chunk, currentTime, onClick }: ChunkProps) => {
   const spanRef = useRef<HTMLSpanElement>(null);
@@ -57,7 +58,9 @@ const WhisperTranscript = ({
 }: WhisperTranscriptProps) => {
   // Read transcript and segments from Zustand - no more prop drilling!
   const result = useWhisperStore((state) => state.transcription.result);
-  const speakerNames = useWhisperStore((state) => state.transcription.speakerNames);
+  const speakerNames = useWhisperStore(
+    (state) => state.transcription.speakerNames,
+  );
 
   // Early return if no result
   if (!result) return null;
@@ -243,7 +246,11 @@ const WhisperTranscript = ({
                         delay: 0.1,
                       }}
                     >
-                      {getSpeakerDisplayName(label)}
+                      <span>{getSpeakerDisplayName(label)}</span>
+                      <span
+                        style={{ display: "inline-block", width: "2em" }}
+                      />
+                      <span>{formatTimestamp(start)}</span>
                     </motion.div>
                   </motion.div>
                 </div>
