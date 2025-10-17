@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +29,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +48,20 @@ import {
   Sparkles,
   Users,
   Clock,
+  Code2,
+  Eye,
 } from "lucide-react";
+
+// Dynamically import MDEditor to avoid SSR issues
+const MDEditor = dynamic(() => import("@uiw/react-md-editor"), {
+  ssr: false,
+});
+
+// Import commands - need to do this separately since it's not a React component
+import {
+  getCommands,
+  getExtraCommands,
+} from "@uiw/react-md-editor/commands";
 import { useWhisperStore } from "../store/useWhisperStore";
 import {
   formatTranscriptForLLM,
@@ -183,7 +205,7 @@ export function ExportToLLMModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="flex max-h-[75svh] w-[95vw] max-w-4xl min-w-[75svw] flex-col gap-0 p-0 lg:w-[75vw]">
+        <DialogContent className="flex max-h-[85svh] w-[95vw] max-w-4xl min-w-[80svw] flex-col gap-0 p-0 lg:w-[85svw]">
           <DialogHeader className="border-b px-6 py-4">
             <div className="flex items-center gap-2">
               <div className="from-primary/20 to-primary/5 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br">
@@ -260,17 +282,55 @@ export function ExportToLLMModal({
               </div>
             </div>
 
-            {/* Editable Prompt Section */}
+            {/* Editable Prompt Section with Tabs */}
             <div className="space-y-2.5">
               <label className="text-sm font-semibold">
                 Custom Instructions
               </label>
-              <Textarea
-                value={customPrompt}
-                onChange={(e) => setCustomPrompt(e.target.value)}
-                placeholder="Enter your custom instructions for the LLM..."
-                className="h-[40svh] max-h-[50svh] min-h-[30svh] resize-none font-mono text-sm leading-relaxed"
-              />
+
+              <div
+                className="overflow-hidden rounded-lg border [&_.w-md-editor-toolbar]:h-[54px]! [&_.w-md-editor-toolbar]:items-center [&_.w-md-editor-toolbar_button]:h-10 [&_.w-md-editor-toolbar_button]:w-10 [&_.w-md-editor-toolbar_button_svg]:mx-auto [&_.w-md-editor-toolbar_button_svg]:my-auto [&_.w-md-editor-toolbar_button_svg]:h-4 [&_.w-md-editor-toolbar_button_svg]:w-4"
+                data-color-mode="auto"
+                style={{ height: "45svh" }}
+              >
+                <MDEditor
+                  value={customPrompt}
+                  onChange={(value) => setCustomPrompt(value || "")}
+                  preview="live"
+                  hideToolbar={false}
+                  enableScroll={true}
+                  height="100%"
+                  visibleDragbar={false}
+                  className="h-full !border-0"
+                  textareaProps={{
+                    placeholder:
+                      "Enter your custom instructions here. Use the toolbar above to format text...",
+                    style: { height: "100%" },
+                  }}
+                  commands={getCommands().filter((cmd) => {
+                    // Remove commands we don't want
+                    const unwantedCommands = [
+                      "italic",
+                      "strikethrough",
+                      "hr",
+                      "title4",
+                      "title5",
+                      "title6",
+                      "quote",
+                      "code",
+                      "codeBlock",
+                      "comment",
+                      "image",
+                      "unorderedList",
+                      "table",
+                      "issue",
+                      "help",
+                    ];
+                    return !unwantedCommands.includes(cmd.name || "");
+                  })}
+                  extraCommands={getExtraCommands()}
+                />
+              </div>
 
               {/* Transcript indicator badge */}
               <div className="group from-muted/30 via-muted/20 to-muted/30 hover:border-primary/40 relative overflow-hidden rounded-lg border border-dashed bg-gradient-to-r p-3.5 transition-all">

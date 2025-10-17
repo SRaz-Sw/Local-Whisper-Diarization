@@ -61,8 +61,8 @@ format and data we want to extract:
 
 ## PROPERTY DETAILS
 - **Property Address:** _______________________________________________
-- **Still Available?** â˜ Yes  â˜ No
-- **Other Properties Available?** â˜ Yes  â˜ No
+- **Still Available?** ☐ Yes  ☐ No
+- **Other Properties Available?** ☐ Yes  ☐ No
 
 ### Property Specs
 - **Bedrooms:** _____
@@ -76,7 +76,7 @@ format and data we want to extract:
 ## SELLER MOTIVATION
 - **Why Selling?** _______________________________________________
 - **What if doesn't sell?** _______________________________________________
-- **Motivation Level:** â˜ High  â˜ Medium  â˜ Low
+- **Motivation Level:** ☐ High  ☐ Medium  ☐ Low
 
 ---
 
@@ -84,13 +84,13 @@ format and data we want to extract:
 - **Neighborhood/Zip Code:** _______________
 - **Best Areas for Rentals:** _______________________________________________
 - **Best Areas for Appreciation:** _______________________________________________
-- **Area Rating:** â˜ A  â˜ B  â˜ C  â˜ D
+- **Area Rating:** ☐ A  ☐ B  ☐ C  ☐ D
 
 ---
 
 ## STRATEGY
-- **Best Strategy:** â˜ Rental (Buy & Hold)  â˜ Flip (Buy, Fix, Sell)
-- **Realtor interested in listing if we flip?** â˜ Yes  â˜ No
+- **Best Strategy:** ☐ Rental (Buy & Hold)  ☐ Flip (Buy, Fix, Sell)
+- **Realtor interested in listing if we flip?** ☐ Yes  ☐ No
 
 ---
 
@@ -100,18 +100,18 @@ format and data we want to extract:
 - **As-Is Price:** $_______________
 - **Based on:** _______________________________________________
 - **ARV (After Repair Value):** $_______________
-- **Comps Sent?** â˜ Yes  â˜ No
+- **Comps Sent?** ☐ Yes  ☐ No
 
 ### 2. REPAIR COSTS
 | Item | Needed? | Estimated Cost |
 |------|---------|----------------|
-| Roof | â˜ Yes â˜ No | $_______ |
-| HVAC | â˜ Yes â˜ No | $_______ |
-| Ceilings | â˜ Yes â˜ No | $_______ |
-| Paint | â˜ Yes â˜ No | $_______ |
-| Appliances | â˜ Yes â˜ No | $_______ |
-| Floors | â˜ Yes â˜ No | $_______ |
-| Other: _______ | â˜ Yes â˜ No | $_______ |
+| Roof | ☐ Yes ☐ No | $_______ |
+| HVAC | ☐ Yes ☐ No | $_______ |
+| Ceilings | ☐ Yes ☐ No | $_______ |
+| Paint | ☐ Yes ☐ No | $_______ |
+| Appliances | ☐ Yes ☐ No | $_______ |
+| Floors | ☐ Yes ☐ No | $_______ |
+| Other: _______ | ☐ Yes ☐ No | $_______ |
 
 **TOTAL REPAIR ESTIMATE:** $_______________
 
@@ -139,7 +139,7 @@ format and data we want to extract:
 ---
 
 ## OTHER OPPORTUNITIES
-- **Other Deals Available?** â˜ Yes  â˜ No
+- **Other Deals Available?** ☐ Yes  ☐ No
 - **Details:** _______________________________________________
 
 ---
@@ -156,20 +156,20 @@ format and data we want to extract:
 
 ## REALTOR PROFILE
 - **Deals per Year:** _____
-- **Works with Investors?** â˜ Yes  â˜ No
-- **Renovation Experience?** â˜ Yes  â˜ No
-- **Add to Team?** â˜ Yes  â˜ Maybe  â˜ No
+- **Works with Investors?** ☐ Yes  ☐ No
+- **Renovation Experience?** ☐ Yes  ☐ No
+- **Add to Team?** ☐ Yes  ☐ Maybe  ☐ No
 
 ---
 
 ## NEXT STEPS
 - **Follow-up Date:** _______________
 - **Action Items:** 
-  - â˜ Run numbers
-  - â˜ Get comps
-  - â˜ Schedule inspection
-  - â˜ Submit offer
-  - â˜ Other: _______________
+  - ☐ Run numbers
+  - ☐ Get comps
+  - ☐ Schedule inspection
+  - ☐ Submit offer
+  - ☐ Other: _______________
 
 ---
 
@@ -181,7 +181,7 @@ _______________________________________________
 
 ---
 
-**Call Rating:** â˜ Excellent  â˜ Good  â˜ OK  â˜ Poor
+**Call Rating:** ☐ Excellent  ☐ Good  ☐ OK  ☐ Poor
 
 **Overall Impression:** _______________________________________________
 '''
@@ -211,8 +211,8 @@ format and data we want to extract:
 
 ## PROPERTY DETAILS
 - **Property Address:** _______________________________________________
-- **Still Available?** â˜ Yes  â˜ No
-- **Other Properties Available?** â˜ Yes  â˜ No
+- **Still Available?** ☐ Yes  ☐ No
+- **Other Properties Available?** ☐ Yes  ☐ No
 
 ### Property Specs
 - **Bedrooms:** _____
@@ -226,7 +226,7 @@ format and data we want to extract:
 ## SELLER MOTIVATION
 - **Why Selling?** _______________________________________________
 - **What if doesn't sell?** _______________________________________________
-- **Motivation Level:** â˜ High  â˜ Medium  â˜ Low
+- **Motivation Level:** ☐ High  ☐ Medium  ☐ Low
 
 ---
 
@@ -234,13 +234,13 @@ format and data we want to extract:
 - **Neighborhood/Zip Code:** _______________
 - **Best Areas for Rentals:** _______________________________________________
 - **Best Areas for Appreciation:** _______________________________________________
-- **Area Rating:** â˜ A  â˜ B  â˜ C  â˜ D
+- **Area Rating:** ☐ A  ☐ B  ☐ C  ☐ D
 
 ---
 
 ## STRATEGY
-- **Best Strategy:** â˜ Rental (Buy & Hold)  â˜ Flip (Buy, Fix, Sell)
-- **Realtor interested in listing if we flip?** â˜ Yes  â˜ No
+- **Best Strategy:** ☐ Rental (Buy & Hold)  ☐ Flip (Buy, Fix, Sell)
+- **Realtor interested in listing if we flip?** ☐ Yes  ☐ No
 
 ---
 
@@ -250,18 +250,18 @@ format and data we want to extract:
 - **As-Is Price:** $_______________
 - **Based on:** _______________________________________________
 - **ARV (After Repair Value):** $_______________
-- **Comps Sent?** â˜ Yes  â˜ No
+- **Comps Sent?** ☐ Yes  ☐ No
 
 ### 2. REPAIR COSTS
 | Item | Needed? | Estimated Cost |
 |------|---------|----------------|
-| Roof | â˜ Yes â˜ No | $_______ |
-| HVAC | â˜ Yes â˜ No | $_______ |
-| Ceilings | â˜ Yes â˜ No | $_______ |
-| Paint | â˜ Yes â˜ No | $_______ |
-| Appliances | â˜ Yes â˜ No | $_______ |
-| Floors | â˜ Yes â˜ No | $_______ |
-| Other: _______ | â˜ Yes â˜ No | $_______ |
+| Roof | ☐ Yes ☐ No | $_______ |
+| HVAC | ☐ Yes ☐ No | $_______ |
+| Ceilings | ☐ Yes ☐ No | $_______ |
+| Paint | ☐ Yes ☐ No | $_______ |
+| Appliances | ☐ Yes ☐ No | $_______ |
+| Floors | ☐ Yes ☐ No | $_______ |
+| Other: _______ | ☐ Yes ☐ No | $_______ |
 
 **TOTAL REPAIR ESTIMATE:** $_______________
 
@@ -289,7 +289,7 @@ format and data we want to extract:
 ---
 
 ## OTHER OPPORTUNITIES
-- **Other Deals Available?** â˜ Yes  â˜ No
+- **Other Deals Available?** ☐ Yes  ☐ No
 - **Details:** _______________________________________________
 
 ---
@@ -306,20 +306,20 @@ format and data we want to extract:
 
 ## REALTOR PROFILE
 - **Deals per Year:** _____
-- **Works with Investors?** â˜ Yes  â˜ No
-- **Renovation Experience?** â˜ Yes  â˜ No
-- **Add to Team?** â˜ Yes  â˜ Maybe  â˜ No
+- **Works with Investors?** ☐ Yes  ☐ No
+- **Renovation Experience?** ☐ Yes  ☐ No
+- **Add to Team?** ☐ Yes  ☐ Maybe  ☐ No
 
 ---
 
 ## NEXT STEPS
 - **Follow-up Date:** _______________
 - **Action Items:** 
-  - â˜ Run numbers
-  - â˜ Get comps
-  - â˜ Schedule inspection
-  - â˜ Submit offer
-  - â˜ Other: _______________
+  - ☐ Run numbers
+  - ☐ Get comps
+  - ☐ Schedule inspection
+  - ☐ Submit offer
+  - ☐ Other: _______________
 
 ---
 
@@ -331,7 +331,7 @@ _______________________________________________
 
 ---
 
-**Call Rating:** â˜ Excellent  â˜ Good  â˜ OK  â˜ Poor
+**Call Rating:** ☐ Excellent  ☐ Good  ☐ OK  ☐ Poor
 
 **Overall Impression:** _______________________________________________
 '''
