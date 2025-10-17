@@ -1,24 +1,21 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import WhisperProgress from "./WhisperProgress";
 import MediaFileUpload from "./MediaFileUpload";
-import WhisperTranscript from "./WhisperTranscript";
+import TranscriptViewer from "./TranscriptViewer";
 import WhisperLanguageSelector from "./WhisperLanguageSelector";
 import { StreamingTranscript } from "./StreamingTranscript";
 import { ThemeToggle } from "./ThemeToggle";
 import { ModelSelector } from "./ModelSelector";
 import { EditConversationModal } from "./EditConversationModal";
 import { EditSpeakersModal } from "./EditSpeakersModal";
-import {
-  DEFAULT_MODEL,
-  getModelSize,
-  AVAILABLE_MODELS,
-} from "../config/modelConfig";
+import { getModelSize } from "../config/modelConfig";
 import { remapSpeakerLabels } from "../utils/transcriptFormatter";
 import { useTranscripts } from "../hooks/useTranscripts";
 import { exposeStorageUtilsToWindow } from "@/lib/localStorage/utils";
@@ -51,6 +48,8 @@ function formatTime(seconds: number): string {
 }
 
 function WhisperDiarization() {
+  const router = useRouter();
+
   // Create a reference to the worker object.
   const worker = useRef<Worker | null>(null);
 
@@ -60,7 +59,6 @@ function WhisperDiarization() {
     transcripts: savedTranscripts,
     loading: transcriptsLoading,
     remove: removeTranscript,
-    getWithAudio,
     updateMetadata,
   } = useTranscripts();
 
@@ -130,9 +128,7 @@ function WhisperDiarization() {
   const setAudio = useWhisperStore((state) => state.setAudio);
   const language = useWhisperStore((state) => state.audio.language);
   const setLanguage = useWhisperStore((state) => state.setLanguage);
-  const audioFileName = useWhisperStore(
-    (state) => state.audio.audioFileName,
-  );
+  const audioFileName = useWhisperStore((state) => state.audio.audioFileName);
   const setAudioFileName = useWhisperStore(
     (state) => state.setAudioFileName,
   );
@@ -149,9 +145,6 @@ function WhisperDiarization() {
   const addStreamingWord = useWhisperStore(
     (state) => state.addStreamingWord,
   );
-  const generationTime = useWhisperStore(
-    (state) => state.transcription.generationTime,
-  );
   const setGenerationTime = useWhisperStore(
     (state) => state.setGenerationTime,
   );
@@ -162,7 +155,7 @@ function WhisperDiarization() {
     (state) => state.setCurrentTranscriptId,
   );
 
-  const [currentTime, setCurrentTime] = useState(0);
+  const setCurrentTime = useWhisperStore((state) => state.setCurrentTime);
 
   // Modal state for editing
   const [editConversationModal, setEditConversationModal] = useState<{
@@ -213,16 +206,9 @@ function WhisperDiarization() {
   );
 
   // UI State from Zustand (replacing useState and ref)
-  const isSaving = useWhisperStore((state) => state.ui.isSaving);
-  const setIsSaving = useWhisperStore((state) => state.setIsSaving);
-  const isLoadingFromStorage = useWhisperStore(
-    (state) => state.ui.isLoadingFromStorage,
-  );
   const setIsLoadingFromStorage = useWhisperStore(
     (state) => state.setIsLoadingFromStorage,
   );
-  const searchQuery = useWhisperStore((state) => state.ui.searchQuery);
-  const setSearchQuery = useWhisperStore((state) => state.setSearchQuery);
 
   // Store event handlers in refs so they can be reused when recreating worker
   const onMessageReceivedRef = useRef<((e: MessageEvent) => void) | null>(
@@ -380,6 +366,46 @@ function WhisperDiarization() {
           setProcessedSeconds(0);
           setTotalSeconds(0);
           setEstimatedTimeRemaining(null);
+
+          // Auto-save and redirect to transcript page
+          (async () => {
+            try {
+              console.log("💾 Auto-saving transcript...");
+              // Get the audio file from the media component
+              const audioFile = mediaInputRef.current?.getFile();
+
+              const transcriptId = await saveTranscript({
+                transcript: remappedResult.transcript,
+                segments: remappedResult.segments,
+                fileName: audioFileName || "untitled",
+                language: language,
+                model: model,
+                audioBlob: audioFile || undefined,
+              });
+
+              console.log(
+                "✅ Transcript auto-saved with ID:",
+                transcriptId,
+              );
+
+              toast.success("Transcript saved!", {
+                description: `Redirecting to transcript view...`,
+              });
+
+              // Small delay before redirect for better UX
+              setTimeout(() => {
+                router.push(`/web-transc/transcript/${transcriptId}`);
+              }, 1000);
+            } catch (error) {
+              console.error("Failed to auto-save transcript:", error);
+              toast.error("Failed to save transcript", {
+                description:
+                  error instanceof Error
+                    ? error.message
+                    : "Unknown error occurred",
+              });
+            }
+          })();
           break;
 
         case "backup_check":
@@ -548,98 +574,6 @@ function WhisperDiarization() {
     setEstimatedTimeRemaining(null);
   }, [status, initializeWorker]);
 
-  const handleLoadTranscript = useCallback(
-    async (transcriptId: string) => {
-      try {
-        // Get transcript with audio blob
-        const result = await getWithAudio(transcriptId);
-        if (!result) {
-          toast.error("Transcript not found");
-          return;
-        }
-
-        const { transcript: data, audioBlob } = result;
-
-        // Map segments to include missing properties (id and confidence)
-        const segmentsWithMissingProps = data.segments.map(
-          (segment, index) => ({
-            ...segment,
-            id: index,
-            confidence: 1.0, // Default confidence since it's not stored
-          }),
-        );
-
-        // Load the transcript data into the result state
-        setResult({
-          transcript: data.transcript,
-          segments: segmentsWithMissingProps,
-        });
-
-        // Set a time value to show the result properly (use 0 as placeholder)
-        setGenerationTime(0);
-
-        // Load speaker names if available
-        setSpeakerNames(data.metadata.speakerNames || null);
-
-        // Set current transcript ID for edit functionality
-        setCurrentTranscriptId(transcriptId);
-
-        setAudioFileName(data.metadata.fileName);
-        setLanguage(data.metadata.language);
-
-        // Validate model ID - fallback to default if not found in AVAILABLE_MODELS
-        const loadedModel = data.metadata.model;
-        const validModel = AVAILABLE_MODELS[loadedModel]
-          ? loadedModel
-          : DEFAULT_MODEL;
-
-        if (loadedModel !== validModel) {
-          console.warn(
-            `Model "${loadedModel}" not found in AVAILABLE_MODELS. Using default: "${validModel}"`,
-          );
-          toast.info("Model updated", {
-            description: `The saved model is no longer available. Using ${AVAILABLE_MODELS[validModel].name} instead.`,
-          });
-        }
-
-        setModel(validModel);
-
-        // Load audio blob if available
-        if (audioBlob && mediaInputRef.current) {
-          // Set flag to prevent clearing the result when audio loads
-          setIsLoadingFromStorage(true);
-          mediaInputRef.current.loadFromBlob(
-            audioBlob,
-            data.metadata.fileName,
-          );
-        } else if (!audioBlob) {
-          console.warn(
-            "No audio blob found for transcript:",
-            transcriptId,
-          );
-          toast.info("Transcript loaded without audio", {
-            description: "Audio file was not saved with this transcript",
-          });
-        }
-
-        toast.success("Transcript loaded!", {
-          description: `Loaded "${data.metadata.fileName}"`,
-        });
-
-        console.log("✅ Transcript loaded:", transcriptId);
-      } catch (error) {
-        console.error("Failed to load transcript:", error);
-        toast.error("Failed to load transcript", {
-          description:
-            error instanceof Error
-              ? error.message
-              : "Unknown error occurred",
-        });
-      }
-    },
-    [getWithAudio],
-  );
-
   // Handlers for editing modals
   const handleSaveConversationName = useCallback(
     async (conversationName: string) => {
@@ -760,308 +694,182 @@ function WhisperDiarization() {
           </div>
 
           {/* Modern header with gradient */}
-          {!result && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="flex flex-col items-center text-center"
-            >
-              <motion.h1
-                className="from-foreground via-foreground/90 to-foreground/70 mb-4 bg-gradient-to-br bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl lg:text-6xl"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-              >
-                Whisper Diarization
-              </motion.h1>
-              <motion.p
-                className="text-muted-foreground max-w-2xl px-4 text-base sm:text-lg"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                In-browser automatic speech recognition with word-level
-                timestamps and speaker segmentation
-              </motion.p>
-            </motion.div>
-          )}
 
-          {/* Audio player - always rendered outside Card to avoid backdrop-blur containing block issue */}
-          <div
-            className={
-              result
-                ? "bg-background/95 fixed top-0 right-0 left-0 z-50 border-b shadow-lg backdrop-blur-sm"
-                : "relative"
-            }
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col items-center text-center"
           >
-            <div className={result ? "mx-auto max-w-6xl px-4 py-3" : ""}>
-              <div className="flex flex-col gap-3">
-                <MediaFileUpload
-                  ref={mediaInputRef}
-                  onInputChange={(audio) => {
-                    // Read the flag directly from Zustand store to avoid stale closures
-                    const currentFlag =
-                      useWhisperStore.getState().ui.isLoadingFromStorage;
+            <motion.h1
+              className="from-foreground via-foreground/90 to-foreground/70 mb-4 bg-gradient-to-br bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl lg:text-6xl"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              Whisper Diarization
+            </motion.h1>
+            <motion.p
+              className="text-muted-foreground max-w-2xl px-4 text-base sm:text-lg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              In-browser automatic speech recognition with word-level
+              timestamps and speaker segmentation
+            </motion.p>
+          </motion.div>
 
-                    // Only clear result if we're NOT loading from storage
-                    if (!currentFlag) {
-                      setResult(null);
-                    }
-                    setAudio(audio);
-                    // Reset the flag after audio is loaded
-                    setIsLoadingFromStorage(false);
-                  }}
-                  onTimeUpdate={(time) => setCurrentTime(time)}
-                  onFileNameChange={(fileName) =>
-                    setAudioFileName(fileName)
-                  }
-                />
+          {/* Audio player - only show when no result */}
 
-                {/* Search input - only show when result is available */}
-                {result && (
-                  <div className="flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <svg
-                        className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
-                      <input
-                        type="text"
-                        placeholder="Search in transcript..."
-                        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-10 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-                        value={searchQuery}
-                        onChange={(e) => {
-                          setSearchQuery(e.target.value);
-                        }}
-                      />
-                    </div>
-                    {searchQuery && (
-                      <button
-                        onClick={() => {
-                          setSearchQuery("");
-                        }}
-                        className="text-muted-foreground hover:text-foreground rounded-md p-2 transition-colors"
-                        title="Clear search"
-                      >
-                        <svg
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
+          <div className="relative">
+            <MediaFileUpload
+              ref={mediaInputRef}
+              onInputChange={(audio) => {
+                // Read the flag directly from Zustand store to avoid stale closures
+                const currentFlag =
+                  useWhisperStore.getState().ui.isLoadingFromStorage;
+
+                // Only clear result if we're NOT loading from storage
+                if (!currentFlag) {
+                  setResult(null);
+                }
+                setAudio(audio);
+                // Reset the flag after audio is loaded
+                setIsLoadingFromStorage(false);
+              }}
+              onTimeUpdate={(time) => setCurrentTime(time)}
+              onFileNameChange={(fileName) => setAudioFileName(fileName)}
+            />
           </div>
 
           <Card className="border-muted/50 bg-card/50 px-2 backdrop-blur-sm">
             <CardContent className="md: px-0 pt-6 sm:px-2 md:px-4 lg:px-8">
               <div className="flex min-h-[220px] w-full flex-col items-center justify-center space-y-6">
-                {!result && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="relative flex w-full flex-col items-center justify-center gap-4"
-                  >
-                    {/* Main action buttons */}
-                    <div className="flex flex-wrap justify-center gap-3">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="relative flex w-full flex-col items-center justify-center gap-4"
+                >
+                  {/* Main action buttons */}
+                  <div className="flex flex-wrap justify-center gap-3">
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        onClick={handleClick}
+                        disabled={
+                          status === "running" ||
+                          (status !== null && audio === null) ||
+                          audio === undefined
+                        }
+                        size="lg"
+                        className="shadow-lg transition-shadow hover:shadow-xl"
+                      >
+                        {status === null
+                          ? "Load model"
+                          : status === "running"
+                            ? "Running..."
+                            : "Run model"}
+                      </Button>
+                    </motion.div>
+
+                    {audio && (
                       <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         <Button
-                          onClick={handleClick}
-                          disabled={
-                            status === "running" ||
-                            (status !== null && audio === null) ||
-                            audio === undefined
-                          }
+                          onClick={handleReset}
                           size="lg"
+                          variant="outline"
                           className="shadow-lg transition-shadow hover:shadow-xl"
                         >
-                          {status === null
-                            ? "Load model"
-                            : status === "running"
-                              ? "Running..."
-                              : "Run model"}
+                          Reset
                         </Button>
                       </motion.div>
-
-                      {audio && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          <Button
-                            onClick={handleReset}
-                            size="lg"
-                            variant="outline"
-                            className="shadow-lg transition-shadow hover:shadow-xl"
-                          >
-                            Reset
-                          </Button>
-                        </motion.div>
-                      )}
-
-                      {/* Model selector - show always */}
-                      <ModelSelector
-                        disabled={
-                          status === "running" || status === "loading"
-                        }
-                        onModelChange={handleModelChange}
-                      />
-                    </div>
-
-                    {/* Language selector - show when model is loaded but not running */}
-                    {status === "ready" && !result && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.4 }}
-                        className="flex flex-col items-center space-y-1"
-                      >
-                        <span className="text-muted-foreground text-xs">
-                          Language:
-                        </span>
-                        <WhisperLanguageSelector className="w-[120px]" />
-                      </motion.div>
                     )}
-                  </motion.div>
-                )}
+
+                    {/* Model selector - show always */}
+                    <ModelSelector
+                      disabled={
+                        status === "running" || status === "loading"
+                      }
+                      onModelChange={handleModelChange}
+                    />
+                  </div>
+
+                  {/* Language selector - show when model is loaded but not running */}
+                  {status === "ready" && !result && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.4 }}
+                      className="flex flex-col items-center space-y-1"
+                    >
+                      <span className="text-muted-foreground text-xs">
+                        Language:
+                      </span>
+                      <WhisperLanguageSelector className="w-[120px]" />
+                    </motion.div>
+                  )}
+                </motion.div>
 
                 {/* Show streaming transcription with new component */}
                 <StreamingTranscript />
 
                 {/* Saved Transcripts Section - Show when not running and no result */}
-                {!result &&
-                  status !== "running" &&
-                  savedTranscripts.length > 0 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.1 }}
-                      className="w-full space-y-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-foreground text-sm font-semibold">
-                          Saved Transcripts
-                        </h3>
-                        <span className="text-muted-foreground text-xs">
-                          {savedTranscripts.length} saved
-                        </span>
-                      </div>
+                {status !== "running" && savedTranscripts.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
+                    className="w-full space-y-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-foreground text-sm font-semibold">
+                        Saved Transcripts
+                      </h3>
+                      <span className="text-muted-foreground text-xs">
+                        {savedTranscripts.length} saved
+                      </span>
+                    </div>
 
-                      <div className="border-muted/50 bg-muted/20 max-h-[300px] space-y-2 overflow-y-auto rounded-lg border p-3">
-                        {transcriptsLoading ? (
-                          <div className="flex items-center justify-center py-8">
-                            <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent"></div>
-                          </div>
-                        ) : (
-                          savedTranscripts.map((transcript) => (
-                            <motion.div
-                              key={transcript.id}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              whileHover={{ scale: 1.01 }}
-                              onDoubleClick={() =>
-                                handleLoadTranscript(transcript.id)
-                              }
-                              className="group border-muted/50 bg-card/50 hover:border-primary/50 hover:bg-card/80 cursor-pointer rounded-md border p-3 transition-all hover:shadow-md"
-                            >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="min-w-0 flex-1">
-                                  <h4 className="text-foreground truncate text-sm font-medium">
-                                    {transcript.metadata
-                                      .conversationName ||
-                                      transcript.metadata.fileName}
-                                  </h4>
-                                  <div className="text-muted-foreground mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs">
-                                    <span className="flex items-center gap-1">
-                                      <svg
-                                        className="h-3 w-3"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        />
-                                      </svg>
-                                      {formatTime(
-                                        transcript.metadata.duration,
-                                      )}
-                                    </span>
-                                    <span className="flex items-center gap-1">
-                                      <svg
-                                        className="h-3 w-3"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                                        />
-                                      </svg>
-                                      {transcript.metadata.speakerCount}{" "}
-                                      speaker
-                                      {transcript.metadata.speakerCount !==
-                                      1
-                                        ? "s"
-                                        : ""}
-                                    </span>
-                                    <span>
-                                      {new Date(
-                                        transcript.metadata.updatedAt,
-                                      ).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                  {/* Edit conversation name button */}
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setEditConversationModal({
-                                        open: true,
-                                        transcript,
-                                      });
-                                    }}
-                                    className="text-muted-foreground hover:bg-primary/10 hover:text-primary flex-shrink-0 rounded p-1 transition-colors"
-                                    title="Edit conversation name"
-                                  >
+                    <div className="border-muted/50 bg-muted/20 max-h-[300px] space-y-2 overflow-y-auto rounded-lg border p-3">
+                      {transcriptsLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent"></div>
+                        </div>
+                      ) : (
+                        savedTranscripts.map((transcript) => (
+                          <motion.div
+                            key={transcript.id}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            whileHover={{ scale: 1.01 }}
+                            onClick={() =>
+                              router.push(
+                                `/web-transc/transcript/${transcript.id}`,
+                              )
+                            }
+                            className="group border-muted/50 bg-card/50 hover:border-primary/50 hover:bg-card/80 cursor-pointer rounded-md border p-3 transition-all hover:shadow-md"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <h4 className="text-foreground truncate text-sm font-medium">
+                                  {transcript.metadata.conversationName ||
+                                    transcript.metadata.fileName}
+                                </h4>
+                                <div className="text-muted-foreground mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                                  <span className="flex items-center gap-1">
                                     <svg
-                                      className="h-4 w-4"
+                                      className="h-3 w-3"
                                       fill="none"
                                       viewBox="0 0 24 24"
                                       stroke="currentColor"
@@ -1070,24 +878,16 @@ function WhisperDiarization() {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth={2}
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                       />
                                     </svg>
-                                  </button>
-                                  {/* Edit speakers button */}
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setEditSpeakersModal({
-                                        open: true,
-                                        transcript,
-                                      });
-                                    }}
-                                    className="text-muted-foreground hover:bg-primary/10 hover:text-primary flex-shrink-0 rounded p-1 transition-colors"
-                                    title="Edit speaker names"
-                                  >
+                                    {formatTime(
+                                      transcript.metadata.duration,
+                                    )}
+                                  </span>
+                                  <span className="flex items-center gap-1">
                                     <svg
-                                      className="h-4 w-4"
+                                      className="h-3 w-3"
                                       fill="none"
                                       viewBox="0 0 24 24"
                                       stroke="currentColor"
@@ -1099,252 +899,124 @@ function WhisperDiarization() {
                                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                                       />
                                     </svg>
-                                  </button>
-                                  {/* Delete button */}
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (
-                                        confirm(
-                                          `Delete "${transcript.metadata.conversationName || transcript.metadata.fileName}"?`,
-                                        )
-                                      ) {
-                                        removeTranscript(
-                                          transcript.id,
-                                        ).catch((err) => {
-                                          toast.error(
-                                            "Failed to delete transcript",
-                                            {
-                                              description: err.message,
-                                            },
-                                          );
-                                        });
-                                      }
-                                    }}
-                                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex-shrink-0 rounded p-1 transition-colors"
-                                    title="Delete transcript"
-                                  >
-                                    <svg
-                                      className="h-4 w-4"
-                                      fill="none"
-                                      viewBox="0 0 24 24"
-                                      stroke="currentColor"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                      />
-                                    </svg>
-                                  </button>
+                                    {transcript.metadata.speakerCount}{" "}
+                                    speaker
+                                    {transcript.metadata.speakerCount !== 1
+                                      ? "s"
+                                      : ""}
+                                  </span>
+                                  <span>
+                                    {new Date(
+                                      transcript.metadata.updatedAt,
+                                    ).toLocaleDateString()}
+                                  </span>
                                 </div>
                               </div>
-                              <p className="text-muted-foreground/70 mt-1 text-xs">
-                                Double-click to load
-                              </p>
-                            </motion.div>
-                          ))
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-
-                {/* Show final result with speaker diarization */}
-                {result && generationTime !== null && (
-                  <div className="w-full space-y-4 pt-44">
-                    {/* Action buttons at top */}
-                    <div className="flex flex-wrap items-center justify-center gap-3">
-                      {/* Primary actions */}
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          onClick={() => {
-                            // We'll need to expose a method to trigger export modal
-                            const event = new CustomEvent("export-to-llm");
-                            window.dispatchEvent(event);
-                          }}
-                          variant="default"
-                          className="gap-2"
-                          size="sm"
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                            />
-                          </svg>
-                          Export to LLM
-                        </Button>
-                        {/* <Button
-                          onClick={() => {
-                            const jsonTranscript = JSON.stringify(
-                              {
-                                ...result.transcript,
-                                segments: result.segments,
-                              },
-                              null,
-                              2,
-                            ).replace(
-                              /( {4}"timestamp": )\[\s+(\S+)\s+(\S+)\s+\]/gm,
-                              "$1[$2 $3]",
-                            );
-                            const blob = new Blob([jsonTranscript], {
-                              type: "application/json",
-                            });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement("a");
-                            a.href = url;
-                            a.download = "whisper-transcript.json";
-                            a.click();
-                            URL.revokeObjectURL(url);
-                          }}
-                          variant="outline"
-                          className="gap-2"
-                          size="sm"
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                            />
-                          </svg>
-                          Download JSON
-                        </Button> */}
-                      </div>
-
-                      {/* Separator */}
-                      <div className="border-muted bg-border h-6 w-px" />
-
-                      {/* Secondary actions */}
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          onClick={async () => {
-                            if (!result) return;
-
-                            setIsSaving(true);
-                            try {
-                              // Get the audio file from the media component
-                              const audioFile =
-                                mediaInputRef.current?.getFile();
-
-                              const id = await saveTranscript({
-                                transcript: result.transcript,
-                                segments: result.segments,
-                                fileName: audioFileName || "untitled",
-                                language: language,
-                                model: model,
-                                audioBlob: audioFile || undefined, // Include audio blob if available
-                              });
-
-                              toast.success(
-                                "Transcript saved successfully!",
-                                {
-                                  description: audioFile
-                                    ? `Saved "${audioFileName || "untitled"}" with audio`
-                                    : `Saved "${audioFileName || "untitled"}" (without audio)`,
-                                },
-                              );
-
-                              console.log(
-                                "Transcript saved with ID:",
-                                id,
-                                audioFile ? "with audio" : "without audio",
-                              );
-                            } catch (error) {
-                              console.error(
-                                "Failed to save transcript:",
-                                error,
-                              );
-                              toast.error("Failed to save transcript", {
-                                description:
-                                  error instanceof Error
-                                    ? error.message
-                                    : "Unknown error occurred",
-                              });
-                            } finally {
-                              setIsSaving(false);
-                            }
-                          }}
-                          variant="outline"
-                          className="gap-2"
-                          size="sm"
-                          disabled={isSaving}
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
-                            />
-                          </svg>
-                          {isSaving ? "Saving..." : "Save"}
-                        </Button>
-                        <Button
-                          onClick={handleReset}
-                          variant="outline"
-                          className="gap-2"
-                          size="sm"
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                            />
-                          </svg>
-                          Back to Home
-                        </Button>
-                      </div>
+                              <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                {/* Edit conversation name button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditConversationModal({
+                                      open: true,
+                                      transcript,
+                                    });
+                                  }}
+                                  className="text-muted-foreground hover:bg-primary/10 hover:text-primary flex-shrink-0 rounded p-1 transition-colors"
+                                  title="Edit conversation name"
+                                >
+                                  <svg
+                                    className="h-4 w-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                    />
+                                  </svg>
+                                </button>
+                                {/* Edit speakers button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditSpeakersModal({
+                                      open: true,
+                                      transcript,
+                                    });
+                                  }}
+                                  className="text-muted-foreground hover:bg-primary/10 hover:text-primary flex-shrink-0 rounded p-1 transition-colors"
+                                  title="Edit speaker names"
+                                >
+                                  <svg
+                                    className="h-4 w-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                                    />
+                                  </svg>
+                                </button>
+                                {/* Delete button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (
+                                      confirm(
+                                        `Delete "${transcript.metadata.conversationName || transcript.metadata.fileName}"?`,
+                                      )
+                                    ) {
+                                      removeTranscript(
+                                        transcript.id,
+                                      ).catch((err) => {
+                                        toast.error(
+                                          "Failed to delete transcript",
+                                          {
+                                            description: err.message,
+                                          },
+                                        );
+                                      });
+                                    }
+                                  }}
+                                  className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex-shrink-0 rounded p-1 transition-colors"
+                                  title="Delete transcript"
+                                >
+                                  <svg
+                                    className="h-4 w-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                            <p className="text-muted-foreground/70 mt-1 text-xs">
+                              Click to view
+                            </p>
+                          </motion.div>
+                        ))
+                      )}
                     </div>
-
-                    {/* Transcript card */}
-                    <Card>
-                      <WhisperTranscript
-                        className="p-4"
-                        currentTime={currentTime}
-                        setCurrentTime={(time) => {
-                          setCurrentTime(time);
-                          mediaInputRef.current?.setMediaTime(time);
-                        }}
-                      />
-                    </Card>
-
-                    {generationTime !== null && generationTime > 0 && (
-                      <p className="text-muted-foreground text-end text-xs">
-                        Generation time:{" "}
-                        <span className="font-semibold">
-                          {generationTime.toFixed(2)}ms
-                        </span>
-                      </p>
-                    )}
-                  </div>
+                  </motion.div>
                 )}
+
+                {/* Show final result with TranscriptViewer */}
+                {/* <TranscriptViewer onReset={handleReset} /> */}
               </div>
             </CardContent>
           </Card>

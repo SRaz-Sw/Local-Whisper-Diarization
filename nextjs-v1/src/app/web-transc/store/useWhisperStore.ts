@@ -15,7 +15,6 @@ interface AudioState {
   audio: Float32Array | null;
   audioFileName: string;
   language: string;
-  currentTime: number;
 }
 
 interface ModelState {
@@ -51,6 +50,7 @@ interface UIState {
   searchQuery: string;
   searchResultIndex: number; // Current highlighted search result
   totalSearchResults: number; // Total number of matches
+  currentTime: number; // Audio playback current time
 }
 
 interface StorageState {
@@ -148,7 +148,6 @@ const initialAudioState: AudioState = {
   audio: null,
   audioFileName: "",
   language: "en",
-  currentTime: 0,
 };
 
 const initialModelState: ModelState = {
@@ -184,6 +183,7 @@ const initialUIState: UIState = {
   searchQuery: "",
   searchResultIndex: 0,
   totalSearchResults: 0,
+  currentTime: 0,
 };
 
 const initialStorageState: StorageState = {
@@ -232,7 +232,7 @@ export const useWhisperStore = create<WhisperStore>()(
           ),
         setCurrentTime: (time) =>
           set(
-            (state) => ({ audio: { ...state.audio, currentTime: time } }),
+            (state) => ({ ui: { ...state.ui, currentTime: time } }),
             false,
             "setCurrentTime",
           ),
