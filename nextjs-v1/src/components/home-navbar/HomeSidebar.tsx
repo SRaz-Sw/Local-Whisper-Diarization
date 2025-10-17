@@ -4,23 +4,24 @@ import { Separator } from "../ui/separator";
 import PersonalSection from "../home-sidebar/personalSection";
 
 import BottomSection from "../home-sidebar/BottomSection";
+import TranscriptsSection from "../home-sidebar/transcriptsSection";
 // import FullstackPortfolioSection from "../home-sidebar/TestingSection";
 
 const HomeSidebar = () => {
-    return (
-        <Sidebar className="pt-16 z-40 border-none" collapsible="icon">
-            <SidebarContent className="bg-background">
-                <MainSection/>
-                <Separator/>
-                {/* <PersonalSection/> */}
-                <div className="mt-auto">
-                    {/* <FullstackPortfolioSection/> */}
-                    <Separator/>
-                    <BottomSection/>
-                </div>
-            </SidebarContent>            
-        </Sidebar>
-    )
-}
+  return (
+    <Sidebar className="z-40 border-none pt-16" collapsible="icon">
+      <SidebarContent className="bg-background">
+        <MainSection />
+        <Separator />
+        {/* <PersonalSection /> */}
+        <TranscriptsSection />
+        <div className="mt-auto">
+          <Separator />
+          {/* <BottomSection/> */}
+        </div>
+      </SidebarContent>
+    </Sidebar>
+  );
+};
 
 export default HomeSidebar;

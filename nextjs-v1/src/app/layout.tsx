@@ -31,9 +31,9 @@ export default function RootLayout({
         <ProvidersClientSide>
           <SidebarProvider>
             <div className="relative w-full">
-              {/* <HomeNavbar /> */}
+              <HomeNavbar />
               <div className="mx-auto flex h-full max-h-[calc(100svw-4rem)] max-w-svh pt-[4rem]">
-                {/* <HomeSidebar /> */}
+                <HomeSidebar />
                 <main className="w-full">{children}</main>
                 <Toaster position="top-center" />
               </div>
