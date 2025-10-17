@@ -183,7 +183,7 @@ export function ExportToLLMModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="flex max-h-[70svh] w-[95vw] max-w-4xl flex-col gap-0 p-0 sm:w-[90vw] md:w-[85vw] lg:w-[75vw]">
+        <DialogContent className="flex max-h-[75svh] w-[95vw] max-w-4xl min-w-[75svw] flex-col gap-0 p-0 lg:w-[75vw]">
           <DialogHeader className="border-b px-6 py-4">
             <div className="flex items-center gap-2">
               <div className="from-primary/20 to-primary/5 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br">
@@ -269,7 +269,7 @@ export function ExportToLLMModal({
                 value={customPrompt}
                 onChange={(e) => setCustomPrompt(e.target.value)}
                 placeholder="Enter your custom instructions for the LLM..."
-                className="min-h-[180px] resize-none font-mono text-sm leading-relaxed"
+                className="h-[40svh] max-h-[50svh] min-h-[30svh] resize-none font-mono text-sm leading-relaxed"
               />
 
               {/* Transcript indicator badge */}
