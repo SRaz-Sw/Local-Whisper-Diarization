@@ -689,7 +689,7 @@ function WhisperDiarization() {
   );
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative">
       {/* Animated gradient background */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <motion.div
@@ -727,14 +727,14 @@ function WhisperDiarization() {
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col px-4 pt-4 pb-8 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-6xl flex-col px-2 sm:px-6 lg:px-8">
         {status === "loading" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm"
           >
-            <div className="w-[90%] max-w-[500px] space-y-4">
+            <div className="w-[95%] max-w-[500px] space-y-4">
               <p className="mb-3 text-center text-lg font-semibold text-white">
                 {loadingMessage || "Loading models..."}
               </p>
@@ -815,8 +815,8 @@ function WhisperDiarization() {
             </div>
           </div>
 
-          <Card className="border-muted/50 bg-card/50 backdrop-blur-sm">
-            <CardContent className="pt-6">
+          <Card className="border-muted/50 bg-card/50 px-2 backdrop-blur-sm">
+            <CardContent className="md: px-0 pt-6 sm:px-2 md:px-4 lg:px-8">
               <div className="flex min-h-[220px] w-full flex-col items-center justify-center space-y-6">
                 {!result && (
                   <motion.div
@@ -1093,7 +1093,7 @@ function WhisperDiarization() {
 
                 {/* Show final result with speaker diarization */}
                 {result && generationTime !== null && (
-                  <div className="w-full space-y-4 pt-28">
+                  <div className="w-full space-y-4 pt-44">
                     {/* Action buttons at top */}
                     <div className="flex flex-wrap items-center justify-center gap-3">
                       {/* Primary actions */}
@@ -1294,7 +1294,7 @@ function WhisperDiarization() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="text-muted-foreground flex flex-wrap items-center justify-center gap-2 text-center text-xs sm:text-sm"
+            className="text-muted-foreground flex flex-wrap items-center justify-center gap-2 pb-4 text-center text-xs sm:text-sm"
           >
             <span className="bg-background/50 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm sm:px-3">
               <svg

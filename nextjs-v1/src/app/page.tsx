@@ -122,7 +122,7 @@ export default function LandingPage() {
   const downloadInfo = getDownloadInfo();
 
   return (
-    <div className="from-background to-muted min-h-screen bg-gradient-to-b">
+    <div className="from-background to-muted min-h-[calc(100svh-4rem)] bg-gradient-to-b">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center">

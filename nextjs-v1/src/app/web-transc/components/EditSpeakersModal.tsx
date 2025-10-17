@@ -14,6 +14,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import type { SavedTranscript } from "@/lib/localStorage/schemas";
+import {
+  generateSpeakerColorMap,
+  getSpeakerColor,
+} from "../utils/speakerColors";
 
 interface EditSpeakersModalProps {
   open: boolean;
@@ -44,6 +48,12 @@ export function EditSpeakersModal({
 
     // Sort speakers alphabetically
     return Array.from(uniqueSpeakers).sort();
+  }, [transcript]);
+
+  // Generate speaker color map
+  const speakerColorMap = useMemo(() => {
+    if (!transcript) return new Map<string, string>();
+    return generateSpeakerColorMap(transcript.segments);
   }, [transcript]);
 
   // Initialize speaker names from transcript metadata
@@ -104,7 +114,10 @@ export function EditSpeakersModal({
             speakers.map((speaker) => (
               <div key={speaker} className="grid gap-2">
                 <Label htmlFor={speaker} className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge
+                    variant="secondary"
+                    className={`text-xs ${getSpeakerColor(speaker, speakerColorMap)}`}
+                  >
                     {speaker}
                   </Badge>
                   <span className="text-muted-foreground text-xs">
