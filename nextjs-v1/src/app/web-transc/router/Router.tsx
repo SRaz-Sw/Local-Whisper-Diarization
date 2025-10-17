@@ -18,14 +18,99 @@ export function Router() {
   const { currentView, params, navigate } = useRouterStore();
   const { getWithAudio } = useTranscripts();
 
-  // Initialize worker once on mount
+  // Worker message handler - global state management
   useEffect(() => {
     console.log('🚀 Router mounted, initializing worker...');
     whisperWorker.initialize();
 
+    // Global worker message handler
+    const handleWorkerMessage = (e: MessageEvent) => {
+      console.log('📨 Router worker message:', e.data.status);
+
+      const useWhisperStore = require('../store/useWhisperStore').useWhisperStore;
+      const { remapSpeakerLabels } = require('../utils/transcriptFormatter');
+
+      switch (e.data.status) {
+        case 'loading':
+          useWhisperStore.getState().setStatus('loading');
+          useWhisperStore.getState().setLoadingMessage(e.data.data || 'Loading models...');
+          break;
+
+        case 'initiate':
+          useWhisperStore.getState().addProgressItem(e.data);
+          break;
+
+        case 'progress':
+          useWhisperStore.getState().updateProgressItem(e.data.file, e.data);
+          break;
+
+        case 'done':
+          useWhisperStore.getState().removeProgressItem(e.data.file);
+          break;
+
+        case 'loaded':
+          console.log('✅ Models loaded and ready');
+          useWhisperStore.getState().setStatus('ready');
+          useWhisperStore.getState().setProgressItems([]);
+          break;
+
+        case 'update':
+          useWhisperStore.getState().setProcessingMessage(e.data.data);
+          break;
+
+        case 'transcribing':
+          if (e.data.data?.text) {
+            useWhisperStore.getState().addStreamingWord({
+              text: e.data.data.text,
+              timestamp: e.data.data.timestamp,
+            });
+          }
+          break;
+
+        case 'processing_progress':
+          useWhisperStore.getState().setProcessedSeconds(e.data.processedSeconds || 0);
+          useWhisperStore.getState().setTotalSeconds(e.data.totalSeconds || 0);
+          useWhisperStore.getState().setEstimatedTimeRemaining(e.data.estimatedTimeRemaining || null);
+          break;
+
+        case 'complete':
+          console.log('✅ Transcription complete');
+          const remappedResult = {
+            ...e.data.result,
+            segments: remapSpeakerLabels(e.data.result.segments),
+          };
+          useWhisperStore.getState().setResult(remappedResult);
+          useWhisperStore.getState().setStreamingWords([]);
+          useWhisperStore.getState().setGenerationTime(e.data.time);
+          useWhisperStore.getState().setStatus('ready');
+          useWhisperStore.getState().setProcessingMessage('');
+          useWhisperStore.getState().setProcessedSeconds(0);
+          useWhisperStore.getState().setTotalSeconds(0);
+          useWhisperStore.getState().setEstimatedTimeRemaining(null);
+
+          // Auto-save will be handled in TranscribeView
+          break;
+
+        case 'error':
+          console.error('❌ Worker error:', e.data.error);
+          toast.error('Worker error', { description: e.data.error });
+          useWhisperStore.getState().setStatus(null);
+          useWhisperStore.getState().setProgressItems([]);
+          useWhisperStore.getState().setProcessingMessage('');
+          break;
+
+        default:
+          console.log('⚠️ Unknown worker status:', e.data.status);
+      }
+    };
+
+    // Subscribe to worker messages
+    const unsubscribe = whisperWorker.subscribe(handleWorkerMessage);
+
     // Cleanup on unmount
     return () => {
-      console.log('👋 Router unmounting, terminating worker...');
+      console.log('👋 Router unmounting, cleaning up...');
+      unsubscribe();
       whisperWorker.terminate();
     };
   }, []);
