@@ -221,6 +221,8 @@ function WhisperDiarization() {
   const setIsLoadingFromStorage = useWhisperStore(
     (state) => state.setIsLoadingFromStorage,
   );
+  const searchQuery = useWhisperStore((state) => state.ui.searchQuery);
+  const setSearchQuery = useWhisperStore((state) => state.setSearchQuery);
 
   // Store event handlers in refs so they can be reused when recreating worker
   const onMessageReceivedRef = useRef<((e: MessageEvent) => void) | null>(
@@ -794,24 +796,81 @@ function WhisperDiarization() {
             }
           >
             <div className={result ? "mx-auto max-w-6xl px-4 py-3" : ""}>
-              <MediaFileUpload
-                ref={mediaInputRef}
-                onInputChange={(audio) => {
-                  // Read the flag directly from Zustand store to avoid stale closures
-                  const currentFlag =
-                    useWhisperStore.getState().ui.isLoadingFromStorage;
+              <div className="flex flex-col gap-3">
+                <MediaFileUpload
+                  ref={mediaInputRef}
+                  onInputChange={(audio) => {
+                    // Read the flag directly from Zustand store to avoid stale closures
+                    const currentFlag =
+                      useWhisperStore.getState().ui.isLoadingFromStorage;
 
-                  // Only clear result if we're NOT loading from storage
-                  if (!currentFlag) {
-                    setResult(null);
+                    // Only clear result if we're NOT loading from storage
+                    if (!currentFlag) {
+                      setResult(null);
+                    }
+                    setAudio(audio);
+                    // Reset the flag after audio is loaded
+                    setIsLoadingFromStorage(false);
+                  }}
+                  onTimeUpdate={(time) => setCurrentTime(time)}
+                  onFileNameChange={(fileName) =>
+                    setAudioFileName(fileName)
                   }
-                  setAudio(audio);
-                  // Reset the flag after audio is loaded
-                  setIsLoadingFromStorage(false);
-                }}
-                onTimeUpdate={(time) => setCurrentTime(time)}
-                onFileNameChange={(fileName) => setAudioFileName(fileName)}
-              />
+                />
+
+                {/* Search input - only show when result is available */}
+                {result && (
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <svg
+                        className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                      <input
+                        type="text"
+                        placeholder="Search in transcript..."
+                        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-10 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                        value={searchQuery}
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                        }}
+                      />
+                    </div>
+                    {searchQuery && (
+                      <button
+                        onClick={() => {
+                          setSearchQuery("");
+                        }}
+                        className="text-muted-foreground hover:text-foreground rounded-md p-2 transition-colors"
+                        title="Clear search"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

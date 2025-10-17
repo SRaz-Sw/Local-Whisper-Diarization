@@ -48,6 +48,9 @@ interface ProcessingState {
 interface UIState {
   isSaving: boolean;
   isLoadingFromStorage: boolean; // Fix the ref workaround!
+  searchQuery: string;
+  searchResultIndex: number; // Current highlighted search result
+  totalSearchResults: number; // Total number of matches
 }
 
 interface StorageState {
@@ -114,6 +117,11 @@ interface WhisperStore {
   // UI actions
   setIsSaving: (saving: boolean) => void;
   setIsLoadingFromStorage: (loading: boolean) => void;
+  setSearchQuery: (query: string) => void;
+  setSearchResultIndex: (index: number) => void;
+  setTotalSearchResults: (total: number) => void;
+  nextSearchResult: () => void;
+  previousSearchResult: () => void;
 
   // Storage actions
   setSavedTranscripts: (
@@ -173,6 +181,9 @@ const initialProcessingState: ProcessingState = {
 const initialUIState: UIState = {
   isSaving: false,
   isLoadingFromStorage: false,
+  searchQuery: "",
+  searchResultIndex: 0,
+  totalSearchResults: 0,
 };
 
 const initialStorageState: StorageState = {
@@ -483,6 +494,59 @@ export const useWhisperStore = create<WhisperStore>()(
             }),
             false,
             "setIsLoadingFromStorage",
+          ),
+        setSearchQuery: (query) =>
+          set(
+            (state) => ({
+              ui: { ...state.ui, searchQuery: query, searchResultIndex: 0 },
+            }),
+            false,
+            "setSearchQuery",
+          ),
+        setSearchResultIndex: (index) =>
+          set(
+            (state) => ({ ui: { ...state.ui, searchResultIndex: index } }),
+            false,
+            "setSearchResultIndex",
+          ),
+        setTotalSearchResults: (total) =>
+          set(
+            (state) => ({ ui: { ...state.ui, totalSearchResults: total } }),
+            false,
+            "setTotalSearchResults",
+          ),
+        nextSearchResult: () =>
+          set(
+            (state) => {
+              const { searchResultIndex, totalSearchResults } = state.ui;
+              if (totalSearchResults === 0) return state;
+              return {
+                ui: {
+                  ...state.ui,
+                  searchResultIndex: (searchResultIndex + 1) % totalSearchResults,
+                },
+              };
+            },
+            false,
+            "nextSearchResult",
+          ),
+        previousSearchResult: () =>
+          set(
+            (state) => {
+              const { searchResultIndex, totalSearchResults } = state.ui;
+              if (totalSearchResults === 0) return state;
+              return {
+                ui: {
+                  ...state.ui,
+                  searchResultIndex:
+                    searchResultIndex === 0
+                      ? totalSearchResults - 1
+                      : searchResultIndex - 1,
+                },
+              };
+            },
+            false,
+            "previousSearchResult",
           ),
 
         // Storage actions

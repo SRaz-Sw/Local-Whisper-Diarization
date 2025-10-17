@@ -10,7 +10,12 @@ import {
   getSpeakerColor as getSpeakerColorUtil,
 } from "../utils/speakerColors";
 
-const Chunk = ({ chunk, currentTime, onClick }: ChunkProps) => {
+const Chunk = ({
+  chunk,
+  currentTime,
+  onClick,
+  searchQuery,
+}: ChunkProps & { searchQuery: string }) => {
   const spanRef = useRef<HTMLSpanElement>(null);
   const { text, timestamp } = chunk;
   const [start, end] = timestamp;
@@ -28,6 +33,33 @@ const Chunk = ({ chunk, currentTime, onClick }: ChunkProps) => {
     }
   }, [bolded]);
 
+  // Function to highlight search terms in text
+  const highlightText = (text: string, searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      return text.trim();
+    }
+
+    const regex = new RegExp(
+      `(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+      "gi",
+    );
+    const parts = text.trim().split(regex);
+
+    return parts.map((part, index) => {
+      if (regex.test(part)) {
+        return (
+          <mark
+            key={index}
+            className="rounded bg-yellow-200 px-0.5 dark:bg-yellow-800"
+          >
+            {part}
+          </mark>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <span>
       {text.startsWith(" ") ? " " : ""}
@@ -42,7 +74,7 @@ const Chunk = ({ chunk, currentTime, onClick }: ChunkProps) => {
           fontWeight: bolded ? 600 : 400,
         }}
       >
-        {text.trim()}
+        {highlightText(text, searchQuery)}
       </span>
     </span>
   );
@@ -65,6 +97,7 @@ const WhisperTranscript = ({
   const speakerNames = useWhisperStore(
     (state) => state.transcription.speakerNames,
   );
+  const searchQuery = useWhisperStore((state) => state.ui.searchQuery);
 
   // Early return if no result
   if (!result) return null;
@@ -83,7 +116,7 @@ const WhisperTranscript = ({
     };
   }, []);
 
-  // Post-process the transcript to highlight speaker changes
+  // Post-process the transcript to highlight speaker changes and filter by search query
   const postProcessedTranscript = useMemo(() => {
     let prev = 0;
     const words = transcript.chunks;
@@ -110,15 +143,29 @@ const WhisperTranscript = ({
           break;
         }
       }
+
+      // Filter by search query if provided
       if (segmentWords.length > 0) {
-        result.push({
-          ...segment,
-          chunks: segmentWords,
-        });
+        const segmentText = segmentWords
+          .map((word) => word.text.trim())
+          .join(" ")
+          .toLowerCase();
+
+        // If no search query, include all segments
+        // If search query exists, only include segments containing the query
+        if (
+          !searchQuery.trim() ||
+          segmentText.includes(searchQuery.toLowerCase())
+        ) {
+          result.push({
+            ...segment,
+            chunks: segmentWords,
+          });
+        }
       }
     }
     return result;
-  }, [transcript, segments]);
+  }, [transcript, segments, searchQuery]);
 
   // Generate speaker colors - map speaker labels to consistent colors
   const speakerColorMap = useMemo(
@@ -179,81 +226,106 @@ const WhisperTranscript = ({
   return (
     <>
       <div {...props} className={className}>
-        {postProcessedTranscript.map(
-          ({ label, start, end, chunks }, i) => (
-            <motion.div
-              key={i}
-              className="border-border/50 hover:border-border/100 flex gap-4 border-b last:border-b-0"
-              variants={containerVariants}
-              initial="default"
-              whileHover="hover"
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        {postProcessedTranscript.length === 0 && searchQuery.trim() ? (
+          <div className="text-muted-foreground py-8 text-center">
+            <svg
+              className="mx-auto mb-4 h-12 w-12"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              {/* Left side: Vertical line with dot */}
-              <div className="relative flex min-h-[70px] w-px flex-col">
-                {/* Vertical line - full height */}
-                <div className="b absolute inset-0 w-px" />
-
-                {/* Dot container - centered vertically by flexbox */}
-                <div
-                  className={`flex flex-1 items-center justify-center ${getSpeakerColor(label)}`}
-                >
-                  {/* Wrapper that moves both dot and label together */}
-                  <motion.div
-                    className="relative"
-                    variants={dotLabelWrapperVariants}
-                    transition={{
-                      type: "tween",
-                      duration: 0.15,
-                    }}
-                  >
-                    {/* Animated dot */}
-                    <div
-                      className={`h-3 w-3 rounded-full ${getSpeakerColor(label)}`}
-                    />
-
-                    {/* Speaker label - only fades and slides, no Y movement */}
-                    <motion.div
-                      className={`absolute top-1/2 left-4 -translate-y-1/2 rounded-lg px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${getSpeakerColor(label)}`}
-                      variants={labelVariants}
-                      transition={{
-                        type: "spring",
-                        stiffness: 200,
-                        damping: 25,
-                        delay: 0.1,
-                      }}
-                    >
-                      <span>{getSpeakerDisplayName(label)}</span>
-                      <span
-                        style={{ display: "inline-block", width: "2em" }}
-                      />
-                      <span>{formatTimestamp(start)}</span>
-                    </motion.div>
-                  </motion.div>
-                </div>
-              </div>
-
-              {/* Right side: Text content */}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <p className="text-lg font-medium">No results found</p>
+            <p className="text-sm">Try a different search term</p>
+          </div>
+        ) : (
+          postProcessedTranscript.map(
+            ({ label, start, end, chunks }, i) => (
               <motion.div
-                className="my-auto flex-1 py-2 leading-relaxed"
-                variants={textVariants}
+                key={i}
+                className="border-border/50 hover:border-border/100 flex gap-4 border-b last:border-b-0"
+                variants={containerVariants}
+                initial="default"
+                whileHover="hover"
                 transition={{
                   type: "spring",
-                  stiffness: 400,
-                  damping: 30,
+                  stiffness: 300,
+                  damping: 25,
                 }}
               >
-                {chunks.map((chunk, j) => (
-                  <Chunk
-                    key={j}
-                    chunk={chunk}
-                    currentTime={currentTime}
-                    onClick={() => setCurrentTime(chunk.timestamp[0])}
-                  />
-                ))}
+                {/* Left side: Vertical line with dot */}
+                <div className="relative flex min-h-[70px] w-px flex-col">
+                  {/* Vertical line - full height */}
+                  <div className="b absolute inset-0 w-px" />
+
+                  {/* Dot container - centered vertically by flexbox */}
+                  <div
+                    className={`flex flex-1 items-center justify-center ${getSpeakerColor(label)}`}
+                  >
+                    {/* Wrapper that moves both dot and label together */}
+                    <motion.div
+                      className="relative"
+                      variants={dotLabelWrapperVariants}
+                      transition={{
+                        type: "tween",
+                        duration: 0.15,
+                      }}
+                    >
+                      {/* Animated dot */}
+                      <div
+                        className={`h-3 w-3 rounded-full ${getSpeakerColor(label)}`}
+                      />
+
+                      {/* Speaker label - only fades and slides, no Y movement */}
+                      <motion.div
+                        className={`absolute top-1/2 left-4 -translate-y-1/2 rounded-lg px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${getSpeakerColor(label)}`}
+                        variants={labelVariants}
+                        transition={{
+                          type: "spring",
+                          stiffness: 200,
+                          damping: 25,
+                          delay: 0.1,
+                        }}
+                      >
+                        <span>{getSpeakerDisplayName(label)}</span>
+                        <span
+                          style={{ display: "inline-block", width: "2em" }}
+                        />
+                        <span>{formatTimestamp(start)}</span>
+                      </motion.div>
+                    </motion.div>
+                  </div>
+                </div>
+
+                {/* Right side: Text content */}
+                <motion.div
+                  className="my-auto flex-1 py-2 leading-relaxed"
+                  variants={textVariants}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 30,
+                  }}
+                >
+                  {chunks.map((chunk, j) => (
+                    <Chunk
+                      key={j}
+                      chunk={chunk}
+                      currentTime={currentTime}
+                      onClick={() => setCurrentTime(chunk.timestamp[0])}
+                      searchQuery={searchQuery}
+                    />
+                  ))}
+                </motion.div>
               </motion.div>
-            </motion.div>
-          ),
+            ),
+          )
         )}
       </div>
 
