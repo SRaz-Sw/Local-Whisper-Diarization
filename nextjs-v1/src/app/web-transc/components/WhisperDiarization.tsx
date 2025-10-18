@@ -465,28 +465,23 @@ function WhisperDiarization() {
     setProcessedSeconds(0);
     setTotalSeconds(0);
     setEstimatedTimeRemaining(null);
-    if (status === null) {
-      console.log(
-        "🚀 Loading models with device:",
-        device,
-        "model:",
-        model,
-      );
-      setStatus("loading");
-      setLoadingMessage("Initializing...");
-      worker.current?.postMessage({
-        type: "load",
-        data: { device, model },
-      });
-    } else {
-      console.log("🎤 Running transcription...");
-      setStatus("running");
-      setProcessingMessage("Starting transcription...");
-      worker.current?.postMessage({
-        type: "run",
-        data: { audio, language },
-      });
-    }
+    // if (status === null) {
+    console.log("🚀 Loading models with device:", device, "model:", model);
+    setStatus("loading");
+    setLoadingMessage("Initializing...");
+    worker.current?.postMessage({
+      type: "load",
+      data: { device, model },
+      //   });
+      // } else { // run the transcription on the proper page - see `/app/web-transc/views/TranscribeView.tsx` line 83
+      //   console.log("🎤 Running transcription...");
+      //   setStatus("running");
+      //   setProcessingMessage("Starting transcription...");
+      //   worker.current?.postMessage({
+      //     type: "run",
+      //     data: { audio, language },
+      //   });
+    });
   }, [status, audio, language, device, model]);
 
   // Check for backup on mount (after model is loaded)

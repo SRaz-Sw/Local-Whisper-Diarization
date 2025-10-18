@@ -16,8 +16,7 @@ import { useWhisperWorker } from "../hooks/useWhisperWorker";
 import { useTranscripts } from "../hooks/useTranscripts";
 import { StreamingTranscript } from "../components/StreamingTranscript";
 import { ThemeToggle } from "../components/ThemeToggle";
-import MediaFileUpload from "../components/MediaFileUpload";
-import type { WhisperMediaInputRef } from "../types";
+import { AudioPlayer } from "../components/AudioPlayer";
 
 export default function TranscribeView() {
   const navigate = useRouterStore((state) => state.navigate);
@@ -27,23 +26,45 @@ export default function TranscribeView() {
   const setStatus = useWhisperStore((state) => state.setStatus);
   const audio = useWhisperStore((state) => state.audio.audio);
   const setAudio = useWhisperStore((state) => state.setAudio);
+  const audioFile = useWhisperStore((state) => state.audio.audioFile);
+
+  // Debug: Log audioFile on mount
+  useEffect(() => {
+    console.log("🎬 TranscribeView mounted - audioFile:", !!audioFile, audioFile?.name, audioFile?.size);
+  }, []);
   const language = useWhisperStore((state) => state.audio.language);
-  const audioFileName = useWhisperStore((state) => state.audio.audioFileName);
-  const setAudioFileName = useWhisperStore((state) => state.setAudioFileName);
+  const audioFileName = useWhisperStore(
+    (state) => state.audio.audioFileName,
+  );
+  const setAudioFileName = useWhisperStore(
+    (state) => state.setAudioFileName,
+  );
   const model = useWhisperStore((state) => state.model.model);
   const result = useWhisperStore((state) => state.transcription.result);
   const setResult = useWhisperStore((state) => state.setResult);
-  const processingMessage = useWhisperStore((state) => state.processing.processingMessage);
-  const processedSeconds = useWhisperStore((state) => state.processing.processedSeconds);
-  const totalSeconds = useWhisperStore((state) => state.processing.totalSeconds);
-  const estimatedTimeRemaining = useWhisperStore((state) => state.processing.estimatedTimeRemaining);
-  const setIsLoadingFromStorage = useWhisperStore((state) => state.setIsLoadingFromStorage);
+  const processingStatus = useWhisperStore(
+    (state) => state.processing.status,
+  );
+  const processingMessage = useWhisperStore(
+    (state) => state.processing.processingMessage,
+  );
+  const processedSeconds = useWhisperStore(
+    (state) => state.processing.processedSeconds,
+  );
+  const totalSeconds = useWhisperStore(
+    (state) => state.processing.totalSeconds,
+  );
+  const estimatedTimeRemaining = useWhisperStore(
+    (state) => state.processing.estimatedTimeRemaining,
+  );
+  const setIsLoadingFromStorage = useWhisperStore(
+    (state) => state.setIsLoadingFromStorage,
+  );
 
   // Storage
   const { save: saveTranscript } = useTranscripts();
 
   // Refs
-  const mediaInputRef = useRef<WhisperMediaInputRef>(null);
   const hasStartedTranscriptionRef = useRef(false);
   const isSavingRef = useRef(false);
 
@@ -52,33 +73,56 @@ export default function TranscribeView() {
     useCallback(() => {
       // Worker messages are handled globally in Router
       // Views just react to store changes
-    }, [])
+    }, []),
   );
+
+  // Load model if not already loaded
+  useEffect(() => {
+    if (status === null) {
+      const state = useWhisperStore.getState();
+      const device = state.model.device;
+      const model = state.model.model;
+      console.log("🚀 Loading model on TranscribeView mount:", model);
+      // Worker will send 'loading' status message
+      postMessage({
+        type: "load",
+        data: { device, model },
+      });
+    }
+  }, []); // Only run once on mount
 
   // Auto-start transcription when view mounts (if model is ready)
   useEffect(() => {
-    if (status === "ready" && audio && !hasStartedTranscriptionRef.current) {
+    if (
+      status === "ready" &&
+      audio &&
+      !hasStartedTranscriptionRef.current
+    ) {
       console.log("🎤 Auto-starting transcription...");
       hasStartedTranscriptionRef.current = true;
-      setStatus("running");
       postMessage({
         type: "run",
         data: { audio, language },
       });
     }
-  }, [status, audio, language, postMessage, setStatus]);
+  }, [status, audio, language, postMessage]);
 
   // Auto-save and navigate when transcription completes
   useEffect(() => {
     if (result && !isSavingRef.current) {
       console.log("✅ Transcription complete, auto-saving...");
+      console.log("📦 Audio file available:", !!audioFile, audioFile?.name);
       isSavingRef.current = true;
 
       // Auto-save transcript
       (async () => {
         try {
-          const audioFile = mediaInputRef.current?.getFile();
-
+          if (!audioFile) {
+            console.error("⚠️ WARNING: No audio file available for saving!");
+            toast.warning("Saving without audio file", {
+              description: "The audio file is not available and will not be saved",
+            });
+          }
           const id = await saveTranscript({
             transcript: result.transcript,
             segments: result.segments,
@@ -101,7 +145,8 @@ export default function TranscribeView() {
         } catch (error) {
           console.error("Failed to auto-save transcript:", error);
           toast.error("Failed to save transcript", {
-            description: error instanceof Error ? error.message : "Unknown error",
+            description:
+              error instanceof Error ? error.message : "Unknown error",
           });
 
           // Still navigate to transcript view (unsaved state)
@@ -116,7 +161,7 @@ export default function TranscribeView() {
   // Handle cancel transcription
   const handleCancel = useCallback(() => {
     const confirmCancel = confirm(
-      "Cancel transcription in progress? All progress will be lost."
+      "Cancel transcription in progress? All progress will be lost.",
     );
 
     if (confirmCancel) {
@@ -146,7 +191,9 @@ export default function TranscribeView() {
 
   // Calculate progress percentage
   const progressPercentage =
-    totalSeconds > 0 ? Math.min((processedSeconds / totalSeconds) * 100, 100) : 0;
+    totalSeconds > 0
+      ? Math.min((processedSeconds / totalSeconds) * 100, 100)
+      : 0;
 
   return (
     <div className="relative">
@@ -199,35 +246,24 @@ export default function TranscribeView() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              {status === "running"
+              {processingStatus === "running"
                 ? "Processing your audio with speaker diarization..."
                 : "Preparing transcription..."}
             </motion.p>
           </motion.div>
 
-          {/* Hidden audio player for context */}
-          <div className="hidden">
-            <MediaFileUpload
-              ref={mediaInputRef}
-              onInputChange={(audio) => {
-                const currentFlag =
-                  useWhisperStore.getState().ui.isLoadingFromStorage;
-                if (!currentFlag) {
-                  setResult(null);
-                }
-                setAudio(audio);
-                setIsLoadingFromStorage(false);
-              }}
-              onTimeUpdate={() => {}}
-              onFileNameChange={(fileName) => setAudioFileName(fileName)}
-            />
-          </div>
+          {/* Audio player */}
+          {audioFile && (
+            <div className="w-full max-w-3xl">
+              <AudioPlayer src={audioFile} />
+            </div>
+          )}
 
           <Card className="border-muted/50 bg-card/50 px-2 backdrop-blur-sm">
             <CardContent className="px-0 pt-6 sm:px-2 md:px-4 lg:px-8">
               <div className="flex min-h-[400px] w-full flex-col items-center justify-center space-y-6">
                 {/* Progress information */}
-                {status === "running" && (
+                {processingStatus === "running" && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -246,7 +282,9 @@ export default function TranscribeView() {
                     {totalSeconds > 0 && (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Progress</span>
+                          <span className="text-muted-foreground">
+                            Progress
+                          </span>
                           <span className="text-foreground font-medium">
                             {progressPercentage.toFixed(0)}%
                           </span>
@@ -259,15 +297,18 @@ export default function TranscribeView() {
                             transition={{ duration: 0.3 }}
                           />
                         </div>
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <div className="text-muted-foreground flex items-center justify-between text-xs">
                           <span>
-                            {formatTime(processedSeconds)} / {formatTime(totalSeconds)}
+                            {formatTime(processedSeconds)} /{" "}
+                            {formatTime(totalSeconds)}
                           </span>
-                          {estimatedTimeRemaining && estimatedTimeRemaining > 0 && (
-                            <span>
-                              Est. {formatTime(estimatedTimeRemaining)} remaining
-                            </span>
-                          )}
+                          {estimatedTimeRemaining &&
+                            estimatedTimeRemaining > 0 && (
+                              <span>
+                                Est. {formatTime(estimatedTimeRemaining)}{" "}
+                                remaining
+                              </span>
+                            )}
                         </div>
                       </div>
                     )}
@@ -291,7 +332,7 @@ export default function TranscribeView() {
                 )}
 
                 {/* Waiting state */}
-                {status !== "running" && !result && (
+                {processingStatus !== "running" && !result && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}

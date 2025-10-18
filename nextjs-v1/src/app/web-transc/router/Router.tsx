@@ -59,6 +59,11 @@ export function Router() {
           break;
 
         case 'transcribing':
+          // Set processing status to running on first transcribe message
+          const currentProcessingStatus = useWhisperStore.getState().processing.status;
+          if (currentProcessingStatus !== 'running') {
+            useWhisperStore.getState().setProcessingStatus('running');
+          }
           if (e.data.data?.text) {
             useWhisperStore.getState().addStreamingWord({
               text: e.data.data.text,
@@ -83,6 +88,7 @@ export function Router() {
           useWhisperStore.getState().setStreamingWords([]);
           useWhisperStore.getState().setGenerationTime(e.data.time);
           useWhisperStore.getState().setStatus('ready');
+          useWhisperStore.getState().setProcessingStatus('complete');
           useWhisperStore.getState().setProcessingMessage('');
           useWhisperStore.getState().setProcessedSeconds(0);
           useWhisperStore.getState().setTotalSeconds(0);
@@ -95,6 +101,7 @@ export function Router() {
           console.error('❌ Worker error:', e.data.error);
           toast.error('Worker error', { description: e.data.error });
           useWhisperStore.getState().setStatus(null);
+          useWhisperStore.getState().setProcessingStatus('error');
           useWhisperStore.getState().setProgressItems([]);
           useWhisperStore.getState().setProcessingMessage('');
           break;

@@ -13,6 +13,7 @@ import type {
 
 interface AudioState {
   audio: Float32Array | null;
+  audioFile: File | null; // Original audio file for playback
   audioFileName: string;
   language: string;
   currentTime: number;
@@ -39,6 +40,7 @@ interface TranscriptionState {
 }
 
 interface ProcessingState {
+  status: "idle" | "running" | "complete" | "error"; // Separate from model status
   processingMessage: string;
   processedSeconds: number;
   totalSeconds: number;
@@ -77,6 +79,7 @@ interface WhisperStore {
 
   // Audio actions
   setAudio: (audio: Float32Array | null) => void;
+  setAudioFile: (file: File | null) => void;
   setAudioFileName: (fileName: string) => void;
   setLanguage: (language: string) => void;
   setCurrentTime: (time: number) => void;
@@ -109,6 +112,7 @@ interface WhisperStore {
   setCurrentTranscriptId: (id: string | null) => void;
 
   // Processing actions
+  setProcessingStatus: (status: ProcessingState["status"]) => void;
   setProcessingMessage: (message: string) => void;
   setProcessedSeconds: (seconds: number) => void;
   setTotalSeconds: (seconds: number) => void;
@@ -146,6 +150,7 @@ const DEFAULT_MODEL = "Xenova/whisper-tiny";
 
 const initialAudioState: AudioState = {
   audio: null,
+  audioFile: null,
   audioFileName: "",
   language: "en",
   currentTime: 0,
@@ -172,6 +177,7 @@ const initialTranscriptionState: TranscriptionState = {
 };
 
 const initialProcessingState: ProcessingState = {
+  status: "idle",
   processingMessage: "",
   processedSeconds: 0,
   totalSeconds: 0,
@@ -215,6 +221,12 @@ export const useWhisperStore = create<WhisperStore>()(
             (state) => ({ audio: { ...state.audio, audio } }),
             false,
             "setAudio",
+          ),
+        setAudioFile: (file) =>
+          set(
+            (state) => ({ audio: { ...state.audio, audioFile: file } }),
+            false,
+            "setAudioFile",
           ),
         setAudioFileName: (fileName) =>
           set(
@@ -398,6 +410,17 @@ export const useWhisperStore = create<WhisperStore>()(
           ),
 
         // Processing actions
+        setProcessingStatus: (status) =>
+          set(
+            (state) => ({
+              processing: {
+                ...state.processing,
+                status,
+              },
+            }),
+            false,
+            "setProcessingStatus",
+          ),
         setProcessingMessage: (message) =>
           set(
             (state) => ({
