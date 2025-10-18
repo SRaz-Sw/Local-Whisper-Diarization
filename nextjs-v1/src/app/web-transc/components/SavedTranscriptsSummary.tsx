@@ -108,8 +108,8 @@ export function SavedTranscriptsSummary({
 
         <div
           className={cn(
-            "border-muted/50 bg-muted/20 space-y-2 overflow-y-auto rounded-lg border p-3",
-            scrollableClassName,
+            "border-muted/50 bg-muted/20 space-y-2 rounded-lg border p-3",
+            scrollableClassName || "overflow-y-auto",
           )}
         >
           {transcriptsLoading ? (

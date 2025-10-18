@@ -319,11 +319,6 @@ export default function UploadView() {
       {/* Main content */}
       <div className="relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-6xl flex-col px-2 sm:px-6 lg:px-8">
         <div className="my-auto space-y-8">
-          {/* Theme toggle button */}
-          <div className="fixed top-4 right-4 z-[55] sm:top-6 sm:right-6">
-            <ThemeToggle />
-          </div>
-
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -365,7 +360,12 @@ export default function UploadView() {
 
                 // Store the file for use in TranscribeView
                 const file = mediaInputRef.current?.getFile();
-                console.log("📤 UploadView: Setting audio file:", !!file, file?.name, file?.size);
+                console.log(
+                  "📤 UploadView: Setting audio file:",
+                  !!file,
+                  file?.name,
+                  file?.size,
+                );
                 setAudioFile(file || null);
 
                 setIsLoadingFromStorage(false);
@@ -463,7 +463,7 @@ export default function UploadView() {
                     onLoadTranscript={handleLoadTranscript}
                     onRemoveTranscript={removeTranscript}
                     onUpdateMetadata={updateMetadata}
-                    scrollableClassName="max-h-[300px]"
+                    scrollableClassName="max-h-[300px] overflow-y-auto"
                   />
                 )}
               </div>

@@ -27,6 +27,12 @@ export const useRouterStore = create<RouterStore>()(
       navigate: (view, params = {}) => {
         const { currentView, params: currentParams, history } = get();
 
+        // Skip if navigating to the same view with same params
+        if (currentView === view && JSON.stringify(currentParams) === JSON.stringify(params)) {
+          console.log('🔗 Skipping duplicate navigation to:', view, params);
+          return;
+        }
+
         // Update URL hash (for web shareable links)
         if (typeof window !== 'undefined') {
           const path = params.id ? `${view}/${params.id}` : view;

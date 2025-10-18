@@ -169,11 +169,6 @@ export default function SavedView() {
       {/* Main content */}
       <div className="relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-6xl flex-col px-2 sm:px-6 lg:px-8">
         <div className="my-auto space-y-8 py-8">
-          {/* Theme toggle button */}
-          <div className="fixed top-4 right-4 z-[55] sm:top-6 sm:right-6">
-            <ThemeToggle />
-          </div>
-
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}

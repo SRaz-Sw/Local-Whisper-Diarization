@@ -30,7 +30,12 @@ export default function TranscribeView() {
 
   // Debug: Log audioFile on mount
   useEffect(() => {
-    console.log("🎬 TranscribeView mounted - audioFile:", !!audioFile, audioFile?.name, audioFile?.size);
+    console.log(
+      "🎬 TranscribeView mounted - audioFile:",
+      !!audioFile,
+      audioFile?.name,
+      audioFile?.size,
+    );
   }, []);
   const language = useWhisperStore((state) => state.audio.language);
   const audioFileName = useWhisperStore(
@@ -111,16 +116,23 @@ export default function TranscribeView() {
   useEffect(() => {
     if (result && !isSavingRef.current) {
       console.log("✅ Transcription complete, auto-saving...");
-      console.log("📦 Audio file available:", !!audioFile, audioFile?.name);
+      console.log(
+        "📦 Audio file available:",
+        !!audioFile,
+        audioFile?.name,
+      );
       isSavingRef.current = true;
 
       // Auto-save transcript
       (async () => {
         try {
           if (!audioFile) {
-            console.error("⚠️ WARNING: No audio file available for saving!");
+            console.error(
+              "⚠️ WARNING: No audio file available for saving!",
+            );
             toast.warning("Saving without audio file", {
-              description: "The audio file is not available and will not be saved",
+              description:
+                "The audio file is not available and will not be saved",
             });
           }
           const id = await saveTranscript({
@@ -220,11 +232,6 @@ export default function TranscribeView() {
       {/* Main content */}
       <div className="relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-6xl flex-col px-2 sm:px-6 lg:px-8">
         <div className="my-auto space-y-8">
-          {/* Theme toggle button */}
-          <div className="fixed top-4 right-4 z-[55] sm:top-6 sm:right-6">
-            <ThemeToggle />
-          </div>
-
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}

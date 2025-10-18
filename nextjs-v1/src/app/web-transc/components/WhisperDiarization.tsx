@@ -786,7 +786,7 @@ function WhisperDiarization() {
           <div
             className={
               result
-                ? "bg-background/95 fixed top-0 right-0 left-0 z-50 border-b shadow-lg backdrop-blur-sm"
+                ? "bg-background/95 fixed top-[8rem] right-0 left-0 z-50 border-b shadow-lg backdrop-blur-sm"
                 : "relative"
             }
           >
@@ -837,6 +837,14 @@ function WhisperDiarization() {
                         value={searchQuery}
                         onChange={(e) => {
                           setSearchQuery(e.target.value);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            setSearchQuery(e.currentTarget.value);
+                          }
+                          if (e.key === "Escape") {
+                            setSearchQuery("");
+                          }
                         }}
                       />
                     </div>

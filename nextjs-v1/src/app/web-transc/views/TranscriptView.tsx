@@ -20,6 +20,7 @@ import {
 } from "../components/AudioPlayer";
 import WhisperTranscript from "../components/WhisperTranscript";
 import { ThemeToggle } from "../components/ThemeToggle";
+import { useSidebar } from "@/components/ui/sidebar"; // Add this import
 
 interface TranscriptViewProps {
   id: string;
@@ -72,14 +73,23 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
 
   // Storage
   const { save: saveTranscript, getWithAudio } = useTranscripts();
+  const { state: sidebarState, isMobile } = useSidebar(); // Get sidebar state
+
+  // Calculate dynamic positioning based on sidebar state
+  const sidebarWidth = isMobile
+    ? 0
+    : sidebarState === "expanded"
+      ? "var(--sidebar-width)"
+      : "var(--sidebar-width-icon)";
 
   // Load transcript if not in store (e.g., deep link)
   useEffect(() => {
-    if (!result && id !== "unsaved") {
+    if (id !== "unsaved") {
       console.log("📥 Loading transcript from storage:", id);
       loadTranscriptFromStorage(id);
     }
-  }, [id, result]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   // Scroll to top button visibility
   useEffect(() => {
@@ -104,7 +114,11 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
       }
 
       const { transcript: data, audioBlob } = result;
-      console.log("📦 Audio blob retrieved:", !!audioBlob, audioBlob?.type);
+      console.log(
+        "📦 Audio blob retrieved:",
+        !!audioBlob,
+        audioBlob?.type,
+      );
 
       // Map segments
       const segmentsWithMissingProps = data.segments.map(
@@ -136,7 +150,10 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
         });
         setAudioFile(file);
       } else {
-        console.warn("⚠️ No audio blob found for transcript:", transcriptId);
+        console.warn(
+          "⚠️ No audio blob found for transcript:",
+          transcriptId,
+        );
         setAudioFile(null);
       }
 
@@ -163,9 +180,12 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
     setIsSaving(true);
     try {
       if (!audioFile) {
-        console.error("⚠️ WARNING: No audio file available for manual save!");
+        console.error(
+          "⚠️ WARNING: No audio file available for manual save!",
+        );
         toast.warning("Saving without audio file", {
-          description: "The audio file is not available and will not be saved",
+          description:
+            "The audio file is not available and will not be saved",
         });
       }
       const savedId = await saveTranscript({
@@ -258,13 +278,14 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
 
       {/* Main content */}
       <div className="relative z-10">
-        {/* Theme toggle button */}
-        <div className="fixed top-4 right-4 z-[55] sm:top-6 sm:right-6">
-          <ThemeToggle />
-        </div>
-
         {/* Sticky audio player and search */}
-        <div className="bg-background/95 fixed top-0 right-0 left-0 z-50 border-b shadow-lg backdrop-blur-sm">
+        <div
+          className="bg-background/95 fixed top-16 right-0 z-50 border-b shadow-lg backdrop-blur-sm transition-all duration-200 ease-in-out"
+          style={{
+            left: isMobile ? 0 : sidebarWidth,
+            width: isMobile ? "100%" : `calc(100% - ${sidebarWidth})`,
+          }}
+        >
           <div className="mx-auto max-w-6xl px-4 py-3">
             <div className="flex flex-col gap-3">
               {audioFile ? (
@@ -274,7 +295,7 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
                   onTimeUpdate={(time) => setCurrentTime(time)}
                 />
               ) : (
-                <div className="bg-muted/50 flex items-center justify-center gap-2 rounded-md border border-dashed px-4 py-3 text-sm text-muted-foreground">
+                <div className="bg-muted/50 text-muted-foreground flex items-center justify-center gap-2 rounded-md border border-dashed px-4 py-3 text-sm">
                   <svg
                     className="h-5 w-5"
                     fill="none"
@@ -288,9 +309,7 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
                       d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
                     />
                   </svg>
-                  <span>
-                    Audio file not available for this transcript
-                  </span>
+                  <span>Audio file not available for this transcript</span>
                 </div>
               )}
 
@@ -316,6 +335,19 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
                     className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-10 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        setSearchQuery(e.currentTarget.value);
+                      }
+                      if (e.key === "Escape") {
+                        if (searchQuery !== "") {
+                          setSearchQuery("");
+                        } else {
+                          // second time - move out of focus from the input
+                          e.currentTarget.blur();
+                        }
+                      }
+                    }}
                   />
                 </div>
                 {searchQuery && (
@@ -345,7 +377,7 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
         </div>
 
         {/* Main transcript content */}
-        <div className="mx-auto max-w-6xl px-2 pt-44 pb-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl px-2 pt-60 pb-8 sm:px-6 lg:px-8">
           <div className="space-y-4">
             {/* Action buttons */}
             <div className="flex flex-wrap items-center justify-center gap-3">
