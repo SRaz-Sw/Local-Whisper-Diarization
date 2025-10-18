@@ -303,6 +303,25 @@ export function useTranscripts() {
   );
 
   /**
+   * Check if a file with the same name already exists
+   *
+   * @param fileName - File name to check
+   * @returns Existing transcript if found, null otherwise
+   */
+  const findDuplicateByFileName = useCallback(
+    (fileName: string): SavedTranscript | null => {
+      const normalizedFileName = fileName.toLowerCase().trim();
+      const duplicate = items.find(
+        (transcript) =>
+          transcript.metadata.fileName.toLowerCase().trim() ===
+          normalizedFileName,
+      );
+      return duplicate || null;
+    },
+    [items],
+  );
+
+  /**
    * Update metadata fields (conversation name, speaker names, etc.)
    *
    * @param id - ID of transcript to update
@@ -353,6 +372,7 @@ export function useTranscripts() {
     get,
     getWithAudio,
     search,
+    findDuplicateByFileName,
     refresh: load,
   };
 }

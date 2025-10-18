@@ -465,28 +465,23 @@ function WhisperDiarization() {
     setProcessedSeconds(0);
     setTotalSeconds(0);
     setEstimatedTimeRemaining(null);
-    if (status === null) {
-      console.log(
-        "🚀 Loading models with device:",
-        device,
-        "model:",
-        model,
-      );
-      setStatus("loading");
-      setLoadingMessage("Initializing...");
-      worker.current?.postMessage({
-        type: "load",
-        data: { device, model },
-      });
-    } else {
-      console.log("🎤 Running transcription...");
-      setStatus("running");
-      setProcessingMessage("Starting transcription...");
-      worker.current?.postMessage({
-        type: "run",
-        data: { audio, language },
-      });
-    }
+    // if (status === null) {
+    console.log("🚀 Loading models with device:", device, "model:", model);
+    setStatus("loading");
+    setLoadingMessage("Initializing...");
+    worker.current?.postMessage({
+      type: "load",
+      data: { device, model },
+      //   });
+      // } else { // run the transcription on the proper page - see `/app/web-transc/views/TranscribeView.tsx` line 83
+      //   console.log("🎤 Running transcription...");
+      //   setStatus("running");
+      //   setProcessingMessage("Starting transcription...");
+      //   worker.current?.postMessage({
+      //     type: "run",
+      //     data: { audio, language },
+      //   });
+    });
   }, [status, audio, language, device, model]);
 
   // Check for backup on mount (after model is loaded)
@@ -791,7 +786,7 @@ function WhisperDiarization() {
           <div
             className={
               result
-                ? "bg-background/95 fixed top-0 right-0 left-0 z-50 border-b shadow-lg backdrop-blur-sm"
+                ? "bg-background/95 fixed top-[8rem] right-0 left-0 z-50 border-b shadow-lg backdrop-blur-sm"
                 : "relative"
             }
           >
@@ -842,6 +837,14 @@ function WhisperDiarization() {
                         value={searchQuery}
                         onChange={(e) => {
                           setSearchQuery(e.target.value);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            setSearchQuery(e.currentTarget.value);
+                          }
+                          if (e.key === "Escape") {
+                            setSearchQuery("");
+                          }
                         }}
                       />
                     </div>

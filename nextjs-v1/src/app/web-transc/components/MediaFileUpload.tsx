@@ -14,9 +14,11 @@ import { UploadCloud, FileAudio, FileVideo } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useWhisperStore } from "../store/useWhisperStore";
+import { useRouterStore } from "../store/useRouterStore";
 import { useTranscripts } from "../hooks/useTranscripts";
 import { EditConversationModal } from "./EditConversationModal";
 import { EditSpeakersModal } from "./EditSpeakersModal";
+import { DuplicateFileModal } from "./DuplicateFileModal";
 import type {
   WhisperMediaInputRef,
   WhisperMediaInputProps,
@@ -146,6 +148,9 @@ const MediaFileUpload = forwardRef<
     const currentTimeRef = useRef(0);
     const requestRef = useRef<number>(0);
 
+    // Router navigation
+    const navigate = useRouterStore((state) => state.navigate);
+
     // Get current transcript data from store
     const currentTranscriptId = useWhisperStore(
       (state) => state.transcription.currentTranscriptId,
@@ -156,7 +161,7 @@ const MediaFileUpload = forwardRef<
     const setSpeakerNames = useWhisperStore(
       (state) => state.setSpeakerNames,
     );
-    const { updateMetadata, get: getTranscript } = useTranscripts();
+    const { updateMetadata, get: getTranscript, findDuplicateByFileName } = useTranscripts();
 
     // Modal state
     const [editConversationModal, setEditConversationModal] = useState<{
@@ -164,6 +169,10 @@ const MediaFileUpload = forwardRef<
       transcript: SavedTranscript | null;
     }>({ open: false, transcript: null });
     const [editSpeakersModal, setEditSpeakersModal] = useState<{
+      open: boolean;
+      transcript: SavedTranscript | null;
+    }>({ open: false, transcript: null });
+    const [duplicateModal, setDuplicateModal] = useState<{
       open: boolean;
       transcript: SavedTranscript | null;
     }>({ open: false, transcript: null });
@@ -345,8 +354,18 @@ const MediaFileUpload = forwardRef<
         return;
       }
 
+      // Check for duplicate file
+      const duplicate = findDuplicateByFileName(selectedFile.name);
+      if (duplicate) {
+        setDuplicateModal({
+          open: true,
+          transcript: duplicate,
+        });
+        return;
+      }
+
       readFile(selectedFile);
-    }, []);
+    }, [findDuplicateByFileName]);
 
     const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
       e.preventDefault();
@@ -447,6 +466,27 @@ const MediaFileUpload = forwardRef<
       },
       [editSpeakersModal.transcript, updateMetadata, setSpeakerNames],
     );
+
+    // Handlers for duplicate modal
+    const handleViewExisting = useCallback(() => {
+      if (!duplicateModal.transcript) return;
+
+      // Close the modal
+      setDuplicateModal({ open: false, transcript: null });
+
+      // Navigate to the existing transcript
+      navigate("transcript", { id: duplicateModal.transcript.id });
+    }, [duplicateModal.transcript, navigate]);
+
+    const handleGoBack = useCallback(() => {
+      // Close the modal
+      setDuplicateModal({ open: false, transcript: null });
+
+      // Reset file input to allow selecting another file
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }, []);
 
     const resetState = useCallback(() => {
       if (mediaUrl) {
@@ -773,6 +813,17 @@ const MediaFileUpload = forwardRef<
           }
           transcript={editSpeakersModal.transcript}
           onSave={handleSaveSpeakerNames}
+        />
+
+        {/* Duplicate File Modal */}
+        <DuplicateFileModal
+          open={duplicateModal.open}
+          onOpenChange={(open) =>
+            setDuplicateModal({ open, transcript: null })
+          }
+          existingTranscript={duplicateModal.transcript}
+          onViewExisting={handleViewExisting}
+          onGoBack={handleGoBack}
         />
       </>
     );

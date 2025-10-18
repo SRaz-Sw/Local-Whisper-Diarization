@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import HomeNavbar from "@/components/home-navbar/HomeNavbar";
-import HomeSidebar from "@/components/home-navbar/HomeSidebar";
+import HomeSidebar from "@/components/home-sidebar/HomeSidebar";
 import ProvidersClientSide from "./providers";
 import { Toaster } from "sonner";
 import { FileUploadedData } from "@sraz-sw/carwise-shared";
@@ -31,9 +31,9 @@ export default function RootLayout({
         <ProvidersClientSide>
           <SidebarProvider>
             <div className="relative w-full">
-              {/* <HomeNavbar /> */}
+              <HomeNavbar />
               <div className="mx-auto flex h-full max-h-[calc(100svw-4rem)] max-w-svh pt-[4rem]">
-                {/* <HomeSidebar /> */}
+                <HomeSidebar />
                 <main className="w-full">{children}</main>
                 <Toaster position="top-center" />
               </div>
