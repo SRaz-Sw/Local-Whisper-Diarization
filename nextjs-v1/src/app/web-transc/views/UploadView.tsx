@@ -19,6 +19,8 @@ import { ModelSelector } from "../components/ModelSelector";
 import WhisperLanguageSelector from "../components/WhisperLanguageSelector";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { SavedTranscriptsSummary } from "../components/SavedTranscriptsSummary";
+import { BatchFileUpload } from "../components/BatchFileUpload";
+import { BatchProgressWidget } from "../components/BatchProgressWidget";
 import { AVAILABLE_MODELS, DEFAULT_MODEL } from "../config/modelConfig";
 import type { WhisperMediaInputRef } from "../types";
 import type { SavedTranscript } from "@/lib/localStorage/schemas";
@@ -73,6 +75,7 @@ export default function UploadView() {
 
   // Local state
   const mediaInputRef = useRef<WhisperMediaInputRef>(null);
+  const [uploadMode, setUploadMode] = useState<'single' | 'batch'>('single');
 
   // Worker integration
   const { postMessage } = useWhisperWorker(
@@ -345,130 +348,172 @@ export default function UploadView() {
             </motion.p>
           </motion.div>
 
-          {/* Audio player */}
-          <div className="relative">
-            <MediaFileUpload
-              ref={mediaInputRef}
-              onInputChange={(audio) => {
-                const currentFlag =
-                  useWhisperStore.getState().ui.isLoadingFromStorage;
+          {/* Upload Mode Tabs */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="flex justify-center"
+          >
+            <div className="inline-flex rounded-lg bg-muted p-1">
+              <button
+                onClick={() => setUploadMode('single')}
+                className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                  uploadMode === 'single'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Single File
+              </button>
+              <button
+                onClick={() => setUploadMode('batch')}
+                className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                  uploadMode === 'batch'
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Batch Upload
+              </button>
+            </div>
+          </motion.div>
 
-                if (!currentFlag) {
-                  setResult(null);
-                }
-                setAudio(audio);
+          {/* Conditional Content Based on Upload Mode */}
+          {uploadMode === 'single' ? (
+            <>
+              {/* Audio player */}
+              <div className="relative">
+                <MediaFileUpload
+                  ref={mediaInputRef}
+                  onInputChange={(audio) => {
+                    const currentFlag =
+                      useWhisperStore.getState().ui.isLoadingFromStorage;
 
-                // Store the file for use in TranscribeView
-                const file = mediaInputRef.current?.getFile();
-                console.log(
-                  "📤 UploadView: Setting audio file:",
-                  !!file,
-                  file?.name,
-                  file?.size,
-                );
-                setAudioFile(file || null);
+                    if (!currentFlag) {
+                      setResult(null);
+                    }
+                    setAudio(audio);
 
-                setIsLoadingFromStorage(false);
-              }}
-              onTimeUpdate={() => {}} // Not needed in upload view
-              onFileNameChange={(fileName) => setAudioFileName(fileName)}
-            />
-          </div>
+                    // Store the file for use in TranscribeView
+                    const file = mediaInputRef.current?.getFile();
+                    console.log(
+                      "📤 UploadView: Setting audio file:",
+                      !!file,
+                      file?.name,
+                      file?.size,
+                    );
+                    setAudioFile(file || null);
 
-          <Card className="border-muted/50 bg-card/50 px-2 backdrop-blur-sm">
-            <CardContent className="px-0 pt-6 sm:px-2 md:px-4 lg:px-8">
-              <div className="flex min-h-[220px] w-full flex-col items-center justify-center space-y-6">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="relative flex w-full flex-col items-center justify-center gap-4"
-                >
-                  {/* Main action buttons */}
-                  <div className="flex flex-wrap justify-center gap-3">
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button
-                        onClick={handleClick}
-                        disabled={
-                          !audio ||
-                          status === "running" ||
-                          status === "loading"
-                        }
-                        size="lg"
-                        className="shadow-lg transition-shadow hover:shadow-xl"
-                      >
-                        {status === null
-                          ? "Load model"
-                          : status === "loading"
-                            ? "Loading..."
-                            : status === "running"
-                              ? "Running..."
-                              : "Run model"}
-                      </Button>
-                    </motion.div>
+                    setIsLoadingFromStorage(false);
+                  }}
+                  onTimeUpdate={() => {}} // Not needed in upload view
+                  onFileNameChange={(fileName) => setAudioFileName(fileName)}
+                />
+              </div>
 
-                    {audio && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Button
-                          onClick={handleReset}
-                          size="lg"
-                          variant="outline"
-                          className="shadow-lg transition-shadow hover:shadow-xl"
-                        >
-                          Reset
-                        </Button>
-                      </motion.div>
-                    )}
-
-                    {/* Model selector */}
-                    <ModelSelector
-                      disabled={
-                        status === "running" || status === "loading"
-                      }
-                      onModelChange={handleModelChange}
-                    />
-                  </div>
-
-                  {/* Language selector - show when model is loaded but not running */}
-                  {status === "ready" && (
+              <Card className="border-muted/50 bg-card/50 px-2 backdrop-blur-sm">
+                <CardContent className="px-0 pt-6 sm:px-2 md:px-4 lg:px-8">
+                  <div className="flex min-h-[220px] w-full flex-col items-center justify-center space-y-6">
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.4 }}
-                      className="flex flex-col items-center space-y-1"
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      className="relative flex w-full flex-col items-center justify-center gap-4"
                     >
-                      <span className="text-muted-foreground text-xs">
-                        Language:
-                      </span>
-                      <WhisperLanguageSelector className="w-[120px]" />
-                    </motion.div>
-                  )}
-                </motion.div>
+                      {/* Main action buttons */}
+                      <div className="flex flex-wrap justify-center gap-3">
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button
+                            onClick={handleClick}
+                            disabled={
+                              !audio ||
+                              status === "running" ||
+                              status === "loading"
+                            }
+                            size="lg"
+                            className="shadow-lg transition-shadow hover:shadow-xl"
+                          >
+                            {status === null
+                              ? "Load model"
+                              : status === "loading"
+                                ? "Loading..."
+                                : status === "running"
+                                  ? "Running..."
+                                  : "Run model"}
+                          </Button>
+                        </motion.div>
 
-                {/* Saved Transcripts Section */}
-                {status !== "running" && (
-                  <SavedTranscriptsSummary
-                    savedTranscripts={savedTranscripts}
-                    transcriptsLoading={transcriptsLoading}
-                    onLoadTranscript={handleLoadTranscript}
-                    onRemoveTranscript={removeTranscript}
-                    onUpdateMetadata={updateMetadata}
-                    scrollableClassName="max-h-[300px] overflow-y-auto"
-                  />
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                        {audio && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button
+                              onClick={handleReset}
+                              size="lg"
+                              variant="outline"
+                              className="shadow-lg transition-shadow hover:shadow-xl"
+                            >
+                              Reset
+                            </Button>
+                          </motion.div>
+                        )}
+
+                        {/* Model selector */}
+                        <ModelSelector
+                          disabled={
+                            status === "running" || status === "loading"
+                          }
+                          onModelChange={handleModelChange}
+                        />
+                      </div>
+
+                      {/* Language selector - show when model is loaded but not running */}
+                      {status === "ready" && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.4 }}
+                          className="flex flex-col items-center space-y-1"
+                        >
+                          <span className="text-muted-foreground text-xs">
+                            Language:
+                          </span>
+                          <WhisperLanguageSelector className="w-[120px]" />
+                        </motion.div>
+                      )}
+                    </motion.div>
+
+                    {/* Batch Progress Widget */}
+                    <BatchProgressWidget />
+
+                    {/* Saved Transcripts Section */}
+                    {status !== "running" && (
+                      <SavedTranscriptsSummary
+                        savedTranscripts={savedTranscripts}
+                        transcriptsLoading={transcriptsLoading}
+                        onLoadTranscript={handleLoadTranscript}
+                        onRemoveTranscript={removeTranscript}
+                        onUpdateMetadata={updateMetadata}
+                        scrollableClassName="max-h-[300px] overflow-y-auto"
+                      />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          ) : (
+            /* Batch Upload Mode */
+            <BatchFileUpload />
+          )}
 
           <motion.div
             initial={{ opacity: 0 }}
