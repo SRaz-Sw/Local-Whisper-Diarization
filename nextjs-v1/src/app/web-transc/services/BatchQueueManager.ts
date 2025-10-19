@@ -349,6 +349,11 @@ class BatchQueueManager {
           // Update store with progress
           store.updateFileProgress(fileId, progress);
 
+          // Update estimated time remaining if available
+          if (message.estimatedTimeRemaining !== undefined) {
+            store.updateFileEstimatedTime(fileId, message.estimatedTimeRemaining);
+          }
+
           // Only log every 10% to avoid spam
           const lastLogged = this.lastLoggedProgress.get(fileId) || 0;
           const progressRounded = Math.floor(progress / 10) * 10;

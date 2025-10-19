@@ -217,10 +217,58 @@ export function BatchFileUpload() {
     }
   };
 
-  // Calculate progress
+  // Calculate progress including current file progress
   const totalFiles = files.length;
-  const overallProgress =
-    totalFiles > 0 ? ((totalCompleted + totalFailed + totalCancelled) / totalFiles) * 100 : 0;
+  const calculateOverallProgress = () => {
+    if (totalFiles === 0) return 0;
+
+    let totalProgress = 0;
+    files.forEach((file) => {
+      if (file.status === 'completed') {
+        totalProgress += 100;
+      } else if (file.status === 'processing') {
+        totalProgress += file.progress || 0;
+      } else if (file.status === 'error' || file.status === 'cancelled') {
+        totalProgress += 100; // Count as complete for progress calculation
+      }
+      // queued files contribute 0
+    });
+
+    return Math.round(totalProgress / totalFiles);
+  };
+
+  const overallProgress = calculateOverallProgress();
+
+  // Calculate estimated time remaining for batch
+  const calculateEstimatedTime = () => {
+    // Get current processing file's estimated time
+    const processingFile = files.find(f => f.status === 'processing');
+    if (!processingFile || !processingFile.estimatedTimeRemaining) {
+      return null;
+    }
+
+    // Add time for queued files (rough estimate based on average)
+    const queuedCount = files.filter(f => f.status === 'queued').length;
+
+    // Rough estimate: assume each queued file takes as long as the current one
+    // This is a simplification - in reality we'd need average duration data
+    const estimatedPerFile = processingFile.estimatedTimeRemaining * (100 / Math.max(processingFile.progress, 1));
+    const queuedTime = queuedCount * estimatedPerFile;
+
+    return processingFile.estimatedTimeRemaining + queuedTime;
+  };
+
+  const estimatedTimeRemaining = calculateEstimatedTime();
+
+  // Format time helper
+  const formatTime = (seconds: number): string => {
+    if (seconds < 60) {
+      return `${Math.round(seconds)}s`;
+    }
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.round(seconds % 60);
+    return `${mins}m ${secs}s`;
+  };
 
   const queuedFiles = files.filter((f) => f.status === 'queued');
   const processingFiles = files.filter((f) => f.status === 'processing');
@@ -361,15 +409,26 @@ export function BatchFileUpload() {
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-            <motion.div
-              className="bg-blue-600 h-full rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${overallProgress}%` }}
-              transition={{ duration: 0.3 }}
-            />
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium text-gray-700">Overall Progress</span>
+              <div className="flex items-center gap-2">
+                {estimatedTimeRemaining !== null && estimatedTimeRemaining > 0 && (
+                  <span className="text-xs text-gray-500">
+                    ~{formatTime(estimatedTimeRemaining)} remaining
+                  </span>
+                )}
+                <span className="font-semibold text-blue-600">{overallProgress}%</span>
+              </div>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <motion.div
+                className="bg-gradient-to-r from-blue-600 to-blue-500 h-full rounded-full transition-all"
+                animate={{ width: `${overallProgress}%` }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
+            </div>
           </div>
-          <p className="text-xs text-gray-600 mt-1">{overallProgress.toFixed(1)}% complete</p>
         </motion.div>
       )}
 

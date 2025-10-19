@@ -13,6 +13,7 @@ export interface BatchFile {
   startedAt?: string;
   completedAt?: string;
   retryCount: number;
+  estimatedTimeRemaining?: number | null; // in seconds
 }
 
 interface BatchState {
@@ -36,6 +37,7 @@ interface BatchActions {
   clearAll: () => void;
   reorderFiles: (fileId: string, newIndex: number) => void;
   updateFileProgress: (fileId: string, progress: number) => void;
+  updateFileEstimatedTime: (fileId: string, estimatedTime: number | null) => void;
   setFileStatus: (
     fileId: string,
     status: BatchFile['status'],
@@ -285,6 +287,14 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
         set(state => ({
           files: state.files.map(f =>
             f.id === fileId ? { ...f, progress: Math.min(100, Math.max(0, progress)) } : f
+          ),
+        }));
+      },
+
+      updateFileEstimatedTime: (fileId: string, estimatedTime: number | null) => {
+        set(state => ({
+          files: state.files.map(f =>
+            f.id === fileId ? { ...f, estimatedTimeRemaining: estimatedTime } : f
           ),
         }));
       },
