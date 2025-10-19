@@ -21,6 +21,7 @@ class BatchQueueManager {
   private workerSubscriptions: Map<string, () => void> = new Map(); // workerId -> unsubscribe
   private completionCallback?: () => void;
   private lastLoggedProgress: Map<string, number> = new Map(); // fileId -> last logged progress %
+  private audioBuffers: Map<string, { audio: Float32Array; language: string; model: string }> = new Map(); // fileId -> audio data
 
   /**
    * Initialize the queue manager and worker pool
@@ -158,8 +159,10 @@ class BatchQueueManager {
     workerId: string,
   ): Promise<void> {
     try {
+      console.log(`🎵 Starting audio decode for ${batchFile.fileName}`);
       // Read and decode audio file
       const audioBuffer = await this.readAndDecodeAudio(batchFile.file);
+      console.log(`✅ Audio decoded: ${audioBuffer.length} samples`);
 
       // Get current language and model from Whisper store
       // Use the same settings as the single-file upload for consistency
@@ -182,10 +185,13 @@ class BatchQueueManager {
       });
 
       // After model loads, we'll start transcription (handled in message handler)
-      // Store audio buffer temporarily for this file
-      (batchFile as any)._audioBuffer = audioBuffer;
-      (batchFile as any)._language = language;
-      (batchFile as any)._model = model;
+      // Store audio buffer in Map (can't store on file object due to Zustand immutability)
+      this.audioBuffers.set(batchFile.id, {
+        audio: audioBuffer,
+        language: language,
+        model: model,
+      });
+      console.log(`💾 Stored audio buffer (${audioBuffer.length} samples) in Map for file ${batchFile.id}`);
     } catch (error) {
       console.error(`❌ Error processing audio file:`, error);
       this.handleFileError(batchFile.id, error as Error);
@@ -310,18 +316,26 @@ class BatchQueueManager {
         );
         batchWorkerPool.setWorkerStatus(workerId, "busy");
 
-        // Start transcription with audio
-        const audioBuffer = (file as any)._audioBuffer;
-        const language = (file as any)._language || "en";
+        // Get audio data from Map
+        const audioData = this.audioBuffers.get(fileId);
 
-        if (audioBuffer) {
+        console.log(`🔍 Audio data exists in Map: ${!!audioData}`);
+        console.log(`🔍 Audio buffer length: ${audioData?.audio?.length || 0}`);
+        console.log(`🔍 Language: ${audioData?.language || 'not found'}`);
+
+        if (audioData && audioData.audio) {
+          console.log(`🚀 Sending "run" message to worker with ${audioData.audio.length} audio samples`);
           batchWorkerPool.postMessage(workerId, {
             type: "run",
             data: {
-              audio: audioBuffer,
-              language: language,
+              audio: audioData.audio,
+              language: audioData.language,
             },
           });
+          console.log(`✅ "run" message sent to ${workerId}`);
+        } else {
+          console.error(`❌ No audio buffer found in Map for ${file.fileName} (id: ${fileId})!`);
+          this.handleFileError(fileId, new Error('Audio buffer not found'));
         }
         break;
 
@@ -389,10 +403,9 @@ class BatchQueueManager {
         this.processingFiles.delete(fileId);
       }
 
-      // Cleanup temporary data
-      delete (file as any)._audioBuffer;
-      delete (file as any)._language;
-      delete (file as any)._model;
+      // Cleanup audio buffer from memory
+      this.audioBuffers.delete(fileId);
+      this.lastLoggedProgress.delete(fileId);
 
       console.log(`💾 ${file.fileName}: Saved as ${transcriptId}`);
     } catch (error) {
@@ -510,12 +523,9 @@ class BatchQueueManager {
       this.processingFiles.delete(fileId);
     }
 
-    // Cleanup temporary data
-    if (file) {
-      delete (file as any)._audioBuffer;
-      delete (file as any)._language;
-      delete (file as any)._model;
-    }
+    // Cleanup audio buffer from memory
+    this.audioBuffers.delete(fileId);
+    this.lastLoggedProgress.delete(fileId);
   }
 
   /**
