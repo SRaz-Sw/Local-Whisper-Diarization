@@ -10,6 +10,7 @@ import {
 } from "../ui/sidebar";
 import { useTranscripts } from "@/app/web-transc/hooks/useTranscripts";
 import { useRouterStore } from "@/app/web-transc/store/useRouterStore";
+import { PhoneIcon } from "lucide-react";
 
 const TranscriptsSection = () => {
   const {
@@ -43,6 +44,7 @@ const TranscriptsSection = () => {
                 }
                 onClick={() => navigate("transcript", { id: item.id })}
               >
+                <PhoneIcon />
                 <span className="truncate text-sm">
                   {item.metadata.conversationName ||
                     item.metadata.fileName}
