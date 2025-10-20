@@ -16,17 +16,25 @@ import type {
 import { DEFAULT_MODEL } from "../config/modelConfig";
 
 class BatchQueueManager {
-  private isRunning = false;
-  private processingFiles: Map<string, string> = new Map(); // fileId -> workerId
   private workerSubscriptions: Map<string, () => void> = new Map(); // workerId -> unsubscribe
   private completionCallback?: () => void;
-  private lastLoggedProgress: Map<string, number> = new Map(); // fileId -> last logged progress %
-  private audioBuffers: Map<string, { audio: Float32Array; language: string; model: string }> = new Map(); // fileId -> audio data
+  private audioBuffers: Map<
+    string,
+    { audio: Float32Array; language: string; model: string }
+  > = new Map(); // fileId -> audio data (keep this for now as it can't be in Zustand)
 
   /**
    * Initialize the queue manager and worker pool
    */
   async initialize(): Promise<boolean> {
+    const store = useBatchStore.getState();
+
+    // Prevent re-initialization
+    if (store.isQueueInitialized) {
+      console.log("ℹ️ BatchQueueManager already initialized");
+      return true;
+    }
+
     const success = await batchWorkerPool.initialize();
     if (success) {
       // Subscribe to all workers
@@ -40,6 +48,7 @@ class BatchQueueManager {
         );
         this.workerSubscriptions.set(workerId, unsubscribe);
       });
+      store.setQueueInitialized(true);
       console.log("✅ BatchQueueManager initialized");
     }
     return success;
@@ -49,13 +58,15 @@ class BatchQueueManager {
    * Start processing the queue
    */
   async start(onComplete?: () => void): Promise<void> {
-    if (this.isRunning) {
+    const store = useBatchStore.getState();
+
+    if (store.isQueueRunning) {
       console.log("⚠️ Queue is already running");
       return;
     }
 
     this.completionCallback = onComplete;
-    this.isRunning = true;
+    store.setQueueRunning(true);
     console.log("▶️ Starting batch queue processing");
 
     // Start the processing loop
@@ -66,9 +77,9 @@ class BatchQueueManager {
    * Main processing loop
    */
   private async processQueue(): Promise<void> {
-    if (!this.isRunning) return;
-
     const store = useBatchStore.getState();
+
+    if (!store.isQueueRunning) return;
 
     // Check if paused
     if (store.isPaused) {
@@ -82,7 +93,7 @@ class BatchQueueManager {
 
     // Check if we're done
     if (queuedFiles.length === 0 && store.processingCount === 0) {
-      this.isRunning = false;
+      store.setQueueRunning(false);
       console.log("✅ Batch processing complete");
       if (this.completionCallback) {
         this.completionCallback();
@@ -90,13 +101,24 @@ class BatchQueueManager {
       return;
     }
 
-    // Try to assign work to available workers
-    if (store.canStartProcessing()) {
+    // Try to assign work to available workers (with lock to prevent concurrent assignments)
+    if (store.canStartProcessing() && !store.isAssigningFile) {
       const availableWorker = batchWorkerPool.getAvailableWorker();
 
       if (availableWorker && queuedFiles.length > 0) {
         const file = queuedFiles[0]; // Get first queued file
-        await this.assignFileToWorker(file, availableWorker);
+        console.log(
+          `📋 Assigning ${file.fileName} to ${availableWorker} (${queuedFiles.length} queued, ${store.processingCount} processing)`,
+        );
+
+        // Set lock
+        store.setIsAssigning(true);
+        try {
+          await this.assignFileToWorker(file, availableWorker);
+        } finally {
+          // Release lock
+          store.setIsAssigning(false);
+        }
       }
     }
 
@@ -137,7 +159,7 @@ class BatchQueueManager {
       );
 
       // Track file -> worker mapping
-      this.processingFiles.set(batchFile.id, workerId);
+      store.setProcessingFile(batchFile.id, workerId);
 
       console.log(
         `📤 Processing file ${batchFile.fileName} on ${workerId}`,
@@ -191,7 +213,9 @@ class BatchQueueManager {
         language: language,
         model: model,
       });
-      console.log(`💾 Stored audio buffer (${audioBuffer.length} samples) in Map for file ${batchFile.id}`);
+      console.log(
+        `💾 Stored audio buffer (${audioBuffer.length} samples) in Map for file ${batchFile.id}`,
+      );
     } catch (error) {
       console.error(`❌ Error processing audio file:`, error);
       this.handleFileError(batchFile.id, error as Error);
@@ -273,9 +297,20 @@ class BatchQueueManager {
     const fileId = batchWorkerPool.getCurrentFileId(workerId);
 
     if (!fileId) {
-      // It's OK to not have a file assigned during initialization
-      // Just log at debug level and ignore these messages
-      if (message.status !== "loading" && message.status !== "loaded") {
+      // It's OK to not have a file assigned during initialization or after completion
+      // Just ignore these messages silently (common statuses that are safe to ignore)
+      const ignoredStatuses = [
+        "loading",
+        "loaded",
+        "complete",
+        "progress",
+        "done",
+        "initiate",
+        "processing_progress",
+        "download",
+        "ready",
+      ];
+      if (!ignoredStatuses.includes(message.status)) {
         console.warn(
           `⚠️ Received message from ${workerId} but no file is assigned`,
           message.status,
@@ -292,7 +327,14 @@ class BatchQueueManager {
     }
 
     // Debug: Log only important messages (filter out spam from model loading)
-    const spamStatuses = ["progress", "processing_progress", "initiate", "download", "done", "ready"];
+    const spamStatuses = [
+      "progress",
+      "processing_progress",
+      "initiate",
+      "download",
+      "done",
+      "ready",
+    ];
     const shouldLogMessage = !spamStatuses.includes(message.status);
 
     if (shouldLogMessage) {
@@ -320,11 +362,15 @@ class BatchQueueManager {
         const audioData = this.audioBuffers.get(fileId);
 
         console.log(`🔍 Audio data exists in Map: ${!!audioData}`);
-        console.log(`🔍 Audio buffer length: ${audioData?.audio?.length || 0}`);
-        console.log(`🔍 Language: ${audioData?.language || 'not found'}`);
+        console.log(
+          `🔍 Audio buffer length: ${audioData?.audio?.length || 0}`,
+        );
+        console.log(`🔍 Language: ${audioData?.language || "not found"}`);
 
         if (audioData && audioData.audio) {
-          console.log(`🚀 Sending "run" message to worker with ${audioData.audio.length} audio samples`);
+          console.log(
+            `🚀 Sending "run" message to worker with ${audioData.audio.length} audio samples`,
+          );
           batchWorkerPool.postMessage(workerId, {
             type: "run",
             data: {
@@ -334,8 +380,13 @@ class BatchQueueManager {
           });
           console.log(`✅ "run" message sent to ${workerId}`);
         } else {
-          console.error(`❌ No audio buffer found in Map for ${file.fileName} (id: ${fileId})!`);
-          this.handleFileError(fileId, new Error('Audio buffer not found'));
+          console.error(
+            `❌ No audio buffer found in Map for ${file.fileName} (id: ${fileId})!`,
+          );
+          this.handleFileError(
+            fileId,
+            new Error("Audio buffer not found"),
+          );
         }
         break;
 
@@ -351,17 +402,20 @@ class BatchQueueManager {
 
           // Update estimated time remaining if available
           if (message.estimatedTimeRemaining !== undefined) {
-            store.updateFileEstimatedTime(fileId, message.estimatedTimeRemaining);
+            store.updateFileEstimatedTime(
+              fileId,
+              message.estimatedTimeRemaining,
+            );
           }
 
           // Only log every 10% to avoid spam
-          const lastLogged = this.lastLoggedProgress.get(fileId) || 0;
+          const lastLogged = store.getLastProgress(fileId);
           const progressRounded = Math.floor(progress / 10) * 10;
           if (progressRounded > lastLogged && progressRounded <= 100) {
             console.log(
               `📊 ${file.fileName}: ${progressRounded}% complete`,
             );
-            this.lastLoggedProgress.set(fileId, progressRounded);
+            store.updateLastProgress(fileId, progressRounded);
           }
         }
         break;
@@ -370,6 +424,13 @@ class BatchQueueManager {
         // Transcription complete
         if (message.result) {
           console.log(`✅ ${file.fileName}: Transcription complete`);
+          // Check if file is already completed (duplicate message)
+          if (file.status === "completed") {
+            console.log(
+              `⚠️ Ignoring duplicate complete message for ${file.fileName}`,
+            );
+            return;
+          }
           this.handleFileComplete(fileId, file, message.result);
         }
         break;
@@ -402,17 +463,21 @@ class BatchQueueManager {
       store.decrementProcessingCount();
 
       // Release worker
-      const workerId = this.processingFiles.get(fileId);
+      const workerId = store.getProcessingFileWorker(fileId);
       if (workerId) {
         batchWorkerPool.releaseWorker(workerId);
-        this.processingFiles.delete(fileId);
+        store.removeProcessingFile(fileId);
       }
 
       // Cleanup audio buffer from memory
       this.audioBuffers.delete(fileId);
-      this.lastLoggedProgress.delete(fileId);
 
-      console.log(`💾 ${file.fileName}: Saved as ${transcriptId}`);
+      console.log(
+        `💾 ${file.fileName}: Saved as ${transcriptId}, processingCount now: ${useBatchStore.getState().processingCount}`,
+      );
+
+      // Immediately check if we can process next file (don't wait for the timeout)
+      setTimeout(() => this.processQueue(), 100);
     } catch (error) {
       console.error(`❌ Error handling file completion:`, error);
       this.handleFileError(fileId, error as Error);
@@ -445,7 +510,8 @@ class BatchQueueManager {
         .size;
 
       const language = (file as any)._language || "en";
-      const model = (file as any)._model || "whisper-base";
+      const model =
+        (file as any)._model || "onnx-community/whisper-base_timestamped";
 
       // Create transcript object
       const transcript = {
@@ -522,15 +588,14 @@ class BatchQueueManager {
     }
 
     // Release worker
-    const workerId = this.processingFiles.get(fileId);
+    const workerId = store.getProcessingFileWorker(fileId);
     if (workerId) {
       batchWorkerPool.releaseWorker(workerId);
-      this.processingFiles.delete(fileId);
+      store.removeProcessingFile(fileId);
     }
 
     // Cleanup audio buffer from memory
     this.audioBuffers.delete(fileId);
-    this.lastLoggedProgress.delete(fileId);
   }
 
   /**
@@ -549,7 +614,7 @@ class BatchQueueManager {
     const store = useBatchStore.getState();
     store.resumeBatch();
 
-    if (!this.isRunning) {
+    if (!store.isQueueRunning) {
       this.start(this.completionCallback);
     }
 
@@ -560,16 +625,14 @@ class BatchQueueManager {
    * Cancel all processing
    */
   cancelAll(): void {
-    this.isRunning = false;
+    const store = useBatchStore.getState();
+    store.setQueueRunning(false);
 
     // Cancel all processing files
-    for (const [fileId, workerId] of this.processingFiles.entries()) {
+    for (const [fileId, workerId] of store.processingFiles.entries()) {
       batchWorkerPool.cancelWork(fileId);
     }
 
-    this.processingFiles.clear();
-
-    const store = useBatchStore.getState();
     store.clearAll();
 
     console.log("🚫 All batch processing cancelled");
@@ -587,7 +650,7 @@ class BatchQueueManager {
     if (file.status === "processing") {
       // Cancel worker
       batchWorkerPool.cancelWork(fileId);
-      this.processingFiles.delete(fileId);
+      store.removeProcessingFile(fileId);
       store.decrementProcessingCount();
     }
 
@@ -601,7 +664,10 @@ class BatchQueueManager {
    * Cleanup
    */
   terminate(): void {
-    this.isRunning = false;
+    const store = useBatchStore.getState();
+    store.setQueueRunning(false);
+    store.setQueueInitialized(false);
+    store.setIsAssigning(false);
 
     // Unsubscribe from workers
     for (const unsubscribe of this.workerSubscriptions.values()) {
@@ -612,7 +678,8 @@ class BatchQueueManager {
     // Terminate worker pool
     batchWorkerPool.terminateAll();
 
-    this.processingFiles.clear();
+    // Clear audio buffers
+    this.audioBuffers.clear();
 
     console.log("🗑️ BatchQueueManager terminated");
   }

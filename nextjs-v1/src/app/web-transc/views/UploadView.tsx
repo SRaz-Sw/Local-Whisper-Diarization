@@ -5,13 +5,14 @@
 
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouterStore } from "../store/useRouterStore";
 import { useWhisperStore } from "../store/useWhisperStore";
+import { useBatchStore } from "../store/useBatchStore";
 import { useWhisperWorker } from "../hooks/useWhisperWorker";
 import { useTranscripts } from "../hooks/useTranscripts";
 import MediaFileUpload from "../components/MediaFileUpload";
@@ -73,9 +74,14 @@ export default function UploadView() {
     getWithAudio,
   } = useTranscripts();
 
+  // Batch store
+  const { addFiles: addBatchFiles, files: batchFiles } = useBatchStore();
+
   // Local state
   const mediaInputRef = useRef<WhisperMediaInputRef>(null);
-  const [uploadMode, setUploadMode] = useState<'single' | 'batch'>('single');
+
+  // Compute batch mode from store (2+ files = batch mode)
+  const isBatchMode = batchFiles.length >= 2;
 
   // Worker integration
   const { postMessage } = useWhisperWorker(
@@ -150,6 +156,27 @@ export default function UploadView() {
     // Reset audio state
     setAudio(null);
   }, [setAudio]);
+
+  // Handle multiple files selection - switch to batch mode
+  const handleMultipleFilesSelected = useCallback(
+    (files: File[]) => {
+      console.log('📦 Multiple files selected:', files.length);
+      // Add files to batch store (batch mode computed automatically from files.length)
+      addBatchFiles(files);
+    },
+    [addBatchFiles],
+  );
+
+  // Cleanup batch manager when leaving batch mode
+  useEffect(() => {
+    // If we had batch files and now we don't, cleanup the manager
+    return () => {
+      if (batchFiles.length === 0) {
+        // Only terminate if there are no files (fully exited batch mode)
+        console.log('🗑️ No batch files, will cleanup manager on next mount if still empty');
+      }
+    };
+  }, [batchFiles.length]);
 
   // Handle load transcript from saved list
   const handleLoadTranscript = useCallback(
@@ -348,39 +375,11 @@ export default function UploadView() {
             </motion.p>
           </motion.div>
 
-          {/* Upload Mode Tabs */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex justify-center"
-          >
-            <div className="inline-flex rounded-lg bg-muted p-1">
-              <button
-                onClick={() => setUploadMode('single')}
-                className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
-                  uploadMode === 'single'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Single File
-              </button>
-              <button
-                onClick={() => setUploadMode('batch')}
-                className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
-                  uploadMode === 'batch'
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                Batch Upload
-              </button>
-            </div>
-          </motion.div>
-
-          {/* Conditional Content Based on Upload Mode */}
-          {uploadMode === 'single' ? (
+          {/* Conditional Content Based on Batch Detection */}
+          {isBatchMode ? (
+            /* Batch Upload Mode */
+            <BatchFileUpload />
+          ) : (
             <>
               {/* Audio player */}
               <div className="relative">
@@ -409,6 +408,7 @@ export default function UploadView() {
                   }}
                   onTimeUpdate={() => {}} // Not needed in upload view
                   onFileNameChange={(fileName) => setAudioFileName(fileName)}
+                  onMultipleFilesSelected={handleMultipleFilesSelected}
                 />
               </div>
 
@@ -510,9 +510,6 @@ export default function UploadView() {
                 </CardContent>
               </Card>
             </>
-          ) : (
-            /* Batch Upload Mode */
-            <BatchFileUpload />
           )}
 
           <motion.div

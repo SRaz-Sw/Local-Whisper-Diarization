@@ -14,6 +14,7 @@ import type {
   TranscriptChunk,
   SpeakerSegment,
 } from "@/lib/localStorage/schemas";
+import { toast } from "sonner";
 
 /**
  * Hook for managing transcripts
@@ -162,6 +163,9 @@ export function useTranscripts() {
         // Delete transcript
         await transcripts.remove(id);
 
+        // delete transcript from items
+        setItems(items.filter((item) => item.id !== id));
+        toast.success("Transcript deleted");
         // Reload list
         await load();
       } catch (err) {
@@ -330,7 +334,12 @@ export function useTranscripts() {
   const updateMetadata = useCallback(
     async (
       id: string,
-      metadata: Partial<Pick<SavedTranscript["metadata"], "conversationName" | "speakerNames">>,
+      metadata: Partial<
+        Pick<
+          SavedTranscript["metadata"],
+          "conversationName" | "speakerNames"
+        >
+      >,
     ): Promise<void> => {
       try {
         const existing = await transcripts.get(id);

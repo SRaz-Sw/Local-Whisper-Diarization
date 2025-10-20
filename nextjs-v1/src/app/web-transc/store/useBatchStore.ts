@@ -17,6 +17,7 @@ export interface BatchFile {
 }
 
 interface BatchState {
+  // ========== File Management ==========
   files: BatchFile[];
   processingCount: number;
   totalCompleted: number;
@@ -24,9 +25,27 @@ interface BatchState {
   totalCancelled: number;
   batchStatus: 'idle' | 'processing' | 'paused' | 'completed';
   isPaused: boolean;
+
+  // ========== Queue Manager State ==========
+  isQueueInitialized: boolean;
+  isQueueRunning: boolean;
+  isAssigningFile: boolean; // Lock for preventing concurrent assignments
+
+  // ========== Worker Pool State ==========
+  maxConcurrentFiles: number; // How many files can process at once
+  availableWorkerIds: string[]; // List of worker IDs that are idle
+
+  // ========== UI State ==========
+  isDragging: boolean;
+  isComponentInitialized: boolean;
+
+  // ========== Runtime Maps (not persisted) ==========
+  processingFiles: Map<string, string>; // fileId -> workerId
+  lastLoggedProgress: Map<string, number>; // fileId -> progress %
 }
 
 interface BatchActions {
+  // ========== File Management Actions ==========
   addFiles: (files: File[]) => void;
   removeFile: (fileId: string) => void;
   cancelFile: (fileId: string) => void;
@@ -49,6 +68,28 @@ interface BatchActions {
   getQueuedFiles: () => BatchFile[];
   getProcessingFiles: () => BatchFile[];
   canStartProcessing: () => boolean;
+
+  // ========== Queue Manager Actions ==========
+  setQueueInitialized: (value: boolean) => void;
+  setQueueRunning: (value: boolean) => void;
+  setIsAssigning: (value: boolean) => void;
+
+  // ========== Worker Pool Actions ==========
+  setMaxConcurrentFiles: (count: number) => void;
+  setAvailableWorkerIds: (ids: string[]) => void;
+  addAvailableWorker: (id: string) => void;
+  removeAvailableWorker: (id: string) => void;
+
+  // ========== UI Actions ==========
+  setIsDragging: (value: boolean) => void;
+  setComponentInitialized: (value: boolean) => void;
+
+  // ========== Runtime Data Actions ==========
+  setProcessingFile: (fileId: string, workerId: string) => void;
+  removeProcessingFile: (fileId: string) => void;
+  getProcessingFileWorker: (fileId: string) => string | undefined;
+  updateLastProgress: (fileId: string, progress: number) => void;
+  getLastProgress: (fileId: string) => number;
 }
 
 type BatchStore = BatchState & BatchActions;
@@ -95,7 +136,8 @@ const deserializeBatchFile = (serialized: any): BatchFile | null => {
 };
 
 export const useBatchStore = create<BatchStore>()((set, get) => ({
-  // Initial state
+  // ========== Initial State ==========
+  // File Management
   files: [],
   processingCount: 0,
   totalCompleted: 0,
@@ -103,6 +145,23 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
   totalCancelled: 0,
   batchStatus: 'idle',
   isPaused: false,
+
+  // Queue Manager State
+  isQueueInitialized: false,
+  isQueueRunning: false,
+  isAssigningFile: false,
+
+  // Worker Pool State
+  maxConcurrentFiles: 1, // Start with 1, can be increased
+  availableWorkerIds: [],
+
+  // UI State
+  isDragging: false,
+  isComponentInitialized: false,
+
+  // Runtime Maps
+  processingFiles: new Map(),
+  lastLoggedProgress: new Map(),
 
       // Actions
       addFiles: (newFiles: File[]) => {
@@ -256,6 +315,8 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
           totalCancelled: 0,
           batchStatus: 'idle',
           isPaused: false,
+          processingFiles: new Map(),
+          lastLoggedProgress: new Map(),
         });
       },
 
@@ -348,7 +409,7 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
 
       incrementProcessingCount: () => {
         set(state => ({
-          processingCount: Math.min(2, state.processingCount + 1),
+          processingCount: Math.min(state.maxConcurrentFiles, state.processingCount + 1),
         }));
       },
 
@@ -370,8 +431,87 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
         const state = get();
         return (
           !state.isPaused &&
-          state.processingCount < 2 &&
+          state.processingCount < state.maxConcurrentFiles &&
           state.getQueuedFiles().length > 0
         );
+      },
+
+      // ========== Queue Manager Actions ==========
+      setQueueInitialized: (value: boolean) => {
+        set({ isQueueInitialized: value });
+      },
+
+      setQueueRunning: (value: boolean) => {
+        set({ isQueueRunning: value });
+      },
+
+      setIsAssigning: (value: boolean) => {
+        set({ isAssigningFile: value });
+      },
+
+      // ========== Worker Pool Actions ==========
+      setMaxConcurrentFiles: (count: number) => {
+        set({ maxConcurrentFiles: Math.max(1, Math.min(count, 2)) }); // Cap between 1-2
+      },
+
+      setAvailableWorkerIds: (ids: string[]) => {
+        set({ availableWorkerIds: ids });
+      },
+
+      addAvailableWorker: (id: string) => {
+        set(state => {
+          if (!state.availableWorkerIds.includes(id)) {
+            return { availableWorkerIds: [...state.availableWorkerIds, id] };
+          }
+          return state;
+        });
+      },
+
+      removeAvailableWorker: (id: string) => {
+        set(state => ({
+          availableWorkerIds: state.availableWorkerIds.filter(wId => wId !== id),
+        }));
+      },
+
+      // ========== UI Actions ==========
+      setIsDragging: (value: boolean) => {
+        set({ isDragging: value });
+      },
+
+      setComponentInitialized: (value: boolean) => {
+        set({ isComponentInitialized: value });
+      },
+
+      // ========== Runtime Data Actions ==========
+      setProcessingFile: (fileId: string, workerId: string) => {
+        set(state => {
+          const newMap = new Map(state.processingFiles);
+          newMap.set(fileId, workerId);
+          return { processingFiles: newMap };
+        });
+      },
+
+      removeProcessingFile: (fileId: string) => {
+        set(state => {
+          const newMap = new Map(state.processingFiles);
+          newMap.delete(fileId);
+          return { processingFiles: newMap };
+        });
+      },
+
+      getProcessingFileWorker: (fileId: string) => {
+        return get().processingFiles.get(fileId);
+      },
+
+      updateLastProgress: (fileId: string, progress: number) => {
+        set(state => {
+          const newMap = new Map(state.lastLoggedProgress);
+          newMap.set(fileId, progress);
+          return { lastLoggedProgress: newMap };
+        });
+      },
+
+      getLastProgress: (fileId: string) => {
+        return get().lastLoggedProgress.get(fileId) || 0;
       },
 }));

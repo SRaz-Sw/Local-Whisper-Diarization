@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   DndContext,
   closestCenter,
@@ -10,30 +10,30 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { useBatchStore } from '../store/useBatchStore';
-import { useWhisperStore } from '../store/useWhisperStore';
-import { BatchFileItem } from './BatchFileItem';
-import { batchQueueManager } from '../services/BatchQueueManager';
-import { useTranscripts } from '../hooks/useTranscripts';
-import { ModelSelector } from './ModelSelector';
-import { AVAILABLE_MODELS } from '../config/modelConfig';
+} from "@dnd-kit/sortable";
+import { useBatchStore } from "../store/useBatchStore";
+import { useWhisperStore } from "../store/useWhisperStore";
+import { BatchFileItem } from "./BatchFileItem";
+import { batchQueueManager } from "../services/BatchQueueManager";
+import { useTranscripts } from "../hooks/useTranscripts";
+import { ModelSelector } from "./ModelSelector";
+import { AVAILABLE_MODELS } from "../config/modelConfig";
+import { useRouterStore } from "../store/useRouterStore";
 
 const MAX_BATCH_SIZE = 50;
-const ALLOWED_TYPES = ['audio/', 'video/'];
+const ALLOWED_TYPES = ["audio/", "video/"];
 
 export function BatchFileUpload() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
   const [duplicates, setDuplicates] = useState<string[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
 
-  const { transcripts: savedTranscripts, findDuplicateByFileName } = useTranscripts();
+  const { transcripts: savedTranscripts, findDuplicateByFileName } =
+    useTranscripts();
 
   const {
     files,
@@ -43,6 +43,8 @@ export function BatchFileUpload() {
     totalCancelled,
     batchStatus,
     isPaused,
+    isDragging,
+    isComponentInitialized,
     addFiles,
     removeFile,
     cancelFile,
@@ -52,6 +54,8 @@ export function BatchFileUpload() {
     clearCompleted,
     clearAll,
     reorderFiles,
+    setIsDragging,
+    setComponentInitialized,
   } = useBatchStore();
 
   // Get model and device from Whisper store (shared with single-file upload)
@@ -60,39 +64,50 @@ export function BatchFileUpload() {
   const setModel = useWhisperStore((state) => state.setModel);
 
   // Handle model change
-  const handleModelChange = useCallback((newModel: string) => {
-    console.log('🔄 Batch: Model changed to:', newModel);
-    setModel(newModel);
-  }, [setModel]);
+  const handleModelChange = useCallback(
+    (newModel: string) => {
+      console.log("🔄 Batch: Model changed to:", newModel);
+      setModel(newModel);
+    },
+    [setModel],
+  );
+
+  const navigate = useRouterStore((state) => state.navigate);
 
   // Debug: Log renders and state
-  console.log(`🎨 BatchFileUpload render - files: ${files.length}, processing: ${processingCount}, completed: ${totalCompleted}`);
+  console.log(
+    `🎨 BatchFileUpload render - files: ${files.length}, processing: ${processingCount}, completed: ${totalCompleted}`,
+  );
 
   // Initialize queue manager
   useEffect(() => {
     const init = async () => {
       const success = await batchQueueManager.initialize();
       if (success) {
-        setIsInitialized(true);
-        console.log('✅ Batch upload initialized');
+        setComponentInitialized(true);
+        console.log("✅ Batch upload initialized");
       } else {
-        console.error('❌ Failed to initialize batch upload');
+        console.error("❌ Failed to initialize batch upload");
       }
     };
 
     init();
 
+    // Don't terminate on unmount - let the manager persist
+    // Only terminate when truly needed (e.g., navigating away from batch mode)
     return () => {
-      // Cleanup on unmount
-      batchQueueManager.terminate();
+      // Cleanup is handled when exiting batch mode entirely
+      console.log(
+        "📤 BatchFileUpload unmounting (not terminating manager)",
+      );
     };
-  }, []);
+  }, [setComponentInitialized]);
 
   // Start processing when files are added
   useEffect(() => {
-    if (files.length > 0 && !isPaused && batchStatus !== 'completed') {
+    if (files.length > 0 && !isPaused && batchStatus !== "completed") {
       batchQueueManager.start(() => {
-        console.log('✅ Batch processing completed!');
+        console.log("✅ Batch processing completed!");
         // Optional: Show notification
       });
     }
@@ -103,43 +118,62 @@ export function BatchFileUpload() {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   // Handle file selection
   const handleFileSelect = useCallback(
     (selectedFiles: FileList | null) => {
-      console.log('📥 handleFileSelect called with:', selectedFiles?.length || 0, 'files');
+      console.log(
+        "📥 handleFileSelect called with:",
+        selectedFiles?.length || 0,
+        "files",
+      );
 
       if (!selectedFiles || selectedFiles.length === 0) {
-        console.log('❌ No files selected, returning early');
+        console.log("❌ No files selected, returning early");
         return;
       }
 
       const fileArray = Array.from(selectedFiles);
-      console.log('📋 File array created:', fileArray.map(f => `${f.name} (${f.type}, ${f.size} bytes)`));
+      console.log(
+        "📋 File array created:",
+        fileArray.map((f) => `${f.name} (${f.type}, ${f.size} bytes)`),
+      );
 
       // Check max batch size
       if (files.length + fileArray.length > MAX_BATCH_SIZE) {
-        console.warn(`⚠️ Exceeded max batch size: ${files.length} + ${fileArray.length} > ${MAX_BATCH_SIZE}`);
-        alert(`Maximum batch size is ${MAX_BATCH_SIZE} files. Current: ${files.length}`);
+        console.warn(
+          `⚠️ Exceeded max batch size: ${files.length} + ${fileArray.length} > ${MAX_BATCH_SIZE}`,
+        );
+        alert(
+          `Maximum batch size is ${MAX_BATCH_SIZE} files. Current: ${files.length}`,
+        );
         return;
       }
 
       // Validate file types
       const validFiles = fileArray.filter((file) => {
-        const isValid = ALLOWED_TYPES.some((type) => file.type.startsWith(type));
+        const isValid = ALLOWED_TYPES.some((type) =>
+          file.type.startsWith(type),
+        );
         if (!isValid) {
-          console.warn(`⚠️ Skipping invalid file type: ${file.name} (${file.type})`);
+          console.warn(
+            `⚠️ Skipping invalid file type: ${file.name} (${file.type})`,
+          );
         }
         return isValid;
       });
 
-      console.log('✅ Valid files after type check:', validFiles.length, validFiles.map(f => f.name));
+      console.log(
+        "✅ Valid files after type check:",
+        validFiles.length,
+        validFiles.map((f) => f.name),
+      );
 
       if (validFiles.length === 0) {
-        console.warn('❌ No valid audio/video files after filtering');
-        alert('No valid audio/video files selected.');
+        console.warn("❌ No valid audio/video files after filtering");
+        alert("No valid audio/video files selected.");
         return;
       }
 
@@ -153,27 +187,27 @@ export function BatchFileUpload() {
       });
 
       if (foundDuplicates.length > 0) {
-        console.log('⚠️ Found duplicates:', foundDuplicates);
+        console.log("⚠️ Found duplicates:", foundDuplicates);
         const proceed = window.confirm(
-          `Found ${foundDuplicates.length} duplicate file(s):\n${foundDuplicates.slice(0, 5).join('\n')}${foundDuplicates.length > 5 ? '\n...' : ''}\n\nDo you want to process them anyway?`
+          `Found ${foundDuplicates.length} duplicate file(s):\n${foundDuplicates.slice(0, 5).join("\n")}${foundDuplicates.length > 5 ? "\n..." : ""}\n\nDo you want to process them anyway?`,
         );
         if (!proceed) {
-          console.log('❌ User cancelled due to duplicates');
+          console.log("❌ User cancelled due to duplicates");
           return;
         }
       }
 
       // Add files to batch
-      console.log('➕ Calling addFiles with', validFiles.length, 'files');
+      console.log("➕ Calling addFiles with", validFiles.length, "files");
       addFiles(validFiles);
-      console.log('✅ addFiles called successfully');
+      console.log("✅ addFiles called successfully");
 
       // Reset file input
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     },
-    [files.length, findDuplicateByFileName, addFiles]
+    [files.length, findDuplicateByFileName, addFiles],
   );
 
   // Drag and drop handlers
@@ -191,16 +225,16 @@ export function BatchFileUpload() {
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
-      console.log('🎯 handleDrop triggered');
+      console.log("🎯 handleDrop triggered");
       e.preventDefault();
       e.stopPropagation();
       setIsDragging(false);
 
       const droppedFiles = e.dataTransfer.files;
-      console.log('📦 Dropped files:', droppedFiles.length);
+      console.log("📦 Dropped files:", droppedFiles.length);
       handleFileSelect(droppedFiles);
     },
-    [handleFileSelect]
+    [handleFileSelect],
   );
 
   // Handle drag end for reordering
@@ -224,11 +258,11 @@ export function BatchFileUpload() {
 
     let totalProgress = 0;
     files.forEach((file) => {
-      if (file.status === 'completed') {
+      if (file.status === "completed") {
         totalProgress += 100;
-      } else if (file.status === 'processing') {
+      } else if (file.status === "processing") {
         totalProgress += file.progress || 0;
-      } else if (file.status === 'error' || file.status === 'cancelled') {
+      } else if (file.status === "error" || file.status === "cancelled") {
         totalProgress += 100; // Count as complete for progress calculation
       }
       // queued files contribute 0
@@ -242,17 +276,19 @@ export function BatchFileUpload() {
   // Calculate estimated time remaining for batch
   const calculateEstimatedTime = () => {
     // Get current processing file's estimated time
-    const processingFile = files.find(f => f.status === 'processing');
+    const processingFile = files.find((f) => f.status === "processing");
     if (!processingFile || !processingFile.estimatedTimeRemaining) {
       return null;
     }
 
     // Add time for queued files (rough estimate based on average)
-    const queuedCount = files.filter(f => f.status === 'queued').length;
+    const queuedCount = files.filter((f) => f.status === "queued").length;
 
     // Rough estimate: assume each queued file takes as long as the current one
     // This is a simplification - in reality we'd need average duration data
-    const estimatedPerFile = processingFile.estimatedTimeRemaining * (100 / Math.max(processingFile.progress, 1));
+    const estimatedPerFile =
+      processingFile.estimatedTimeRemaining *
+      (100 / Math.max(processingFile.progress, 1));
     const queuedTime = queuedCount * estimatedPerFile;
 
     return processingFile.estimatedTimeRemaining + queuedTime;
@@ -270,33 +306,41 @@ export function BatchFileUpload() {
     return `${mins}m ${secs}s`;
   };
 
-  const queuedFiles = files.filter((f) => f.status === 'queued');
-  const processingFiles = files.filter((f) => f.status === 'processing');
-  const completedFiles = files.filter((f) => f.status === 'completed');
-  const errorFiles = files.filter((f) => f.status === 'error');
-  const cancelledFiles = files.filter((f) => f.status === 'cancelled');
+  const queuedFiles = files.filter((f) => f.status === "queued");
+  const processingFiles = files.filter((f) => f.status === "processing");
+  const completedFiles = files.filter((f) => f.status === "completed");
+  const errorFiles = files.filter((f) => f.status === "error");
+  const cancelledFiles = files.filter((f) => f.status === "cancelled");
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6">
+    <div className="mx-auto w-full max-w-4xl p-6">
       {/* Model Selector - Always visible at top */}
-      <div className="mb-6 flex items-center justify-between bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div className="border-accent bg-background mb-6 flex items-center justify-between rounded-lg border p-4 shadow-sm">
         <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-1">Model Selection</h3>
-          <p className="text-xs text-gray-500">
+          <h3 className="text-popover-foreground mb-1 text-sm font-medium">
+            Model Selection
+          </h3>
+          <p className="text-muted-foreground text-xs">
             Choose model for batch processing (affects all files)
           </p>
         </div>
         <ModelSelector
-          disabled={processingCount > 0 || files.some(f => f.status === 'processing')}
+          disabled={
+            processingCount > 0 ||
+            files.some((f) => f.status === "processing")
+          }
           onModelChange={handleModelChange}
         />
       </div>
 
       {/* Current Model Info */}
       {model && (
-        <div className="mb-4 text-sm text-gray-600 text-center">
-          Using <span className="font-semibold">{AVAILABLE_MODELS[model]?.name || model}</span> on{' '}
-          <span className="font-semibold uppercase">{device}</span>
+        <div className="text-muted-foreground mb-4 text-center text-sm">
+          Using{" "}
+          <span className="font-semibold">
+            {AVAILABLE_MODELS[model]?.name || model}
+          </span>{" "}
+          on <span className="font-semibold uppercase">{device}</span>
         </div>
       )}
 
@@ -305,10 +349,10 @@ export function BatchFileUpload() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`border-2 border-dashed rounded-lg p-12 text-center transition-all ${
+          className={`rounded-lg border-2 border-dashed p-12 text-center transition-all ${
             isDragging
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 bg-gray-50 hover:border-gray-400'
+              ? "border-primary bg-primary/10"
+              : "border-muted bg-muted/10 hover:border-muted/20"
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -324,14 +368,14 @@ export function BatchFileUpload() {
             id="batch-file-input"
           />
           <label htmlFor="batch-file-input" className="cursor-pointer">
-            <div className="text-6xl mb-4">📁</div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+            <div className="mb-4 text-6xl">📁</div>
+            <h3 className="text-popover-foreground mb-2 text-xl font-semibold">
               Drop files here or click to browse
             </h3>
             <p className="text-gray-500">
               Upload up to {MAX_BATCH_SIZE} audio or video files
             </p>
-            <p className="text-sm text-gray-400 mt-2">
+            <p className="mt-2 text-sm text-gray-400">
               Supports MP3, WAV, M4A, MP4, and more
             </p>
           </label>
@@ -343,16 +387,16 @@ export function BatchFileUpload() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="bg-white rounded-lg shadow-sm p-6 mb-6"
+          className="bg-background mb-6 rounded-lg p-6 shadow-sm"
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
-                Batch: {totalFiles} file{totalFiles !== 1 ? 's' : ''}
+                Batch: {totalFiles} file{totalFiles !== 1 ? "s" : ""}
               </h3>
               <p className="text-sm text-gray-600">
-                {totalCompleted} completed • {processingCount} processing • {queuedFiles.length}{' '}
-                queued
+                {totalCompleted} completed • {processingCount} processing •{" "}
+                {queuedFiles.length} queued
                 {totalFailed > 0 && ` • ${totalFailed} failed`}
                 {totalCancelled > 0 && ` • ${totalCancelled} cancelled`}
               </p>
@@ -366,7 +410,7 @@ export function BatchFileUpload() {
                       fileInputRef.current.click();
                     }
                   }}
-                  className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                  className="bg-secondary text-popover-foreground hover:bg-accent rounded px-4 py-2 text-sm transition-colors"
                   disabled={files.length >= MAX_BATCH_SIZE}
                 >
                   Add More
@@ -375,33 +419,39 @@ export function BatchFileUpload() {
               {isPaused ? (
                 <button
                   onClick={resumeBatch}
-                  className="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                  className="text-background bg-sucess/80 hover:bg-sucess rounded px-4 py-2 text-sm transition-colors"
                 >
                   Resume
                 </button>
               ) : (
                 <button
                   onClick={pauseBatch}
-                  className="px-4 py-2 text-sm bg-yellow-600 text-white rounded hover:bg-yellow-700 transition-colors"
-                  disabled={processingCount === 0 && queuedFiles.length === 0}
+                  className="text-background bg-warning/80 hover:bg-warning rounded px-4 py-2 text-sm transition-colors"
+                  disabled={
+                    processingCount === 0 && queuedFiles.length === 0
+                  }
                 >
                   Pause
                 </button>
               )}
               <button
                 onClick={clearCompleted}
-                className="px-4 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                className="hover:bg-popover-fotext-popover-foreground text-background bg-muted-foreground rounded px-4 py-2 text-sm transition-colors"
                 disabled={completedFiles.length === 0}
               >
                 Clear Completed
               </button>
               <button
                 onClick={() => {
-                  if (window.confirm('Are you sure you want to cancel all and clear the queue?')) {
+                  if (
+                    window.confirm(
+                      "Are you sure you want to cancel all and clear the queue?",
+                    )
+                  ) {
                     batchQueueManager.cancelAll();
                   }
                 }}
-                className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                className="text-background bg-destructive/80 hover:bg-destructive rounded px-4 py-2 text-sm transition-colors"
               >
                 Cancel All
               </button>
@@ -411,19 +461,24 @@ export function BatchFileUpload() {
           {/* Progress Bar */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-gray-700">Overall Progress</span>
+              <span className="text-popover-foreground font-medium">
+                Overall Progress
+              </span>
               <div className="flex items-center gap-2">
-                {estimatedTimeRemaining !== null && estimatedTimeRemaining > 0 && (
-                  <span className="text-xs text-gray-500">
-                    ~{formatTime(estimatedTimeRemaining)} remaining
-                  </span>
-                )}
-                <span className="font-semibold text-blue-600">{overallProgress}%</span>
+                {estimatedTimeRemaining !== null &&
+                  estimatedTimeRemaining > 0 && (
+                    <span className="text-xs text-gray-500">
+                      ~{formatTime(estimatedTimeRemaining)} remaining
+                    </span>
+                  )}
+                <span className="text-primary font-semibold">
+                  {overallProgress}%
+                </span>
               </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div className="bg-accent h-3 w-full overflow-hidden rounded-full">
               <motion.div
-                className="bg-gradient-to-r from-blue-600 to-blue-500 h-full rounded-full transition-all"
+                className="from-primary to-primary/80 h-full rounded-full bg-gradient-to-r transition-all"
                 animate={{ width: `${overallProgress}%` }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
               />
@@ -440,7 +495,10 @@ export function BatchFileUpload() {
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
           >
-            <SortableContext items={files.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+            <SortableContext
+              items={files.map((f) => f.id)}
+              strategy={verticalListSortingStrategy}
+            >
               <AnimatePresence>
                 {files.map((file) => (
                   <BatchFileItem
@@ -452,8 +510,7 @@ export function BatchFileUpload() {
                     onRetry={(fileId) => retryFile(fileId)}
                     onRemove={(fileId) => removeFile(fileId)}
                     onViewTranscript={(transcriptId) => {
-                      // TODO: Navigate to transcript view
-                      console.log('View transcript:', transcriptId);
+                      navigate("transcript", { id: transcriptId });
                     }}
                   />
                 ))}
@@ -474,8 +531,10 @@ export function BatchFileUpload() {
       />
 
       {/* Status Messages */}
-      {!isInitialized && (
-        <div className="text-center text-gray-500 mt-4">Initializing batch upload...</div>
+      {!isComponentInitialized && (
+        <div className="mt-4 text-center text-gray-500">
+          Initializing batch upload...
+        </div>
       )}
     </div>
   );

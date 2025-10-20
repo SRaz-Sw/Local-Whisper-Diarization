@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import type { BatchFile } from '../store/useBatchStore';
+import React from "react";
+import { motion } from "framer-motion";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { BatchFile } from "../store/useBatchStore";
 
 interface BatchFileItemProps {
   file: BatchFile;
@@ -30,7 +30,7 @@ export function BatchFileItem({
     isDragging,
   } = useSortable({
     id: file.id,
-    disabled: file.status !== 'queued', // Only allow dragging queued files
+    disabled: file.status !== "queued", // Only allow dragging queued files
   });
 
   const style = {
@@ -49,40 +49,40 @@ export function BatchFileItem({
   // Get status icon and color
   const getStatusDisplay = () => {
     switch (file.status) {
-      case 'queued':
+      case "queued":
         return {
-          icon: '⏳',
-          text: 'Queued',
-          color: 'text-gray-400',
-          bgColor: 'bg-gray-100',
+          icon: "⏳",
+          text: "Queued",
+          color: "text-accent",
+          bgColor: "bg-accent/30",
         };
-      case 'processing':
+      case "processing":
         return {
-          icon: '⚙️',
-          text: 'Processing',
-          color: 'text-blue-600',
-          bgColor: 'bg-blue-50',
+          icon: "⚙️",
+          text: "Processing",
+          color: "text-primary",
+          bgColor: "bg-primary/5",
         };
-      case 'completed':
+      case "completed":
         return {
-          icon: '✓',
-          text: 'Completed',
-          color: 'text-green-600',
-          bgColor: 'bg-green-50',
+          icon: "✓",
+          text: "Completed",
+          color: "text-success",
+          bgColor: "bg-success/5",
         };
-      case 'error':
+      case "error":
         return {
-          icon: '✗',
-          text: 'Error',
-          color: 'text-red-600',
-          bgColor: 'bg-red-50',
+          icon: "✗",
+          text: "Error",
+          color: "text-destructive",
+          bgColor: "bg-destructive/5",
         };
-      case 'cancelled':
+      case "cancelled":
         return {
-          icon: '⊘',
-          text: 'Cancelled',
-          color: 'text-gray-500',
-          bgColor: 'bg-gray-100',
+          icon: "⊘",
+          text: "Cancelled",
+          color: "text-muted-foreground",
+          bgColor: "bg-muted/5",
         };
     }
   };
@@ -95,18 +95,18 @@ export function BatchFileItem({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, x: -100 }}
-        className={`relative rounded-lg border ${statusDisplay.bgColor} p-4 mb-2 transition-all`}
+        className={`relative rounded-lg border ${statusDisplay.bgColor} mb-2 p-4 transition-all`}
       >
         {/* Drag Handle - Only show for queued files */}
-        {file.status === 'queued' && (
+        {file.status === "queued" && (
           <div
             {...attributes}
             {...listeners}
-            className="absolute left-2 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600"
+            className="text-accent hover:text-muted-foreground absolute top-1/2 left-2 -translate-y-1/2 cursor-grab active:cursor-grabbing"
             title="Drag to reorder"
           >
             <svg
-              className="w-5 h-5"
+              className="h-5 w-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -121,20 +121,23 @@ export function BatchFileItem({
           </div>
         )}
 
-        <div className={`${file.status === 'queued' ? 'ml-8' : ''}`}>
+        <div className={`${file.status === "queued" ? "ml-8" : ""}`}>
           {/* File Info */}
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex-1 min-w-0">
+          <div className="mb-2 flex items-start justify-between">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-lg">{statusDisplay.icon}</span>
-                <h4 className="font-medium text-gray-900 truncate" title={file.fileName}>
+                <h4
+                  className="text-foreground truncate font-medium"
+                  title={file.fileName}
+                >
                   {file.fileName}
                 </h4>
               </div>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-muted-foreground mt-1 text-sm">
                 {formatFileSize(file.fileSize)}
                 {file.retryCount > 0 && (
-                  <span className="ml-2 text-orange-600">
+                  <span className="text-warning ml-2">
                     (Retry {file.retryCount}/3)
                   </span>
                 )}
@@ -142,21 +145,21 @@ export function BatchFileItem({
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-2 ml-4">
-              {file.status === 'processing' && (
+            <div className="ml-4 flex items-center gap-2">
+              {file.status === "processing" && (
                 <button
                   onClick={() => onCancel(file.id)}
-                  className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded transition-colors"
+                  className="text-background bg-destructive hover:bg-destructive/80 rounded px-3 py-1 text-sm transition-colors"
                   title="Cancel"
                 >
                   Cancel
                 </button>
               )}
 
-              {file.status === 'error' && (
+              {file.status === "error" && (
                 <button
                   onClick={() => onRetry(file.id)}
-                  className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                  className="text-primary hover:bg-primary/5 rounded px-3 py-1 text-sm transition-colors"
                   title="Retry"
                   disabled={file.retryCount >= 3}
                 >
@@ -164,23 +167,25 @@ export function BatchFileItem({
                 </button>
               )}
 
-              {file.status === 'completed' && file.transcriptId && onViewTranscript && (
-                <button
-                  onClick={() => onViewTranscript(file.transcriptId!)}
-                  className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                  title="View Transcript"
-                >
-                  View
-                </button>
-              )}
+              {file.status === "completed" &&
+                file.transcriptId &&
+                onViewTranscript && (
+                  <button
+                    onClick={() => onViewTranscript(file.transcriptId!)}
+                    className="text-primary hover:bg-primary/5 rounded px-3 py-1 text-sm transition-colors"
+                    title="View Transcript"
+                  >
+                    View
+                  </button>
+                )}
 
-              {(file.status === 'queued' ||
-                file.status === 'cancelled' ||
-                file.status === 'error' ||
-                file.status === 'completed') && (
+              {(file.status === "queued" ||
+                file.status === "cancelled" ||
+                file.status === "error" ||
+                file.status === "completed") && (
                 <button
                   onClick={() => onRemove(file.id)}
-                  className="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                  className="text-muted-foreground hover:bg-card rounded px-3 py-1 text-sm transition-colors"
                   title="Remove from list"
                 >
                   Remove
@@ -190,25 +195,30 @@ export function BatchFileItem({
           </div>
 
           {/* Progress Bar - Show for processing files */}
-          {file.status === 'processing' && (
+          {file.status === "processing" && (
             <div className="space-y-1">
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="bg-popover h-2 w-full overflow-hidden rounded-full">
                 <motion.div
-                  className="bg-blue-600 h-full rounded-full"
+                  className="bg-primary h-full rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${file.progress}%` }}
                   transition={{ duration: 0.3 }}
                 />
               </div>
-              <p className="text-xs text-gray-600">{file.progress.toFixed(1)}%</p>
+              <p className="text-muted-foreground text-xs">
+                {file.progress.toFixed(1)}%
+              </p>
             </div>
           )}
 
           {/* Status Text */}
           <div className={`text-sm ${statusDisplay.color} mt-2`}>
             {statusDisplay.text}
-            {file.error && file.status === 'error' && (
-              <p className="text-xs text-red-600 mt-1" title={file.error}>
+            {file.error && file.status === "error" && (
+              <p
+                className="text-destructive mt-1 text-xs"
+                title={file.error}
+              >
                 {file.error.length > 100
                   ? `${file.error.substring(0, 100)}...`
                   : file.error}

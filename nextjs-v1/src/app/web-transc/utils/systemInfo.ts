@@ -153,38 +153,43 @@ export function getRecommendedModel(
   capabilities: SystemCapabilities,
 ): string[] {
   const recommendations: string[] = [];
-
-  if (capabilities.hasWebGPU && capabilities.gpuMemoryMB) {
-    if (capabilities.gpuMemoryMB >= 8192) {
-      recommendations.push(
-        "onnx-community/whisper-large-v3_timestamped",
-        "onnx-community/whisper-medium_timestamped",
-      );
-    } else if (capabilities.gpuMemoryMB >= 4096) {
-      recommendations.push(
-        "onnx-community/whisper-medium_timestamped",
-        "onnx-community/whisper-small_timestamped",
-      );
-    } else {
-      recommendations.push(
-        "onnx-community/whisper-small_timestamped",
-        "onnx-community/whisper-base_timestamped",
-      );
-    }
-  } else {
-    // WASM mode - recommend smaller models
-    if (capabilities.estimatedRAMGB && capabilities.estimatedRAMGB >= 16) {
-      recommendations.push(
-        "onnx-community/whisper-small_timestamped",
-        "onnx-community/whisper-base_timestamped",
-      );
-    } else {
-      recommendations.push(
-        "onnx-community/whisper-base_timestamped",
-        "onnx-community/whisper-tiny_timestamped",
-      );
-    }
-  }
+  // TODO: Integrate higher-end models. (currently simplifying by picking 2 that works well)
+  // DO NOT DELETE THIS PART! We'll later do a sprint to fix it.
+  // if (capabilities.hasWebGPU && capabilities.gpuMemoryMB) {
+  //   if (capabilities.gpuMemoryMB >= 8192) {
+  //     recommendations.push(
+  //       "onnx-community/whisper-large-v3_timestamped",
+  //       "onnx-community/whisper-medium_timestamped",
+  //     );
+  //   } else if (capabilities.gpuMemoryMB >= 4096) {
+  //     recommendations.push(
+  //       "onnx-community/whisper-medium_timestamped",
+  //       "onnx-community/whisper-small_timestamped",
+  //     );
+  //   } else {
+  //     recommendations.push(
+  //       "onnx-community/whisper-small_timestamped",
+  //       "onnx-community/whisper-base_timestamped",
+  //     );
+  //   }
+  // } else {
+  //   // WASM mode - recommend smaller models
+  //   if (capabilities.estimatedRAMGB && capabilities.estimatedRAMGB >= 16) {
+  //     recommendations.push(
+  //       "onnx-community/whisper-small_timestamped",
+  //       "onnx-community/whisper-base_timestamped",
+  //     );
+  //   } else {
+  //     recommendations.push(
+  //       "onnx-community/whisper-base_timestamped",
+  //       "onnx-community/whisper-tiny_timestamped",
+  //     );
+  //   }
+  // }
+  recommendations.push(
+    "onnx-community/whisper-small_timestamped",
+    "onnx-community/whisper-base_timestampe",
+  );
 
   return recommendations;
 }
