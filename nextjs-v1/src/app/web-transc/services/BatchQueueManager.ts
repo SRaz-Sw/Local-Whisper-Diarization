@@ -455,10 +455,15 @@ class BatchQueueManager {
     try {
       const store = useBatchStore.getState();
 
+      // Update file status FIRST to prevent race condition with duplicate messages
+      // This acts as a lock - if another "complete" message arrives, it will be
+      // caught by the status check in handleWorkerMessage (line 428)
+      store.setFileStatus(fileId, "completed", undefined, undefined);
+
       // Save transcript to storage
       const transcriptId = await this.saveTranscript(file, result);
 
-      // Update file status
+      // Update with transcript ID
       store.setFileStatus(fileId, "completed", undefined, transcriptId);
       store.decrementProcessingCount();
 
