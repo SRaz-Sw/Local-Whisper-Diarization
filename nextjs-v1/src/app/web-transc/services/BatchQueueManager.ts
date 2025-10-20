@@ -540,6 +540,9 @@ class BatchQueueManager {
       // Save (Zod validation happens automatically)
       await transcripts.set(id, transcript);
 
+      // Notify other components that transcripts have changed
+      window.dispatchEvent(new Event("transcripts-changed"));
+
       return id;
     } catch (error) {
       console.error("Failed to save transcript:", error);

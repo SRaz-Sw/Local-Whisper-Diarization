@@ -78,6 +78,16 @@ export function useTranscripts() {
     load();
   }, [load]);
 
+  // Listen for transcript changes (when transcripts are added/removed elsewhere)
+  useEffect(() => {
+    const handleTranscriptChange = () => {
+      load();
+    };
+
+    window.addEventListener("transcripts-changed", handleTranscriptChange);
+    return () => window.removeEventListener("transcripts-changed", handleTranscriptChange);
+  }, [load]);
+
   /**
    * Save a new transcript
    *
@@ -134,6 +144,9 @@ export function useTranscripts() {
         // Reload list to reflect changes
         await load();
 
+        // Notify other components that transcripts have changed
+        window.dispatchEvent(new Event("transcripts-changed"));
+
         return id;
       } catch (err) {
         const error = err as Error;
@@ -168,6 +181,9 @@ export function useTranscripts() {
         toast.success("Transcript deleted");
         // Reload list
         await load();
+
+        // Notify other components that transcripts have changed
+        window.dispatchEvent(new Event("transcripts-changed"));
       } catch (err) {
         const error = err as Error;
         console.error("Failed to delete transcript:", error);
@@ -224,6 +240,9 @@ export function useTranscripts() {
 
         await transcripts.set(id, updated);
         await load();
+
+        // Notify other components that transcripts have changed
+        window.dispatchEvent(new Event("transcripts-changed"));
       } catch (err) {
         const error = err as Error;
         console.error("Failed to update transcript:", error);
@@ -358,6 +377,9 @@ export function useTranscripts() {
 
         await transcripts.set(id, updated);
         await load();
+
+        // Notify other components that transcripts have changed
+        window.dispatchEvent(new Event("transcripts-changed"));
       } catch (err) {
         const error = err as Error;
         console.error("Failed to update metadata:", error);
