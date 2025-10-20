@@ -182,32 +182,20 @@ class BatchQueueManager {
   ): Promise<void> {
     try {
       console.log(`🎵 Starting audio decode for ${batchFile.fileName}`);
+
+      // Get current language and model from Whisper store
+      const whisperState = useWhisperStore.getState();
+      const language = whisperState.audio.language || "en";
+      const model = whisperState.model.model || DEFAULT_MODEL;
+      const device = whisperState.model.device || "wasm";
+
       // Read and decode audio file
       const audioBuffer = await this.readAndDecodeAudio(batchFile.file);
       console.log(`✅ Audio decoded: ${audioBuffer.length} samples`);
 
-      // Get current language and model from Whisper store
-      // Use the same settings as the single-file upload for consistency
-      const whisperState = useWhisperStore.getState();
-      const language = whisperState.audio.language || "en";
-      const model = whisperState.model.model || DEFAULT_MODEL;
-      const device = whisperState.model.device || "wasm"; // wasm is safer for batch (uses less GPU memory)
-
-      console.log(
-        `📤 Processing ${batchFile.fileName} with model: ${model}, device: ${device}, language: ${language}`,
-      );
-
-      // Load model first
-      batchWorkerPool.postMessage(workerId, {
-        type: "load",
-        data: {
-          device: device,
-          model: model,
-        },
-      });
-
-      // After model loads, we'll start transcription (handled in message handler)
-      // Store audio buffer in Map (can't store on file object due to Zustand immutability)
+      // CRITICAL: Store audio buffer in Map IMMEDIATELY after decode, BEFORE any postMessage
+      // This MUST happen synchronously before the "load" message to prevent race condition
+      // (worker may respond with "loaded" immediately if model is already cached)
       this.audioBuffers.set(batchFile.id, {
         audio: audioBuffer,
         language: language,
@@ -216,6 +204,19 @@ class BatchQueueManager {
       console.log(
         `💾 Stored audio buffer (${audioBuffer.length} samples) in Map for file ${batchFile.id}`,
       );
+
+      console.log(
+        `📤 Processing ${batchFile.fileName} with model: ${model}, device: ${device}, language: ${language}`,
+      );
+
+      // Now safe to load model - buffer is already in Map if worker responds immediately
+      batchWorkerPool.postMessage(workerId, {
+        type: "load",
+        data: {
+          device: device,
+          model: model,
+        },
+      });
     } catch (error) {
       console.error(`❌ Error processing audio file:`, error);
       this.handleFileError(batchFile.id, error as Error);
@@ -334,7 +335,9 @@ class BatchQueueManager {
       "download",
       "done",
       "ready",
+      "transcribing",
     ];
+
     const shouldLogMessage = !spamStatuses.includes(message.status);
 
     if (shouldLogMessage) {

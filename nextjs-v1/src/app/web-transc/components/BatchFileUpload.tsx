@@ -281,15 +281,35 @@ export function BatchFileUpload() {
       return null;
     }
 
-    // Add time for queued files (rough estimate based on average)
-    const queuedCount = files.filter((f) => f.status === "queued").length;
+    // Calculate processing rate (seconds of audio processed per second of real time)
+    // If file is 60s long and we're at 50% progress after 30s of real time, rate = 1.0
+    const processedDuration = processingFile.audioDuration
+      ? processingFile.audioDuration * (processingFile.progress / 100)
+      : null;
 
-    // Rough estimate: assume each queued file takes as long as the current one
-    // This is a simplification - in reality we'd need average duration data
-    const estimatedPerFile =
+    if (!processedDuration || processedDuration === 0) {
+      return processingFile.estimatedTimeRemaining;
+    }
+
+    // Time elapsed = total duration * progress / 100, divided by processing rate
+    // But we already have estimatedTimeRemaining from worker, so we can calculate rate:
+    // rate = processedDuration / (total_time - remaining_time)
+    const elapsedTime =
+      (processingFile.audioDuration || 0) -
       processingFile.estimatedTimeRemaining *
-      (100 / Math.max(processingFile.progress, 1));
-    const queuedTime = queuedCount * estimatedPerFile;
+        (processingFile.progress / 100);
+    const processingRate =
+      elapsedTime > 0 ? processedDuration / elapsedTime : 1.0;
+
+    // Add time for queued files based on their actual durations
+    const queuedFiles = files.filter((f) => f.status === "queued");
+    const queuedTime = queuedFiles.reduce((total, file) => {
+      if (file.audioDuration && processingRate > 0) {
+        // Estimate time = audio duration / processing rate
+        return total + file.audioDuration / processingRate;
+      }
+      return total;
+    }, 0);
 
     return processingFile.estimatedTimeRemaining + queuedTime;
   };
@@ -419,7 +439,7 @@ export function BatchFileUpload() {
               {isPaused ? (
                 <button
                   onClick={resumeBatch}
-                  className="text-background bg-sucess/80 hover:bg-sucess rounded px-4 py-2 text-sm transition-colors"
+                  className="text-background bg-success/80 hover:bg-sucess rounded px-4 py-2 text-sm transition-colors"
                 >
                   Resume
                 </button>

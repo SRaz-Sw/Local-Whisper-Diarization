@@ -51,9 +51,27 @@ const BatchUploadSection = () => {
       return null;
     }
 
-    const queuedCount = files.filter(f => f.status === "queued").length;
-    const estimatedPerFile = processingFile.estimatedTimeRemaining * (100 / Math.max(processingFile.progress, 1));
-    const queuedTime = queuedCount * estimatedPerFile;
+    // Calculate processing rate from current file
+    const processedDuration = processingFile.audioDuration
+      ? processingFile.audioDuration * (processingFile.progress / 100)
+      : null;
+
+    if (!processedDuration || processedDuration === 0) {
+      return processingFile.estimatedTimeRemaining;
+    }
+
+    const elapsedTime = (processingFile.audioDuration || 0) -
+      (processingFile.estimatedTimeRemaining * (processingFile.progress / 100));
+    const processingRate = elapsedTime > 0 ? processedDuration / elapsedTime : 1.0;
+
+    // Add time for queued files based on their actual durations
+    const queuedFiles = files.filter(f => f.status === "queued");
+    const queuedTime = queuedFiles.reduce((total, file) => {
+      if (file.audioDuration && processingRate > 0) {
+        return total + (file.audioDuration / processingRate);
+      }
+      return total;
+    }, 0);
 
     return processingFile.estimatedTimeRemaining + queuedTime;
   };

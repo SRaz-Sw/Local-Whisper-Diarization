@@ -14,6 +14,7 @@ export interface BatchFile {
   completedAt?: string;
   retryCount: number;
   estimatedTimeRemaining?: number | null; // in seconds
+  audioDuration?: number; // in seconds - actual duration of audio file
 }
 
 interface BatchState {
@@ -46,7 +47,7 @@ interface BatchState {
 
 interface BatchActions {
   // ========== File Management Actions ==========
-  addFiles: (files: File[]) => void;
+  addFiles: (files: File[]) => Promise<void>;
   removeFile: (fileId: string) => void;
   cancelFile: (fileId: string) => void;
   retryFile: (fileId: string) => void;
@@ -96,6 +97,21 @@ type BatchStore = BatchState & BatchActions;
 
 // Helper to generate UUID
 const generateId = () => crypto.randomUUID();
+
+// Helper to extract audio duration without full decode (fast, ~50ms per file)
+const extractAudioDuration = async (file: File): Promise<number | undefined> => {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const audioContext = new AudioContext();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    const duration = audioBuffer.duration;
+    await audioContext.close();
+    return duration;
+  } catch (error) {
+    console.warn(`Failed to extract duration for ${file.name}:`, error);
+    return undefined;
+  }
+};
 
 // Helper to serialize File objects for persistence
 const serializeBatchFile = (batchFile: BatchFile): any => {
@@ -164,7 +180,7 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
   lastLoggedProgress: new Map(),
 
       // Actions
-      addFiles: (newFiles: File[]) => {
+      addFiles: async (newFiles: File[]) => {
         console.log('🏪 STORE addFiles called with:', newFiles.length, 'files');
         const currentFiles = get().files;
         const totalCount = currentFiles.length + newFiles.length;
@@ -196,8 +212,14 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
           console.log('✅ After deduplication:', newFiles.length, 'unique files');
         }
 
-        // Create batch file entries
-        const batchFiles: BatchFile[] = newFiles.map(file => ({
+        // Extract audio durations in parallel
+        console.log('⏱️ Extracting audio durations...');
+        const durationsPromises = newFiles.map(file => extractAudioDuration(file));
+        const durations = await Promise.all(durationsPromises);
+        console.log('✅ Durations extracted:', durations.map((d, i) => `${newFiles[i].name}: ${d?.toFixed(1)}s`));
+
+        // Create batch file entries with durations
+        const batchFiles: BatchFile[] = newFiles.map((file, index) => ({
           id: generateId(),
           file,
           fileName: file.name,
@@ -205,6 +227,7 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
           status: 'queued',
           progress: 0,
           retryCount: 0,
+          audioDuration: durations[index],
         }));
 
         console.log('✅ Created batch file entries:', batchFiles.map(bf => `${bf.fileName} (${bf.id})`));
