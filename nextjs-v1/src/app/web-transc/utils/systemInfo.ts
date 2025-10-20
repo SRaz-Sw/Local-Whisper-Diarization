@@ -188,7 +188,7 @@ export function getRecommendedModel(
   // }
   recommendations.push(
     "onnx-community/whisper-small_timestamped",
-    "onnx-community/whisper-base_timestampe",
+    "onnx-community/whisper-base_timestamped",
   );
 
   return recommendations;
