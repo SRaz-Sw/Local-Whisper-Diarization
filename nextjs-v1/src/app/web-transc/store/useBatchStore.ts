@@ -47,7 +47,7 @@ interface BatchState {
 
 interface BatchActions {
   // ========== File Management Actions ==========
-  addFiles: (files: File[]) => Promise<void>;
+  addFiles: (files: File[]) => void;
   removeFile: (fileId: string) => void;
   cancelFile: (fileId: string) => void;
   retryFile: (fileId: string) => void;
@@ -58,6 +58,7 @@ interface BatchActions {
   reorderFiles: (fileId: string, newIndex: number) => void;
   updateFileProgress: (fileId: string, progress: number) => void;
   updateFileEstimatedTime: (fileId: string, estimatedTime: number | null) => void;
+  updateFileDuration: (fileId: string, duration: number) => void;
   setFileStatus: (
     fileId: string,
     status: BatchFile['status'],
@@ -180,7 +181,7 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
   lastLoggedProgress: new Map(),
 
       // Actions
-      addFiles: async (newFiles: File[]) => {
+      addFiles: (newFiles: File[]) => {
         console.log('🏪 STORE addFiles called with:', newFiles.length, 'files');
         const currentFiles = get().files;
         const totalCount = currentFiles.length + newFiles.length;
@@ -212,14 +213,8 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
           console.log('✅ After deduplication:', newFiles.length, 'unique files');
         }
 
-        // Extract audio durations in parallel
-        console.log('⏱️ Extracting audio durations...');
-        const durationsPromises = newFiles.map(file => extractAudioDuration(file));
-        const durations = await Promise.all(durationsPromises);
-        console.log('✅ Durations extracted:', durations.map((d, i) => `${newFiles[i].name}: ${d?.toFixed(1)}s`));
-
-        // Create batch file entries with durations
-        const batchFiles: BatchFile[] = newFiles.map((file, index) => ({
+        // Create batch file entries WITHOUT durations (instant UX)
+        const batchFiles: BatchFile[] = newFiles.map(file => ({
           id: generateId(),
           file,
           fileName: file.name,
@@ -227,17 +222,31 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
           status: 'queued',
           progress: 0,
           retryCount: 0,
-          audioDuration: durations[index],
+          audioDuration: undefined, // Will be set asynchronously
         }));
 
         console.log('✅ Created batch file entries:', batchFiles.map(bf => `${bf.fileName} (${bf.id})`));
 
+        // Add files to store immediately
         set(state => ({
           files: [...state.files, ...batchFiles],
           batchStatus: state.batchStatus === 'idle' ? 'processing' : state.batchStatus,
         }));
 
         console.log('✅ Store updated. New file count:', get().files.length);
+
+        // Extract durations in background (non-blocking)
+        console.log('⏱️ Extracting audio durations in background...');
+        batchFiles.forEach((batchFile, index) => {
+          extractAudioDuration(newFiles[index]).then(duration => {
+            if (duration !== undefined) {
+              console.log(`✅ Duration extracted for ${batchFile.fileName}: ${duration.toFixed(1)}s`);
+              get().updateFileDuration(batchFile.id, duration);
+            }
+          }).catch(error => {
+            console.warn(`Failed to extract duration for ${batchFile.fileName}:`, error);
+          });
+        });
       },
 
       removeFile: (fileId: string) => {
@@ -379,6 +388,14 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
         set(state => ({
           files: state.files.map(f =>
             f.id === fileId ? { ...f, estimatedTimeRemaining: estimatedTime } : f
+          ),
+        }));
+      },
+
+      updateFileDuration: (fileId: string, duration: number) => {
+        set(state => ({
+          files: state.files.map(f =>
+            f.id === fileId ? { ...f, audioDuration: duration } : f
           ),
         }));
       },
