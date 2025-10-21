@@ -215,6 +215,7 @@ class BatchQueueManager {
         data: {
           device: device,
           model: model,
+          fileId: batchFile.id, // Pass fileId to worker
         },
       });
     } catch (error) {
@@ -294,8 +295,9 @@ class BatchQueueManager {
   ): void {
     const message: WorkerMessage = event.data;
 
-    // Get the file ID from the worker pool service (it tracks currentFileId)
-    const fileId = batchWorkerPool.getCurrentFileId(workerId);
+    // ✅ FIX: Get file ID from the message itself, not from worker state
+    // This prevents race conditions where the worker gets reassigned before all messages are processed
+    const fileId = message.fileId;
 
     if (!fileId) {
       // It's OK to not have a file assigned during initialization or after completion
@@ -313,7 +315,7 @@ class BatchQueueManager {
       ];
       if (!ignoredStatuses.includes(message.status)) {
         console.warn(
-          `⚠️ Received message from ${workerId} but no file is assigned`,
+          `⚠️ Received message from ${workerId} but no fileId in message`,
           message.status,
         );
       }
@@ -379,6 +381,7 @@ class BatchQueueManager {
             data: {
               audio: audioData.audio,
               language: audioData.language,
+              fileId: fileId, // Pass fileId to worker
             },
           });
           console.log(`✅ "run" message sent to ${workerId}`);

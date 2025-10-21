@@ -59,6 +59,7 @@ export interface WorkerMessage {
   processedSeconds?: number;
   totalSeconds?: number;
   estimatedTimeRemaining?: number;
+  fileId?: string; // File ID for batch processing - prevents race conditions
 }
 
 export type DeviceType = "webgpu" | "wasm";

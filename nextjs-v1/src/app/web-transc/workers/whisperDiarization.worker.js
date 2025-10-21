@@ -25,6 +25,9 @@ let currentBackupState = null;
 const BACKUP_INTERVAL_MS = 20000; // 20 seconds
 const BACKUP_STORAGE_KEY = "whisper_diarization_backup";
 
+// Track which file is being processed (for batch mode)
+let currentFileId = null;
+
 /**
  * This class uses the Singleton pattern to ensure that only one instance of the model is loaded.
  */
@@ -86,7 +89,12 @@ class PipelineSingeton {
   }
 }
 
-async function load({ device, model }) {
+async function load({ device, model, fileId }) {
+  // Track the file ID for batch processing
+  if (fileId) {
+    currentFileId = fileId;
+  }
+
   // Set the model if provided
   if (model) {
     PipelineSingeton.setAsrModel(model);
@@ -95,6 +103,7 @@ async function load({ device, model }) {
   self.postMessage({
     status: "loading",
     data: `Loading ${PipelineSingeton.asr_model_id} (${device})...`,
+    fileId: currentFileId,
   });
 
   // Load the pipeline and save it for future use.
@@ -102,13 +111,15 @@ async function load({ device, model }) {
     await PipelineSingeton.getInstance((x) => {
       // We also add a progress callback to the pipeline so that we can
       // track model loading.
-      self.postMessage(x);
+      // Add fileId to model loading progress messages
+      self.postMessage({ ...x, fileId: currentFileId });
     }, device);
 
   if (device === "webgpu") {
     self.postMessage({
       status: "loading",
       data: "Compiling shaders and warming up model...",
+      fileId: currentFileId,
     });
 
     await transcriber(new Float32Array(16_000), {
@@ -116,7 +127,7 @@ async function load({ device, model }) {
     });
   }
 
-  self.postMessage({ status: "loaded" });
+  self.postMessage({ status: "loaded", fileId: currentFileId });
 }
 
 async function segment(processor, model, audio) {
@@ -135,7 +146,12 @@ async function segment(processor, model, audio) {
   return segments;
 }
 
-async function run({ audio, language, resumeFromBackup = false }) {
+async function run({ audio, language, resumeFromBackup = false, fileId }) {
+  // Track the file ID for batch processing
+  if (fileId) {
+    currentFileId = fileId;
+  }
+
   const [transcriber, segmentation_processor, segmentation_model] =
     await PipelineSingeton.getInstance();
 
@@ -155,6 +171,7 @@ async function run({ audio, language, resumeFromBackup = false }) {
   self.postMessage({
     status: "update",
     data: "Transcribing audio...",
+    fileId: currentFileId,
   });
 
   // Send initial progress with totalSeconds immediately
@@ -163,6 +180,7 @@ async function run({ audio, language, resumeFromBackup = false }) {
     processedSeconds: 0,
     totalSeconds,
     estimatedTimeRemaining: null,
+    fileId: currentFileId,
   });
 
   // Initialize backup state
@@ -204,6 +222,7 @@ async function run({ audio, language, resumeFromBackup = false }) {
           text: text,
           timestamp: Date.now(),
         },
+        fileId: currentFileId,
       });
     },
     on_chunk_start: (startTimestamp) => {
@@ -225,6 +244,7 @@ async function run({ audio, language, resumeFromBackup = false }) {
       self.postMessage({
         status: "chunk_start",
         data: actualAudioPosition,
+        fileId: currentFileId,
       });
     },
     on_chunk_end: (endTimestamp) => {
@@ -277,6 +297,7 @@ async function run({ audio, language, resumeFromBackup = false }) {
         processedSeconds: displayedProgress,
         totalSeconds,
         estimatedTimeRemaining,
+        fileId: currentFileId,
       });
 
       // Update backup state
@@ -287,6 +308,7 @@ async function run({ audio, language, resumeFromBackup = false }) {
       self.postMessage({
         status: "chunk_end",
         data: actualAudioPosition,
+        fileId: currentFileId,
       });
     },
     on_finalize: () => {
@@ -316,12 +338,14 @@ async function run({ audio, language, resumeFromBackup = false }) {
     processedSeconds: totalSeconds,
     totalSeconds,
     estimatedTimeRemaining: 0,
+    fileId: currentFileId,
   });
 
   // Show diarization status AFTER transcription completes
   self.postMessage({
     status: "update",
     data: "Identifying speakers...",
+    fileId: currentFileId,
   });
 
   // Run segmentation after transcription
@@ -350,7 +374,11 @@ async function run({ audio, language, resumeFromBackup = false }) {
     status: "complete",
     result: { transcript, segments },
     time: end - start,
+    fileId: currentFileId,
   });
+
+  // Clear the file ID after completion
+  currentFileId = null;
 }
 
 // IndexedDB backup functions
@@ -443,6 +471,7 @@ self.addEventListener("message", async (e) => {
           status: "backup_check",
           hasBackup: !!backup,
           backup: backup,
+          fileId: data?.fileId || currentFileId,
         });
         break;
 
@@ -450,6 +479,7 @@ self.addEventListener("message", async (e) => {
         await deleteBackupFromIndexedDB();
         self.postMessage({
           status: "backup_cleared",
+          fileId: data?.fileId || currentFileId,
         });
         break;
 
@@ -461,6 +491,9 @@ self.addEventListener("message", async (e) => {
     self.postMessage({
       status: "error",
       error: error.message,
+      fileId: currentFileId,
     });
+    // Clear the file ID on error
+    currentFileId = null;
   }
 });
