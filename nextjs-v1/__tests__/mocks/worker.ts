@@ -7,9 +7,27 @@ export class MockWorker {
   public onmessage: ((e: MessageEvent) => void) | null = null
   public url: string
   private _terminated = false
+  private _messageHandlers = new Set<(e: MessageEvent) => void>()
+  private _errorHandlers = new Set<(e: ErrorEvent) => void>()
 
   constructor(stringUrl: string | URL) {
     this.url = typeof stringUrl === 'string' ? stringUrl : stringUrl.toString()
+  }
+
+  addEventListener(type: string, handler: any): void {
+    if (type === 'message') {
+      this._messageHandlers.add(handler)
+    } else if (type === 'error') {
+      this._errorHandlers.add(handler)
+    }
+  }
+
+  removeEventListener(type: string, handler: any): void {
+    if (type === 'message') {
+      this._messageHandlers.delete(handler)
+    } else if (type === 'error') {
+      this._errorHandlers.delete(handler)
+    }
   }
 
   postMessage(data: any): void {
@@ -36,22 +54,28 @@ export class MockWorker {
     const { device, model, fileId } = data
 
     // Simulate loading message
-    this.onmessage?.({
+    const loadingEvent = {
       data: {
         status: 'loading',
         data: `Loading ${model || 'whisper-base'} (${device})...`,
         fileId,
       },
-    } as MessageEvent)
+    } as MessageEvent
+
+    this.onmessage?.(loadingEvent)
+    this._messageHandlers.forEach(handler => handler(loadingEvent))
 
     // Simulate loaded message after a short delay
     setTimeout(() => {
-      this.onmessage?.({
+      const loadedEvent = {
         data: {
           status: 'loaded',
           fileId,
         },
-      } as MessageEvent)
+      } as MessageEvent
+
+      this.onmessage?.(loadedEvent)
+      this._messageHandlers.forEach(handler => handler(loadedEvent))
     }, 50)
   }
 
@@ -60,13 +84,16 @@ export class MockWorker {
 
     if (!audio || audio.length === 0) {
       // Simulate error for invalid audio
-      this.onmessage?.({
+      const errorEvent = {
         data: {
           status: 'error',
           error: 'Invalid audio data',
           fileId,
         },
-      } as MessageEvent)
+      } as MessageEvent
+
+      this.onmessage?.(errorEvent)
+      this._messageHandlers.forEach(handler => handler(errorEvent))
       return
     }
 
@@ -79,7 +106,7 @@ export class MockWorker {
     const steps = 10
 
     // Send initial progress
-    this.onmessage?.({
+    const initialEvent = {
       data: {
         status: 'processing_progress',
         fileId,
@@ -87,7 +114,10 @@ export class MockWorker {
         totalSeconds,
         estimatedTimeRemaining: totalSeconds,
       },
-    } as MessageEvent)
+    } as MessageEvent
+
+    this.onmessage?.(initialEvent)
+    this._messageHandlers.forEach(handler => handler(initialEvent))
 
     // Simulate progress updates
     for (let i = 1; i <= steps; i++) {
@@ -95,7 +125,7 @@ export class MockWorker {
         const processedSeconds = (totalSeconds / steps) * i
         const remaining = totalSeconds - processedSeconds
 
-        this.onmessage?.({
+        const progressEvent = {
           data: {
             status: 'processing_progress',
             fileId,
@@ -103,13 +133,16 @@ export class MockWorker {
             totalSeconds,
             estimatedTimeRemaining: remaining,
           },
-        } as MessageEvent)
+        } as MessageEvent
+
+        this.onmessage?.(progressEvent)
+        this._messageHandlers.forEach(handler => handler(progressEvent))
       }, i * 100)
     }
 
     // Send complete message
     setTimeout(() => {
-      this.onmessage?.({
+      const completeEvent = {
         data: {
           status: 'complete',
           fileId,
@@ -135,7 +168,10 @@ export class MockWorker {
           },
           time: 1000,
         },
-      } as MessageEvent)
+      } as MessageEvent
+
+      this.onmessage?.(completeEvent)
+      this._messageHandlers.forEach(handler => handler(completeEvent))
     }, (steps + 1) * 100)
   }
 }

@@ -3,6 +3,8 @@
  * Mocks the transcript storage system used by BatchQueueManager
  */
 
+import { mock } from 'bun:test'
+
 export const mockTranscripts = {
   _storage: new Map<string, any>(),
 
@@ -49,11 +51,11 @@ export const mockBlobStorage = {
   },
 }
 
-// Mock the actual modules
-jest.mock('@/lib/localStorage/collections', () => ({
+// Mock the actual modules using Bun's module mocking
+mock.module('@/lib/localStorage/collections', () => ({
   transcripts: mockTranscripts,
 }))
 
-jest.mock('@/lib/localStorage/storage', () => ({
+mock.module('@/lib/localStorage/storage', () => ({
   blobStorage: mockBlobStorage,
 }))

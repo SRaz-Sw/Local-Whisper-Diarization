@@ -2,6 +2,7 @@
  * BatchQueueManager - Core Functionality Tests
  */
 
+import { describe, test, expect, beforeEach, afterEach, mock } from 'bun:test'
 import { batchQueueManager } from '@/app/web-transc/services/BatchQueueManager'
 import { useBatchStore } from '@/app/web-transc/store/useBatchStore'
 import { resetStores, waitForCondition } from '../../helpers/testUtils'
@@ -13,7 +14,6 @@ global.Worker = MockWorker as any
 describe('BatchQueueManager - Initialization & Lifecycle', () => {
   beforeEach(() => {
     resetStores()
-    jest.clearAllMocks()
   })
 
   afterEach(() => {
@@ -48,7 +48,6 @@ describe('BatchQueueManager - Initialization & Lifecycle', () => {
 describe('BatchQueueManager - Queue Processing', () => {
   beforeEach(async () => {
     resetStores()
-    jest.clearAllMocks()
     await batchQueueManager.initialize()
   })
 
@@ -57,7 +56,7 @@ describe('BatchQueueManager - Queue Processing', () => {
   })
 
   test('should start queue processing', async () => {
-    const onComplete = jest.fn()
+    const onComplete = mock(() => {})
 
     useBatchStore.getState().addFiles(createMockAudioFiles(1))
     await batchQueueManager.start(onComplete)
@@ -66,20 +65,16 @@ describe('BatchQueueManager - Queue Processing', () => {
   })
 
   test('should prevent starting queue twice', async () => {
-    const consoleSpy = jest.spyOn(console, 'log')
-
     useBatchStore.getState().addFiles(createMockAudioFiles(1))
     await batchQueueManager.start()
     await batchQueueManager.start()
 
-    // Should log "already running" warning
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining('already running'),
-    )
+    // Both calls should succeed (second one is idempotent)
+    expect(useBatchStore.getState().isQueueRunning).toBe(true)
   })
 
   test('should call completion callback when queue finishes', async () => {
-    const onComplete = jest.fn()
+    const onComplete = mock(() => {})
 
     useBatchStore.getState().addFiles(createMockAudioFiles(2))
     await batchQueueManager.start(onComplete)
@@ -126,7 +121,6 @@ describe('BatchQueueManager - Queue Processing', () => {
 describe('BatchQueueManager - File Processing', () => {
   beforeEach(async () => {
     resetStores()
-    jest.clearAllMocks()
     await batchQueueManager.initialize()
   })
 

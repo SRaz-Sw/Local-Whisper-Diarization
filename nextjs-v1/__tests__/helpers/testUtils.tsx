@@ -6,6 +6,7 @@
 import React, { ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import { useBatchStore } from '@/app/web-transc/store/useBatchStore'
+import { mockTranscripts, mockBlobStorage } from '../mocks/localStorage'
 
 /**
  * Custom render function that wraps components with necessary providers
@@ -41,7 +42,6 @@ export function resetStores() {
   })
 
   // Clear mock localStorage
-  const { mockTranscripts, mockBlobStorage } = require('../mocks/localStorage')
   mockTranscripts._storage.clear()
   mockBlobStorage._blobs.clear()
 }

@@ -2,6 +2,7 @@
  * useBatchStore - Zustand State Management Tests
  */
 
+import { describe, test, expect, beforeEach } from 'bun:test'
 import { useBatchStore } from '@/app/web-transc/store/useBatchStore'
 import { resetStores } from '../../helpers/testUtils'
 import { createMockAudioFile } from '../../mocks/audioData'
