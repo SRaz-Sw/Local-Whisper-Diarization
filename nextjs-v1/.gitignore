@@ -56,3 +56,6 @@ next-env.d.ts
 /electron/resources/*.png
 
 # node_modules and all files in it like shared-copyfact/node_modules/@jridgewell/resolve-uri/dist/resolve-uri.umd.js.map
+# Test coverage
+coverage/
+.jest-cache/

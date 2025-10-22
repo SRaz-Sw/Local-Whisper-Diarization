@@ -5,13 +5,14 @@
 
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouterStore } from "../store/useRouterStore";
 import { useWhisperStore } from "../store/useWhisperStore";
+import { useBatchStore } from "../store/useBatchStore";
 import { useWhisperWorker } from "../hooks/useWhisperWorker";
 import { useTranscripts } from "../hooks/useTranscripts";
 import MediaFileUpload from "../components/MediaFileUpload";
@@ -19,6 +20,8 @@ import { ModelSelector } from "../components/ModelSelector";
 import WhisperLanguageSelector from "../components/WhisperLanguageSelector";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { SavedTranscriptsSummary } from "../components/SavedTranscriptsSummary";
+import { BatchFileUpload } from "../components/BatchFileUpload";
+import { BatchProgressWidget } from "../components/BatchProgressWidget";
 import { AVAILABLE_MODELS, DEFAULT_MODEL } from "../config/modelConfig";
 import type { WhisperMediaInputRef } from "../types";
 import type { SavedTranscript } from "@/lib/localStorage/schemas";
@@ -71,8 +74,14 @@ export default function UploadView() {
     getWithAudio,
   } = useTranscripts();
 
+  // Batch store
+  const { addFiles: addBatchFiles, files: batchFiles } = useBatchStore();
+
   // Local state
   const mediaInputRef = useRef<WhisperMediaInputRef>(null);
+
+  // Compute batch mode from store (2+ files = batch mode)
+  const isBatchMode = batchFiles.length >= 2;
 
   // Worker integration
   const { postMessage } = useWhisperWorker(
@@ -147,6 +156,27 @@ export default function UploadView() {
     // Reset audio state
     setAudio(null);
   }, [setAudio]);
+
+  // Handle multiple files selection - switch to batch mode
+  const handleMultipleFilesSelected = useCallback(
+    (files: File[]) => {
+      console.log('📦 Multiple files selected:', files.length);
+      // Add files to batch store (batch mode computed automatically from files.length)
+      addBatchFiles(files);
+    },
+    [addBatchFiles],
+  );
+
+  // Cleanup batch manager when leaving batch mode
+  useEffect(() => {
+    // If we had batch files and now we don't, cleanup the manager
+    return () => {
+      if (batchFiles.length === 0) {
+        // Only terminate if there are no files (fully exited batch mode)
+        console.log('🗑️ No batch files, will cleanup manager on next mount if still empty');
+      }
+    };
+  }, [batchFiles.length]);
 
   // Handle load transcript from saved list
   const handleLoadTranscript = useCallback(
@@ -345,130 +375,142 @@ export default function UploadView() {
             </motion.p>
           </motion.div>
 
-          {/* Audio player */}
-          <div className="relative">
-            <MediaFileUpload
-              ref={mediaInputRef}
-              onInputChange={(audio) => {
-                const currentFlag =
-                  useWhisperStore.getState().ui.isLoadingFromStorage;
+          {/* Conditional Content Based on Batch Detection */}
+          {isBatchMode ? (
+            /* Batch Upload Mode */
+            <BatchFileUpload />
+          ) : (
+            <>
+              {/* Audio player */}
+              <div className="relative">
+                <MediaFileUpload
+                  ref={mediaInputRef}
+                  onInputChange={(audio) => {
+                    const currentFlag =
+                      useWhisperStore.getState().ui.isLoadingFromStorage;
 
-                if (!currentFlag) {
-                  setResult(null);
-                }
-                setAudio(audio);
+                    if (!currentFlag) {
+                      setResult(null);
+                    }
+                    setAudio(audio);
 
-                // Store the file for use in TranscribeView
-                const file = mediaInputRef.current?.getFile();
-                console.log(
-                  "📤 UploadView: Setting audio file:",
-                  !!file,
-                  file?.name,
-                  file?.size,
-                );
-                setAudioFile(file || null);
+                    // Store the file for use in TranscribeView
+                    const file = mediaInputRef.current?.getFile();
+                    console.log(
+                      "📤 UploadView: Setting audio file:",
+                      !!file,
+                      file?.name,
+                      file?.size,
+                    );
+                    setAudioFile(file || null);
 
-                setIsLoadingFromStorage(false);
-              }}
-              onTimeUpdate={() => {}} // Not needed in upload view
-              onFileNameChange={(fileName) => setAudioFileName(fileName)}
-            />
-          </div>
+                    setIsLoadingFromStorage(false);
+                  }}
+                  onTimeUpdate={() => {}} // Not needed in upload view
+                  onFileNameChange={(fileName) => setAudioFileName(fileName)}
+                  onMultipleFilesSelected={handleMultipleFilesSelected}
+                />
+              </div>
 
-          <Card className="border-muted/50 bg-card/50 px-2 backdrop-blur-sm">
-            <CardContent className="px-0 pt-6 sm:px-2 md:px-4 lg:px-8">
-              <div className="flex min-h-[220px] w-full flex-col items-center justify-center space-y-6">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="relative flex w-full flex-col items-center justify-center gap-4"
-                >
-                  {/* Main action buttons */}
-                  <div className="flex flex-wrap justify-center gap-3">
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button
-                        onClick={handleClick}
-                        disabled={
-                          !audio ||
-                          status === "running" ||
-                          status === "loading"
-                        }
-                        size="lg"
-                        className="shadow-lg transition-shadow hover:shadow-xl"
-                      >
-                        {status === null
-                          ? "Load model"
-                          : status === "loading"
-                            ? "Loading..."
-                            : status === "running"
-                              ? "Running..."
-                              : "Run model"}
-                      </Button>
-                    </motion.div>
-
-                    {audio && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Button
-                          onClick={handleReset}
-                          size="lg"
-                          variant="outline"
-                          className="shadow-lg transition-shadow hover:shadow-xl"
-                        >
-                          Reset
-                        </Button>
-                      </motion.div>
-                    )}
-
-                    {/* Model selector */}
-                    <ModelSelector
-                      disabled={
-                        status === "running" || status === "loading"
-                      }
-                      onModelChange={handleModelChange}
-                    />
-                  </div>
-
-                  {/* Language selector - show when model is loaded but not running */}
-                  {status === "ready" && (
+              <Card className="border-muted/50 bg-card/50 px-2 backdrop-blur-sm">
+                <CardContent className="px-0 pt-6 sm:px-2 md:px-4 lg:px-8">
+                  <div className="flex min-h-[220px] w-full flex-col items-center justify-center space-y-6">
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.4 }}
-                      className="flex flex-col items-center space-y-1"
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      className="relative flex w-full flex-col items-center justify-center gap-4"
                     >
-                      <span className="text-muted-foreground text-xs">
-                        Language:
-                      </span>
-                      <WhisperLanguageSelector className="w-[120px]" />
-                    </motion.div>
-                  )}
-                </motion.div>
+                      {/* Main action buttons */}
+                      <div className="flex flex-wrap justify-center gap-3">
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button
+                            onClick={handleClick}
+                            disabled={
+                              !audio ||
+                              status === "running" ||
+                              status === "loading"
+                            }
+                            size="lg"
+                            className="shadow-lg transition-shadow hover:shadow-xl"
+                          >
+                            {status === null
+                              ? "Load model"
+                              : status === "loading"
+                                ? "Loading..."
+                                : status === "running"
+                                  ? "Running..."
+                                  : "Run model"}
+                          </Button>
+                        </motion.div>
 
-                {/* Saved Transcripts Section */}
-                {status !== "running" && (
-                  <SavedTranscriptsSummary
-                    savedTranscripts={savedTranscripts}
-                    transcriptsLoading={transcriptsLoading}
-                    onLoadTranscript={handleLoadTranscript}
-                    onRemoveTranscript={removeTranscript}
-                    onUpdateMetadata={updateMetadata}
-                    scrollableClassName="max-h-[300px] overflow-y-auto"
-                  />
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                        {audio && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button
+                              onClick={handleReset}
+                              size="lg"
+                              variant="outline"
+                              className="shadow-lg transition-shadow hover:shadow-xl"
+                            >
+                              Reset
+                            </Button>
+                          </motion.div>
+                        )}
+
+                        {/* Model selector */}
+                        <ModelSelector
+                          disabled={
+                            status === "running" || status === "loading"
+                          }
+                          onModelChange={handleModelChange}
+                        />
+                      </div>
+
+                      {/* Language selector - show when model is loaded but not running */}
+                      {status === "ready" && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.4 }}
+                          className="flex flex-col items-center space-y-1"
+                        >
+                          <span className="text-muted-foreground text-xs">
+                            Language:
+                          </span>
+                          <WhisperLanguageSelector className="w-[120px]" />
+                        </motion.div>
+                      )}
+                    </motion.div>
+
+                    {/* Batch Progress Widget */}
+                    <BatchProgressWidget />
+
+                    {/* Saved Transcripts Section */}
+                    {status !== "running" && (
+                      <SavedTranscriptsSummary
+                        savedTranscripts={savedTranscripts}
+                        transcriptsLoading={transcriptsLoading}
+                        onLoadTranscript={handleLoadTranscript}
+                        onRemoveTranscript={removeTranscript}
+                        onUpdateMetadata={updateMetadata}
+                        scrollableClassName="max-h-[300px] overflow-y-auto"
+                      />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
 
           <motion.div
             initial={{ opacity: 0 }}

@@ -130,7 +130,7 @@ const MediaFileUpload = forwardRef<
   WhisperMediaInputProps
 >(
   (
-    { onInputChange, onTimeUpdate, onFileNameChange, className, ...props },
+    { onInputChange, onTimeUpdate, onFileNameChange, onMultipleFilesSelected, className, ...props },
     ref,
   ) => {
     const [status, setStatus] = useState<FileStatus>("idle");
@@ -384,19 +384,51 @@ const MediaFileUpload = forwardRef<
         e.preventDefault();
         e.stopPropagation();
         setStatus("idle");
-        const droppedFile = e.dataTransfer.files?.[0];
+
+        const droppedFiles = e.dataTransfer.files;
+        if (!droppedFiles || droppedFiles.length === 0) return;
+
+        // If multiple files dropped, notify parent
+        if (droppedFiles.length > 1 && onMultipleFilesSelected) {
+          const fileArray = Array.from(droppedFiles).filter(
+            (f) => f.type.startsWith("audio/") || f.type.startsWith("video/")
+          );
+          if (fileArray.length > 0) {
+            onMultipleFilesSelected(fileArray);
+          }
+          return;
+        }
+
+        // Single file - proceed with normal flow
+        const droppedFile = droppedFiles[0];
         if (droppedFile) handleFileSelect(droppedFile);
       },
-      [handleFileSelect],
+      [handleFileSelect, onMultipleFilesSelected],
     );
 
     const handleFileInputChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = e.target.files?.[0];
+        const selectedFiles = e.target.files;
+        if (!selectedFiles || selectedFiles.length === 0) return;
+
+        // If multiple files selected, notify parent
+        if (selectedFiles.length > 1 && onMultipleFilesSelected) {
+          const fileArray = Array.from(selectedFiles).filter(
+            (f) => f.type.startsWith("audio/") || f.type.startsWith("video/")
+          );
+          if (fileArray.length > 0) {
+            onMultipleFilesSelected(fileArray);
+          }
+          if (e.target) e.target.value = "";
+          return;
+        }
+
+        // Single file - proceed with normal flow
+        const selectedFile = selectedFiles[0];
         handleFileSelect(selectedFile || null);
         if (e.target) e.target.value = "";
       },
-      [handleFileSelect],
+      [handleFileSelect, onMultipleFilesSelected],
     );
 
     const triggerFileInput = useCallback(() => {
@@ -624,6 +656,7 @@ const MediaFileUpload = forwardRef<
                           className="sr-only"
                           onChange={handleFileInputChange}
                           accept="audio/*,video/*"
+                          multiple
                           aria-label="File input"
                         />
                       </motion.div>

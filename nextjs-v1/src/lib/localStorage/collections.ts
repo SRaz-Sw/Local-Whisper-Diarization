@@ -10,6 +10,7 @@ import {
   savedTranscriptSchema,
   promptTemplateSchema,
   appSettingsSchema,
+  batchJobSchema,
 } from './schemas'
 
 /**
@@ -81,10 +82,36 @@ export const settings = createCollection({
 })
 
 /**
+ * Batch Jobs Collection
+ *
+ * Stores metadata for batch upload jobs.
+ *
+ * @example
+ * ```typescript
+ * await batchJobs.set('batch-123', {
+ *   id: 'batch-123',
+ *   createdAt: new Date().toISOString(),
+ *   updatedAt: new Date().toISOString(),
+ *   totalFiles: 10,
+ *   completedFiles: 8,
+ *   failedFiles: 1,
+ *   cancelledFiles: 1,
+ *   transcriptIds: ['t1', 't2', ...],
+ *   status: 'completed'
+ * })
+ * ```
+ */
+export const batchJobs = createCollection({
+  name: 'batchJobs',
+  schema: batchJobSchema,
+})
+
+/**
  * Export all collections as a namespace for convenience
  */
 export const collections = {
   transcripts,
   templates,
   settings,
+  batchJobs,
 } as const

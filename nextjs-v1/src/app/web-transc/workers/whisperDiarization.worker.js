@@ -25,6 +25,9 @@ let currentBackupState = null;
 const BACKUP_INTERVAL_MS = 20000; // 20 seconds
 const BACKUP_STORAGE_KEY = "whisper_diarization_backup";
 
+// Track which file is being processed (for batch mode)
+let currentFileId = null;
+
 /**
  * This class uses the Singleton pattern to ensure that only one instance of the model is loaded.
  */
@@ -86,7 +89,12 @@ class PipelineSingeton {
   }
 }
 
-async function load({ device, model }) {
+async function load({ device, model, fileId }) {
+  // Track the file ID for batch processing
+  if (fileId) {
+    currentFileId = fileId;
+  }
+
   // Set the model if provided
   if (model) {
     PipelineSingeton.setAsrModel(model);
@@ -95,6 +103,7 @@ async function load({ device, model }) {
   self.postMessage({
     status: "loading",
     data: `Loading ${PipelineSingeton.asr_model_id} (${device})...`,
+    fileId: currentFileId,
   });
 
   // Load the pipeline and save it for future use.
@@ -102,13 +111,15 @@ async function load({ device, model }) {
     await PipelineSingeton.getInstance((x) => {
       // We also add a progress callback to the pipeline so that we can
       // track model loading.
-      self.postMessage(x);
+      // Add fileId to model loading progress messages
+      self.postMessage({ ...x, fileId: currentFileId });
     }, device);
 
   if (device === "webgpu") {
     self.postMessage({
       status: "loading",
       data: "Compiling shaders and warming up model...",
+      fileId: currentFileId,
     });
 
     await transcriber(new Float32Array(16_000), {
@@ -116,7 +127,7 @@ async function load({ device, model }) {
     });
   }
 
-  self.postMessage({ status: "loaded" });
+  self.postMessage({ status: "loaded", fileId: currentFileId });
 }
 
 async function segment(processor, model, audio) {
@@ -135,7 +146,12 @@ async function segment(processor, model, audio) {
   return segments;
 }
 
-async function run({ audio, language, resumeFromBackup = false }) {
+async function run({ audio, language, resumeFromBackup = false, fileId }) {
+  // Track the file ID for batch processing
+  if (fileId) {
+    currentFileId = fileId;
+  }
+
   const [transcriber, segmentation_processor, segmentation_model] =
     await PipelineSingeton.getInstance();
 
@@ -155,6 +171,7 @@ async function run({ audio, language, resumeFromBackup = false }) {
   self.postMessage({
     status: "update",
     data: "Transcribing audio...",
+    fileId: currentFileId,
   });
 
   // Send initial progress with totalSeconds immediately
@@ -163,6 +180,7 @@ async function run({ audio, language, resumeFromBackup = false }) {
     processedSeconds: 0,
     totalSeconds,
     estimatedTimeRemaining: null,
+    fileId: currentFileId,
   });
 
   // Initialize backup state
@@ -204,15 +222,21 @@ async function run({ audio, language, resumeFromBackup = false }) {
           text: text,
           timestamp: Date.now(),
         },
+        fileId: currentFileId,
       });
     },
     on_chunk_start: (startTimestamp) => {
       // Calculate offset based on which window we're processing
       const offset = (chunk_length_s - stride_length_s) * chunk_count;
       // Cap at totalSeconds to prevent going over 100%
-      const actualAudioPosition = Math.min(offset + startTimestamp, totalSeconds);
+      const actualAudioPosition = Math.min(
+        offset + startTimestamp,
+        totalSeconds,
+      );
 
-      console.log(`🔥 WORKER: Chunk started - Window ${chunk_count}, Offset: ${offset}, Timestamp: ${startTimestamp}, Actual Position: ${actualAudioPosition}`);
+      console.log(
+        `🔥 WORKER: Chunk started - Window ${chunk_count}, Offset: ${offset}, Timestamp: ${startTimestamp}, Actual Position: ${actualAudioPosition}`,
+      );
 
       // Don't send progress update here - let on_chunk_end handle it
       // (Sending here causes jumps because it bypasses dampening logic)
@@ -220,15 +244,21 @@ async function run({ audio, language, resumeFromBackup = false }) {
       self.postMessage({
         status: "chunk_start",
         data: actualAudioPosition,
+        fileId: currentFileId,
       });
     },
     on_chunk_end: (endTimestamp) => {
       // Calculate offset based on which window we're processing
       const offset = (chunk_length_s - stride_length_s) * chunk_count;
       // Cap at totalSeconds to prevent going over 100%
-      const actualAudioPosition = Math.min(offset + endTimestamp, totalSeconds);
+      const actualAudioPosition = Math.min(
+        offset + endTimestamp,
+        totalSeconds,
+      );
 
-      console.log(`🔥 WORKER: Chunk ended - Window ${chunk_count}, Offset: ${offset}, Timestamp: ${endTimestamp}, Actual Position: ${actualAudioPosition}`);
+      console.log(
+        `🔥 WORKER: Chunk ended - Window ${chunk_count}, Offset: ${offset}, Timestamp: ${endTimestamp}, Actual Position: ${actualAudioPosition}`,
+      );
 
       // Update progress with actual audio position (capped), always move forward only
       processedSeconds = Math.max(processedSeconds, actualAudioPosition);
@@ -236,20 +266,26 @@ async function run({ audio, language, resumeFromBackup = false }) {
       // Apply dampening to prevent progress from reaching 100% prematurely
       // (Last chunk token decoding continues after on_chunk_end fires)
       let displayedProgress = processedSeconds;
-      if (processedSeconds / totalSeconds > 0.90) {
-        const progressPastNinety = processedSeconds - (totalSeconds * 0.90);
+      if (processedSeconds / totalSeconds > 0.9) {
+        const progressPastNinety = processedSeconds - totalSeconds * 0.9;
         const dampenedProgress = progressPastNinety * 0.5;
-        displayedProgress = (totalSeconds * 0.90) + dampenedProgress;
+        displayedProgress = totalSeconds * 0.9 + dampenedProgress;
       }
 
       // Ensure progress never goes backwards (sliding window overlap can cause this)
-      displayedProgress = Math.max(lastDisplayedProgress, displayedProgress);
+      displayedProgress = Math.max(
+        lastDisplayedProgress,
+        displayedProgress,
+      );
       lastDisplayedProgress = displayedProgress;
 
       // Calculate ETA based on displayed progress
       const elapsedMs = Date.now() - processingStartTime;
       const processingRate = displayedProgress / (elapsedMs / 1000);
-      const remainingSeconds = Math.max(0, totalSeconds - displayedProgress);
+      const remainingSeconds = Math.max(
+        0,
+        totalSeconds - displayedProgress,
+      );
       const estimatedTimeRemaining =
         processingRate > 0 && remainingSeconds > 0
           ? remainingSeconds / processingRate
@@ -261,6 +297,7 @@ async function run({ audio, language, resumeFromBackup = false }) {
         processedSeconds: displayedProgress,
         totalSeconds,
         estimatedTimeRemaining,
+        fileId: currentFileId,
       });
 
       // Update backup state
@@ -271,6 +308,7 @@ async function run({ audio, language, resumeFromBackup = false }) {
       self.postMessage({
         status: "chunk_end",
         data: actualAudioPosition,
+        fileId: currentFileId,
       });
     },
     on_finalize: () => {
@@ -287,10 +325,10 @@ async function run({ audio, language, resumeFromBackup = false }) {
   // Run transcription with streaming
   const transcript = await transcriber(audio, {
     language,
-    return_timestamps: true,  // Changed from "word" - needed for chunk callbacks
+    return_timestamps: true, // Changed from "word" - needed for chunk callbacks
     chunk_length_s: 30,
-    stride_length_s: 5,  // Sliding window overlap - REQUIRED for chunk callbacks
-    force_full_sequences: false,  // Enable streaming
+    stride_length_s: 5, // Sliding window overlap - REQUIRED for chunk callbacks
+    force_full_sequences: false, // Enable streaming
     streamer, // Use WhisperTextStreamer instead of callback_function
   });
 
@@ -300,12 +338,14 @@ async function run({ audio, language, resumeFromBackup = false }) {
     processedSeconds: totalSeconds,
     totalSeconds,
     estimatedTimeRemaining: 0,
+    fileId: currentFileId,
   });
 
   // Show diarization status AFTER transcription completes
   self.postMessage({
     status: "update",
     data: "Identifying speakers...",
+    fileId: currentFileId,
   });
 
   // Run segmentation after transcription
@@ -334,7 +374,11 @@ async function run({ audio, language, resumeFromBackup = false }) {
     status: "complete",
     result: { transcript, segments },
     time: end - start,
+    fileId: currentFileId,
   });
+
+  // Clear the file ID after completion
+  currentFileId = null;
 }
 
 // IndexedDB backup functions
@@ -427,6 +471,7 @@ self.addEventListener("message", async (e) => {
           status: "backup_check",
           hasBackup: !!backup,
           backup: backup,
+          fileId: data?.fileId || currentFileId,
         });
         break;
 
@@ -434,6 +479,7 @@ self.addEventListener("message", async (e) => {
         await deleteBackupFromIndexedDB();
         self.postMessage({
           status: "backup_cleared",
+          fileId: data?.fileId || currentFileId,
         });
         break;
 
@@ -445,6 +491,9 @@ self.addEventListener("message", async (e) => {
     self.postMessage({
       status: "error",
       error: error.message,
+      fileId: currentFileId,
     });
+    // Clear the file ID on error
+    currentFileId = null;
   }
 });

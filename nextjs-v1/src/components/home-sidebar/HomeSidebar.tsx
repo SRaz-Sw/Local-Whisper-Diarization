@@ -1,11 +1,8 @@
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import MainSection from "./MainSection";
 import { Separator } from "../ui/separator";
-import PersonalSection from "./personalSection";
-
-import BottomSection from "./BottomSection";
 import TranscriptsSection from "./transcriptsSection";
-// import FullstackPortfolioSection from "../home-sidebar/TestingSection";
+import BatchUploadSection from "./BatchUploadSection";
 
 const HomeSidebar = () => {
   return (
@@ -15,9 +12,9 @@ const HomeSidebar = () => {
         <Separator />
         {/* <PersonalSection/> */}
         <TranscriptsSection />
-        <div className="mt-auto">
+        <div className="mt-auto space-y-2 p-2">
           <Separator />
-          {/* <BottomSection /> */}
+          <BatchUploadSection />
         </div>
       </SidebarContent>
     </Sidebar>

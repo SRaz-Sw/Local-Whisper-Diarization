@@ -261,7 +261,7 @@ export default function TranscribeView() {
 
           {/* Audio player */}
           {audioFile && (
-            <div className="w-full max-w-3xl">
+            <div className="mx-auto w-full max-w-3xl">
               <AudioPlayer src={audioFile} />
             </div>
           )}

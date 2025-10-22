@@ -59,6 +59,7 @@ export interface WorkerMessage {
   processedSeconds?: number;
   totalSeconds?: number;
   estimatedTimeRemaining?: number;
+  fileId?: string; // File ID for batch processing - prevents race conditions
 }
 
 export type DeviceType = "webgpu" | "wasm";
@@ -76,6 +77,7 @@ export interface WhisperMediaInputProps {
   onInputChange: (audio: Float32Array) => void;
   onTimeUpdate: (time: number) => void;
   onFileNameChange?: (fileName: string) => void;
+  onMultipleFilesSelected?: (files: File[]) => void;
   className?: string;
 }
 

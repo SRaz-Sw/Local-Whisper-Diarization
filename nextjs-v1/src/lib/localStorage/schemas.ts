@@ -87,6 +87,23 @@ export const appSettingsSchema = z.object({
   keepAudioFiles: z.boolean().default(true), // Keep audio with transcript
 })
 
+/**
+ * Batch Job Schema
+ *
+ * Tracks metadata for batch upload jobs
+ */
+export const batchJobSchema = z.object({
+  id: z.string(),
+  createdAt: z.string(), // ISO timestamp
+  updatedAt: z.string(), // ISO timestamp
+  totalFiles: z.number(),
+  completedFiles: z.number(),
+  failedFiles: z.number(),
+  cancelledFiles: z.number(),
+  transcriptIds: z.array(z.string()), // References to saved transcripts
+  status: z.enum(['processing', 'completed', 'partial', 'cancelled']),
+})
+
 // ==================== TypeScript Types ====================
 
 /**
@@ -99,6 +116,7 @@ export type SpeakerSegment = z.infer<typeof speakerSegmentSchema>
 export type SavedTranscript = z.infer<typeof savedTranscriptSchema>
 export type PromptTemplate = z.infer<typeof promptTemplateSchema>
 export type AppSettings = z.infer<typeof appSettingsSchema>
+export type BatchJob = z.infer<typeof batchJobSchema>
 
 // ==================== Default Values ====================
 

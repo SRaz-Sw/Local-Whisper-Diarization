@@ -14,6 +14,7 @@ import type {
   TranscriptChunk,
   SpeakerSegment,
 } from "@/lib/localStorage/schemas";
+import { toast } from "sonner";
 
 /**
  * Hook for managing transcripts
@@ -77,6 +78,16 @@ export function useTranscripts() {
     load();
   }, [load]);
 
+  // Listen for transcript changes (when transcripts are added/removed elsewhere)
+  useEffect(() => {
+    const handleTranscriptChange = () => {
+      load();
+    };
+
+    window.addEventListener("transcripts-changed", handleTranscriptChange);
+    return () => window.removeEventListener("transcripts-changed", handleTranscriptChange);
+  }, [load]);
+
   /**
    * Save a new transcript
    *
@@ -133,6 +144,9 @@ export function useTranscripts() {
         // Reload list to reflect changes
         await load();
 
+        // Notify other components that transcripts have changed
+        window.dispatchEvent(new Event("transcripts-changed"));
+
         return id;
       } catch (err) {
         const error = err as Error;
@@ -162,8 +176,14 @@ export function useTranscripts() {
         // Delete transcript
         await transcripts.remove(id);
 
+        // delete transcript from items
+        setItems(items.filter((item) => item.id !== id));
+        toast.success("Transcript deleted");
         // Reload list
         await load();
+
+        // Notify other components that transcripts have changed
+        window.dispatchEvent(new Event("transcripts-changed"));
       } catch (err) {
         const error = err as Error;
         console.error("Failed to delete transcript:", error);
@@ -220,6 +240,9 @@ export function useTranscripts() {
 
         await transcripts.set(id, updated);
         await load();
+
+        // Notify other components that transcripts have changed
+        window.dispatchEvent(new Event("transcripts-changed"));
       } catch (err) {
         const error = err as Error;
         console.error("Failed to update transcript:", error);
@@ -330,7 +353,12 @@ export function useTranscripts() {
   const updateMetadata = useCallback(
     async (
       id: string,
-      metadata: Partial<Pick<SavedTranscript["metadata"], "conversationName" | "speakerNames">>,
+      metadata: Partial<
+        Pick<
+          SavedTranscript["metadata"],
+          "conversationName" | "speakerNames"
+        >
+      >,
     ): Promise<void> => {
       try {
         const existing = await transcripts.get(id);
@@ -349,6 +377,9 @@ export function useTranscripts() {
 
         await transcripts.set(id, updated);
         await load();
+
+        // Notify other components that transcripts have changed
+        window.dispatchEvent(new Event("transcripts-changed"));
       } catch (err) {
         const error = err as Error;
         console.error("Failed to update metadata:", error);

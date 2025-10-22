@@ -1,0 +1,6 @@
+[test]
+# Preload setup file before running tests
+preload = ["./__tests__/setup.ts"]
+
+# Test timeout (10 seconds)
+timeout = 10000
