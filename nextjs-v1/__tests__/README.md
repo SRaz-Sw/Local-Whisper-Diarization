@@ -25,32 +25,32 @@ __tests__/
 
 ### All Tests
 ```bash
-npm test
+bun test
 ```
 
 ### Watch Mode (for development)
 ```bash
-npm run test:watch
+bun test --watch
 ```
 
 ### Unit Tests Only
 ```bash
-npm run test:unit
+bun test __tests__/unit
 ```
 
 ### Integration Tests Only
 ```bash
-npm run test:integration
+bun test __tests__/integration
 ```
 
 ### Coverage Report
 ```bash
-npm run test:coverage
+bun test --coverage
 ```
 
 ### CI Mode
 ```bash
-npm run test:ci
+bun test --coverage
 ```
 
 ## Test Priority
@@ -120,7 +120,7 @@ const files = createMockAudioFiles(6) // 6 files
 ```typescript
 import { MockWorker } from '../mocks/worker'
 
-// Mock Worker is automatically used via jest.setup.js
+// Mock Worker is automatically used via __tests__/setup.ts
 // It simulates realistic worker behavior including:
 // - Model loading progress
 // - Transcription progress updates
@@ -147,6 +147,7 @@ await waitForCondition(
 
 ### Basic Template
 ```typescript
+import { describe, test, expect, beforeEach, afterEach } from 'bun:test'
 import { batchQueueManager } from '@/app/web-transc/services/BatchQueueManager'
 import { useBatchStore } from '@/app/web-transc/store/useBatchStore'
 import { resetStores, waitForCondition } from '../../helpers/testUtils'
@@ -155,7 +156,6 @@ import { createMockAudioFiles } from '../../mocks/audioData'
 describe('YourFeature - TestSuite', () => {
   beforeEach(() => {
     resetStores()
-    jest.clearAllMocks()
   })
 
   afterEach(() => {
@@ -185,14 +185,13 @@ describe('YourFeature - TestSuite', () => {
 ## CI/CD Integration
 
 Tests are configured to run in CI with:
-- Maximum 2 workers for stability
 - Coverage reporting
-- Fast fail on first error
+- Fast execution with Bun
 
 ```yaml
 # Example GitHub Actions workflow
 - name: Run tests
-  run: npm run test:ci
+  run: bun test --coverage
 
 - name: Upload coverage
   uses: codecov/codecov-action@v3
@@ -209,22 +208,17 @@ Tests are configured to run in CI with:
 
 ### Run Single Test File
 ```bash
-npm test -- BatchQueueManager.raceCondition.test.ts
+bun test __tests__/unit/services/BatchQueueManager.raceCondition.test.ts
 ```
 
 ### Run Single Test
 ```bash
-npm test -- -t "should process even-numbered files correctly"
+bun test -t "should process even-numbered files correctly"
 ```
 
 ### Verbose Output
 ```bash
-npm test -- --verbose
-```
-
-### Update Snapshots
-```bash
-npm test -- -u
+bun test --verbose
 ```
 
 ## Common Issues
@@ -238,7 +232,7 @@ test('long test', async () => {
 ```
 
 ### Issue: Worker not mocked
-**Solution**: Ensure `jest.setup.js` is loaded and Worker is mocked globally
+**Solution**: Ensure `__tests__/setup.ts` is preloaded (via bunfig.toml) and Worker is mocked globally
 
 ### Issue: Zustand state persists between tests
 **Solution**: Always call `resetStores()` in `beforeEach`
@@ -256,6 +250,6 @@ When adding new features to batch upload:
 ## References
 
 - [Test Specification](../BATCH_UPLOAD_TEST_SPECIFICATION.md) - Full test plan
-- [Jest Documentation](https://jestjs.io/)
+- [Bun Test Documentation](https://bun.sh/docs/cli/test)
 - [React Testing Library](https://testing-library.com/react)
 - [Testing Best Practices](https://testingjavascript.com/)
