@@ -509,7 +509,7 @@ export function BatchFileUpload() {
 
       {/* File List */}
       {files.length > 0 && (
-        <div className="space-y-2">
+        <div className="max-h-[26rem] space-y-2 overflow-y-auto">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
