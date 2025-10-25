@@ -15,6 +15,7 @@ import type {
   SpeakerSegment,
 } from "@/lib/localStorage/schemas";
 import { toast } from "sonner";
+import { sanitizeChunks } from "../utils/chunkSanitizer";
 
 /**
  * Hook for managing transcripts
@@ -85,7 +86,11 @@ export function useTranscripts() {
     };
 
     window.addEventListener("transcripts-changed", handleTranscriptChange);
-    return () => window.removeEventListener("transcripts-changed", handleTranscriptChange);
+    return () =>
+      window.removeEventListener(
+        "transcripts-changed",
+        handleTranscriptChange,
+      );
   }, [load]);
 
   /**
@@ -114,17 +119,22 @@ export function useTranscripts() {
           await blobStorage.save(audioFileId, data.audioBlob);
         }
 
+        // Sanitize chunks to remove/fix invalid timestamps
+        const sanitizedChunks = sanitizeChunks(data.transcript.chunks);
+
         // Calculate metadata
-        const lastChunk =
-          data.transcript.chunks[data.transcript.chunks.length - 1];
+        const lastChunk = sanitizedChunks[sanitizedChunks.length - 1];
         const duration = lastChunk?.timestamp[1] || 0;
         const speakerCount = new Set(data.segments.map((s) => s.label))
           .size;
 
-        // Create transcript object
+        // Create transcript object with sanitized chunks
         const transcript: SavedTranscript = {
           id,
-          transcript: data.transcript,
+          transcript: {
+            text: data.transcript.text,
+            chunks: sanitizedChunks,
+          },
           segments: data.segments,
           audioFileId,
           metadata: {
@@ -210,14 +220,26 @@ export function useTranscripts() {
           throw new Error("Transcript not found");
         }
 
+        // Sanitize chunks if they're being updated
+        let sanitizedTranscript = updates.transcript;
+        if (updates.transcript?.chunks) {
+          const sanitizedChunks = sanitizeChunks(
+            updates.transcript.chunks,
+          );
+          sanitizedTranscript = {
+            ...updates.transcript,
+            chunks: sanitizedChunks,
+          };
+        }
+
         // Recalculate metadata if transcript chunks changed
         let duration = existing.metadata.duration;
         let speakerCount = existing.metadata.speakerCount;
 
-        if (updates.transcript?.chunks) {
+        if (sanitizedTranscript?.chunks) {
           const lastChunk =
-            updates.transcript.chunks[
-              updates.transcript.chunks.length - 1
+            sanitizedTranscript.chunks[
+              sanitizedTranscript.chunks.length - 1
             ];
           duration = lastChunk?.timestamp[1] || 0;
         }
@@ -230,6 +252,7 @@ export function useTranscripts() {
         const updated: SavedTranscript = {
           ...existing,
           ...updates,
+          transcript: sanitizedTranscript || existing.transcript,
           metadata: {
             ...existing.metadata,
             duration,

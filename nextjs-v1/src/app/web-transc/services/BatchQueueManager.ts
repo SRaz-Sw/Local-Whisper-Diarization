@@ -14,6 +14,7 @@ import type {
   SpeakerSegment,
 } from "@/lib/localStorage/schemas";
 import { DEFAULT_MODEL } from "../config/modelConfig";
+import { sanitizeChunks } from "../utils/chunkSanitizer";
 
 class BatchQueueManager {
   private workerSubscriptions: Map<string, () => void> = new Map(); // workerId -> unsubscribe
@@ -513,9 +514,13 @@ class BatchQueueManager {
         await blobStorage.save(audioFileId, file.file);
       }
 
+      // Sanitize chunks to remove/fix invalid timestamps
+      const sanitizedChunks = sanitizeChunks(
+        result.transcript.chunks as TranscriptChunk[],
+      );
+
       // Calculate metadata
-      const lastChunk =
-        result.transcript.chunks[result.transcript.chunks.length - 1];
+      const lastChunk = sanitizedChunks[sanitizedChunks.length - 1];
       const duration = lastChunk?.timestamp[1] || 0;
       const speakerCount = new Set(result.segments.map((s) => s.label))
         .size;
@@ -524,12 +529,12 @@ class BatchQueueManager {
       const model =
         (file as any)._model || "onnx-community/whisper-base_timestamped";
 
-      // Create transcript object
+      // Create transcript object with sanitized chunks
       const transcript = {
         id,
         transcript: {
           text: result.transcript.text,
-          chunks: result.transcript.chunks as TranscriptChunk[],
+          chunks: sanitizedChunks,
         },
         segments: result.segments.map((s) => ({
           label: s.label,
