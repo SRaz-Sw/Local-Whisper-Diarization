@@ -7,7 +7,7 @@
 
 import { useRef, useState, useCallback, useEffect } from "react";
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -169,8 +169,15 @@ export default function UploadView() {
       const nonDuplicateFiles: File[] = [];
 
       files.forEach((file) => {
-        const existing = findDuplicateByFileName(file.name);
-        if (existing) {
+        // Check both saved transcripts AND current batch files
+        const existingTranscript = findDuplicateByFileName(file.name);
+        const existingBatchFile = batchFiles.find(
+          (bf) =>
+            bf.fileName.toLowerCase().trim() ===
+            file.name.toLowerCase().trim(),
+        );
+
+        if (existingTranscript || existingBatchFile) {
           duplicateFiles.push(file);
         } else {
           nonDuplicateFiles.push(file);
@@ -190,8 +197,73 @@ export default function UploadView() {
       if (duplicateFiles.length > 0) {
         console.log("⚠️ Found duplicates:", duplicateFiles.length);
 
+        // Create a component for individual duplicate file items
+        const DuplicateFileItem = ({
+          file,
+          index,
+          onSkip,
+          onReplace,
+        }: {
+          file: File;
+          index: number;
+          onSkip: (file: File) => void;
+          onReplace: (file: File) => void;
+        }) => {
+          const [isHoveringReplace, setIsHoveringReplace] =
+            React.useState(false);
+
+          return (
+            <motion.div
+              key={file.name + index}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-muted/40 rounded-lg px-3 py-1 backdrop-blur-sm"
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className="text-foreground mr-3 flex-1 truncate font-medium"
+                  title={file.name}
+                >
+                  {file.name}
+                </span>
+                <div className="flex gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => onSkip(file)}
+                    className="bg-muted hover:bg-muted/70 text-muted-foreground rounded-md border px-4 py-2 text-sm font-medium shadow-sm transition-all duration-200 hover:shadow-md"
+                  >
+                    Skip
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => onReplace(file)}
+                    onMouseEnter={() => setIsHoveringReplace(true)}
+                    onMouseLeave={() => setIsHoveringReplace(false)}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium shadow-sm transition-all duration-200 hover:shadow-md"
+                  >
+                    Replace
+                  </motion.button>
+                </div>
+              </div>
+              <div
+                className={`text-primary text-bold mt-1 text-xs transition-opacity duration-200 ${
+                  isHoveringReplace ? "opacity-100" : "opacity-0"
+                }`}
+                style={{ minHeight: "1rem" }}
+              >
+                This will delete the older copy and add the new file. You
+                cannot keep both.
+              </div>
+            </motion.div>
+          );
+        };
+
         // Create toast with duplicate file actions
-        const toastId = toast.custom(
+        toast.custom(
           (t) => {
             // Create a simple component to manage state
             const DuplicateToast = () => {
@@ -224,52 +296,46 @@ export default function UploadView() {
               };
 
               return (
-                <div className="bg-background border-border max-w-md rounded-lg border p-4 shadow-lg">
-                  <div className="mb-3 flex items-center justify-between">
-                    <h3 className="text-foreground font-semibold">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="bg-background border-border max-w-4xl rounded-xl border-2 p-6 shadow-2xl"
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-foreground text-lg font-bold">
                       Duplicate Files Detected (
                       {remainingDuplicates.length})
                     </h3>
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
                       onClick={() => toast.dismiss(t)}
-                      className="text-muted-foreground hover:text-foreground"
+                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
                     >
-                      ✕
-                    </button>
+                      <span className="text-xl">✕</span>
+                    </motion.button>
                   </div>
 
-                  <div className="mb-4 max-h-40 space-y-2 overflow-y-auto">
-                    {remainingDuplicates.map((file, index) => (
-                      <div
-                        key={index}
-                        className="bg-muted/30 flex items-center justify-between rounded p-2"
-                      >
-                        <span
-                          className="text-foreground mr-2 flex-1 truncate text-sm"
-                          title={file.name}
-                        >
-                          {file.name}
-                        </span>
-                        <div className="flex gap-1">
-                          <button
-                            onClick={() => handleSkipFile(file)}
-                            className="bg-muted hover:bg-muted/80 text-muted-foreground rounded px-2 py-1 text-xs"
-                          >
-                            Skip
-                          </button>
-                          <button
-                            onClick={() => handleReplaceFile(file)}
-                            className="bg-primary hover:bg-primary/80 text-primary-foreground rounded px-2 py-1 text-xs"
-                          >
-                            Replace
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="mb-5 max-h-[calc(100svh-20rem)] space-y-1 overflow-y-auto pr-2">
+                    <AnimatePresence mode="popLayout">
+                      {remainingDuplicates.map((file, index) => (
+                        <DuplicateFileItem
+                          key={file.name + index}
+                          file={file}
+                          index={index}
+                          onSkip={handleSkipFile}
+                          onReplace={handleReplaceFile}
+                        />
+                      ))}
+                    </AnimatePresence>
                   </div>
 
-                  <div className="flex gap-2">
-                    <button
+                  <div className="flex gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => {
                         // Skip all remaining duplicates
                         toast.dismiss(t);
@@ -277,11 +343,13 @@ export default function UploadView() {
                           `Skipped ${remainingDuplicates.length} duplicate files`,
                         );
                       }}
-                      className="bg-muted hover:bg-muted/80 text-muted-foreground flex-1 rounded px-3 py-2 text-sm"
+                      className="bg-muted hover:bg-muted/70 text-muted-foreground flex-1 rounded-lg border px-4 py-3 text-sm font-semibold shadow-sm transition-all duration-200 hover:shadow-md"
                     >
                       Skip All
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => {
                         // Replace all remaining duplicates
                         toast.dismiss(t);
@@ -290,25 +358,25 @@ export default function UploadView() {
                           `Replacing ${remainingDuplicates.length} duplicate files`,
                         );
                       }}
-                      className="bg-primary hover:bg-primary/80 text-primary-foreground flex-1 rounded px-3 py-2 text-sm"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 rounded-lg px-4 py-3 text-sm font-semibold shadow-sm transition-all duration-200 hover:shadow-md"
                     >
                       Replace All
-                    </button>
+                    </motion.button>
                   </div>
-                </div>
+                </motion.div>
               );
             };
 
             return <DuplicateToast />;
           },
           {
-            duration: 15000, // Auto-dismiss after 15 seconds
+            duration: 20000, // Extended to 20 seconds for better UX
             position: "top-center",
           },
         );
       }
     },
-    [addBatchFiles, findDuplicateByFileName],
+    [addBatchFiles, findDuplicateByFileName, batchFiles],
   );
 
   // Cleanup batch manager when leaving batch mode
@@ -400,6 +468,7 @@ export default function UploadView() {
 
         toast.success("Transcript loaded!", {
           description: `Loaded "${data.metadata.fileName}"`,
+          position: "bottom-center",
         });
 
         // Navigate to transcript view

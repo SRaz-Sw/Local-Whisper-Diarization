@@ -159,6 +159,7 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
 
       toast.success("Transcript loaded!", {
         description: `Loaded "${data.metadata.fileName}"`,
+        position: "bottom-center",
       });
     } catch (error) {
       console.error("Failed to load transcript:", error);

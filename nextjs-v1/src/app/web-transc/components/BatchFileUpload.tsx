@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import {
   DndContext,
   closestCenter,
@@ -177,17 +178,224 @@ export function BatchFileUpload() {
         return;
       }
 
-      // Add files to batch
-      console.log("➕ Calling addFiles with", validFiles.length, "files");
-      addFiles(validFiles);
-      console.log("✅ addFiles called successfully");
+      // Check for duplicates and separate files
+      const duplicateFiles: File[] = [];
+      const nonDuplicateFiles: File[] = [];
+
+      validFiles.forEach((file) => {
+        // Check both saved transcripts AND current batch files
+        const existingTranscript = findDuplicateByFileName(file.name);
+        const existingBatchFile = files.find(
+          (bf) =>
+            bf.fileName.toLowerCase().trim() ===
+            file.name.toLowerCase().trim(),
+        );
+
+        if (existingTranscript || existingBatchFile) {
+          duplicateFiles.push(file);
+        } else {
+          nonDuplicateFiles.push(file);
+        }
+      });
+
+      // Add non-duplicate files immediately
+      if (nonDuplicateFiles.length > 0) {
+        console.log(
+          "➕ Adding non-duplicate files:",
+          nonDuplicateFiles.length,
+        );
+        addFiles(nonDuplicateFiles);
+      }
+
+      // Handle duplicate files with toast notification
+      if (duplicateFiles.length > 0) {
+        console.log("⚠️ Found duplicates:", duplicateFiles.length);
+
+        // Create a component for individual duplicate file items
+        const DuplicateFileItem = ({
+          file,
+          index,
+          onSkip,
+          onReplace,
+        }: {
+          file: File;
+          index: number;
+          onSkip: (file: File) => void;
+          onReplace: (file: File) => void;
+        }) => {
+          const [isHoveringReplace, setIsHoveringReplace] =
+            React.useState(false);
+
+          return (
+            <motion.div
+              key={file.name + index}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-muted/40 rounded-lg px-3 py-1 backdrop-blur-sm"
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className="text-foreground mr-3 flex-1 truncate font-medium"
+                  title={file.name}
+                >
+                  {file.name}
+                </span>
+                <div className="flex gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => onSkip(file)}
+                    className="bg-muted hover:bg-muted/70 text-muted-foreground rounded-md border px-4 py-2 text-sm font-medium shadow-sm transition-all duration-200 hover:shadow-md"
+                  >
+                    Skip
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => onReplace(file)}
+                    onMouseEnter={() => setIsHoveringReplace(true)}
+                    onMouseLeave={() => setIsHoveringReplace(false)}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium shadow-sm transition-all duration-200 hover:shadow-md"
+                  >
+                    Replace
+                  </motion.button>
+                </div>
+              </div>
+              <div
+                className={`text-primary text-bold mt-1 text-xs transition-opacity duration-200 ${
+                  isHoveringReplace ? "opacity-100" : "opacity-0"
+                }`}
+                style={{ minHeight: "1rem" }}
+              >
+                This will delete the older copy and add the new file. You
+                cannot keep both.
+              </div>
+            </motion.div>
+          );
+        };
+
+        // Create toast with duplicate file actions
+        toast.custom(
+          (t: string | number) => {
+            // Create a simple component to manage state
+            const DuplicateToast = () => {
+              const [remainingDuplicates, setRemainingDuplicates] =
+                React.useState(duplicateFiles);
+
+              const handleSkipFile = (fileToSkip: File) => {
+                setRemainingDuplicates((prev) =>
+                  prev.filter((f) => f !== fileToSkip),
+                );
+                toast.info(`Skipped: ${fileToSkip.name}`);
+
+                // If no more duplicates, dismiss the toast
+                if (remainingDuplicates.length === 1) {
+                  toast.dismiss(t);
+                }
+              };
+
+              const handleReplaceFile = (fileToReplace: File) => {
+                setRemainingDuplicates((prev) =>
+                  prev.filter((f) => f !== fileToReplace),
+                );
+                addFiles([fileToReplace]);
+                toast.success(`Replacing: ${fileToReplace.name}`);
+
+                // If no more duplicates, dismiss the toast
+                if (remainingDuplicates.length === 1) {
+                  toast.dismiss(t);
+                }
+              };
+
+              return (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="bg-background border-border max-w-4xl rounded-xl border-2 p-6 shadow-2xl"
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-foreground text-lg font-bold">
+                      Duplicate Files Detected (
+                      {remainingDuplicates.length})
+                    </h3>
+                    <motion.button
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => toast.dismiss(t)}
+                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    >
+                      <span className="text-xl">✕</span>
+                    </motion.button>
+                  </div>
+
+                  <div className="mb-5 max-h-[calc(100svh-20rem)] space-y-1 overflow-y-auto pr-2">
+                    <AnimatePresence mode="popLayout">
+                      {remainingDuplicates.map((file, index) => (
+                        <DuplicateFileItem
+                          key={file.name + index}
+                          file={file}
+                          index={index}
+                          onSkip={handleSkipFile}
+                          onReplace={handleReplaceFile}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        // Skip all remaining duplicates
+                        toast.dismiss(t);
+                        toast.info(
+                          `Skipped ${remainingDuplicates.length} duplicate files`,
+                        );
+                      }}
+                      className="bg-muted hover:bg-muted/70 text-muted-foreground flex-1 rounded-lg border px-4 py-3 text-sm font-semibold shadow-sm transition-all duration-200 hover:shadow-md"
+                    >
+                      Skip All
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        // Replace all remaining duplicates
+                        toast.dismiss(t);
+                        addFiles(remainingDuplicates);
+                        toast.success(
+                          `Replacing ${remainingDuplicates.length} duplicate files`,
+                        );
+                      }}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 rounded-lg px-4 py-3 text-sm font-semibold shadow-sm transition-all duration-200 hover:shadow-md"
+                    >
+                      Replace All
+                    </motion.button>
+                  </div>
+                </motion.div>
+              );
+            };
+
+            return <DuplicateToast />;
+          },
+          {
+            duration: 20000, // Extended to 20 seconds for better UX
+            position: "top-center",
+          },
+        );
+      }
 
       // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     },
-    [files.length, findDuplicateByFileName, addFiles],
+    [files, findDuplicateByFileName, addFiles],
   );
 
   // Drag and drop handlers

@@ -619,6 +619,7 @@ function WhisperDiarization() {
 
         toast.success("Transcript loaded!", {
           description: `Loaded "${data.metadata.fileName}"`,
+          position: "bottom-center",
         });
 
         console.log("✅ Transcript loaded:", transcriptId);

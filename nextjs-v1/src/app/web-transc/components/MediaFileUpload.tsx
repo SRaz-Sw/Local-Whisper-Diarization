@@ -130,7 +130,14 @@ const MediaFileUpload = forwardRef<
   WhisperMediaInputProps
 >(
   (
-    { onInputChange, onTimeUpdate, onFileNameChange, onMultipleFilesSelected, className, ...props },
+    {
+      onInputChange,
+      onTimeUpdate,
+      onFileNameChange,
+      onMultipleFilesSelected,
+      className,
+      ...props
+    },
     ref,
   ) => {
     const [status, setStatus] = useState<FileStatus>("idle");
@@ -161,7 +168,11 @@ const MediaFileUpload = forwardRef<
     const setSpeakerNames = useWhisperStore(
       (state) => state.setSpeakerNames,
     );
-    const { updateMetadata, get: getTranscript, findDuplicateByFileName } = useTranscripts();
+    const {
+      updateMetadata,
+      get: getTranscript,
+      findDuplicateByFileName,
+    } = useTranscripts();
 
     // Modal state
     const [editConversationModal, setEditConversationModal] = useState<{
@@ -339,33 +350,36 @@ const MediaFileUpload = forwardRef<
       reader.readAsArrayBuffer(selectedFile);
     };
 
-    const handleFileSelect = useCallback((selectedFile: File | null) => {
-      if (!selectedFile) return;
+    const handleFileSelect = useCallback(
+      (selectedFile: File | null) => {
+        if (!selectedFile) return;
 
-      if (
-        !selectedFile.type.startsWith("audio/") &&
-        !selectedFile.type.startsWith("video/")
-      ) {
-        setError({
-          message: "Please select an audio or video file",
-          code: "INVALID_FILE_TYPE",
-        });
-        setStatus("error");
-        return;
-      }
+        if (
+          !selectedFile.type.startsWith("audio/") &&
+          !selectedFile.type.startsWith("video/")
+        ) {
+          setError({
+            message: "Please select an audio or video file",
+            code: "INVALID_FILE_TYPE",
+          });
+          setStatus("error");
+          return;
+        }
 
-      // Check for duplicate file
-      const duplicate = findDuplicateByFileName(selectedFile.name);
-      if (duplicate) {
-        setDuplicateModal({
-          open: true,
-          transcript: duplicate,
-        });
-        return;
-      }
+        // Check for duplicate file
+        const duplicate = findDuplicateByFileName(selectedFile.name);
+        if (duplicate) {
+          setDuplicateModal({
+            open: true,
+            transcript: duplicate,
+          });
+          return;
+        }
 
-      readFile(selectedFile);
-    }, [findDuplicateByFileName]);
+        readFile(selectedFile);
+      },
+      [findDuplicateByFileName],
+    );
 
     const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
       e.preventDefault();
@@ -391,7 +405,8 @@ const MediaFileUpload = forwardRef<
         // If multiple files dropped, notify parent
         if (droppedFiles.length > 1 && onMultipleFilesSelected) {
           const fileArray = Array.from(droppedFiles).filter(
-            (f) => f.type.startsWith("audio/") || f.type.startsWith("video/")
+            (f) =>
+              f.type.startsWith("audio/") || f.type.startsWith("video/"),
           );
           if (fileArray.length > 0) {
             onMultipleFilesSelected(fileArray);
@@ -414,7 +429,8 @@ const MediaFileUpload = forwardRef<
         // If multiple files selected, notify parent
         if (selectedFiles.length > 1 && onMultipleFilesSelected) {
           const fileArray = Array.from(selectedFiles).filter(
-            (f) => f.type.startsWith("audio/") || f.type.startsWith("video/")
+            (f) =>
+              f.type.startsWith("audio/") || f.type.startsWith("video/"),
           );
           if (fileArray.length > 0) {
             onMultipleFilesSelected(fileArray);
@@ -635,9 +651,9 @@ const MediaFileUpload = forwardRef<
                         <button
                           type="button"
                           onClick={triggerFileInput}
-                          className="group mb-3 flex w-4/5 items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-all duration-200 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+                          className="group border-border mb-3 flex w-4/5 items-center justify-center gap-2 rounded-lg border bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-all duration-200 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
                         >
-                          <span>Upload File</span>
+                          <span>Upload File(s)</span>
                           <UploadCloud className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
                         </button>
 
