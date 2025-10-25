@@ -6,6 +6,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,7 @@ export default function UploadView() {
     remove: removeTranscript,
     updateMetadata,
     getWithAudio,
+    findDuplicateByFileName,
   } = useTranscripts();
 
   // Batch store
@@ -160,11 +162,153 @@ export default function UploadView() {
   // Handle multiple files selection - switch to batch mode
   const handleMultipleFilesSelected = useCallback(
     (files: File[]) => {
-      console.log('📦 Multiple files selected:', files.length);
-      // Add files to batch store (batch mode computed automatically from files.length)
-      addBatchFiles(files);
+      console.log("📦 Multiple files selected:", files.length);
+
+      // Check for duplicates and separate files
+      const duplicateFiles: File[] = [];
+      const nonDuplicateFiles: File[] = [];
+
+      files.forEach((file) => {
+        const existing = findDuplicateByFileName(file.name);
+        if (existing) {
+          duplicateFiles.push(file);
+        } else {
+          nonDuplicateFiles.push(file);
+        }
+      });
+
+      // Add non-duplicate files immediately
+      if (nonDuplicateFiles.length > 0) {
+        console.log(
+          "➕ Adding non-duplicate files:",
+          nonDuplicateFiles.length,
+        );
+        addBatchFiles(nonDuplicateFiles);
+      }
+
+      // Handle duplicate files with toast notification
+      if (duplicateFiles.length > 0) {
+        console.log("⚠️ Found duplicates:", duplicateFiles.length);
+
+        // Create toast with duplicate file actions
+        const toastId = toast.custom(
+          (t) => {
+            // Create a simple component to manage state
+            const DuplicateToast = () => {
+              const [remainingDuplicates, setRemainingDuplicates] =
+                React.useState(duplicateFiles);
+
+              const handleSkipFile = (fileToSkip: File) => {
+                setRemainingDuplicates((prev) =>
+                  prev.filter((f) => f !== fileToSkip),
+                );
+                toast.info(`Skipped: ${fileToSkip.name}`);
+
+                // If no more duplicates, dismiss the toast
+                if (remainingDuplicates.length === 1) {
+                  toast.dismiss(t);
+                }
+              };
+
+              const handleReplaceFile = (fileToReplace: File) => {
+                setRemainingDuplicates((prev) =>
+                  prev.filter((f) => f !== fileToReplace),
+                );
+                addBatchFiles([fileToReplace]);
+                toast.success(`Replacing: ${fileToReplace.name}`);
+
+                // If no more duplicates, dismiss the toast
+                if (remainingDuplicates.length === 1) {
+                  toast.dismiss(t);
+                }
+              };
+
+              return (
+                <div className="bg-background border-border max-w-md rounded-lg border p-4 shadow-lg">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-foreground font-semibold">
+                      Duplicate Files Detected (
+                      {remainingDuplicates.length})
+                    </h3>
+                    <button
+                      onClick={() => toast.dismiss(t)}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="mb-4 max-h-40 space-y-2 overflow-y-auto">
+                    {remainingDuplicates.map((file, index) => (
+                      <div
+                        key={index}
+                        className="bg-muted/30 flex items-center justify-between rounded p-2"
+                      >
+                        <span
+                          className="text-foreground mr-2 flex-1 truncate text-sm"
+                          title={file.name}
+                        >
+                          {file.name}
+                        </span>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => handleSkipFile(file)}
+                            className="bg-muted hover:bg-muted/80 text-muted-foreground rounded px-2 py-1 text-xs"
+                          >
+                            Skip
+                          </button>
+                          <button
+                            onClick={() => handleReplaceFile(file)}
+                            className="bg-primary hover:bg-primary/80 text-primary-foreground rounded px-2 py-1 text-xs"
+                          >
+                            Replace
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        // Skip all remaining duplicates
+                        toast.dismiss(t);
+                        toast.info(
+                          `Skipped ${remainingDuplicates.length} duplicate files`,
+                        );
+                      }}
+                      className="bg-muted hover:bg-muted/80 text-muted-foreground flex-1 rounded px-3 py-2 text-sm"
+                    >
+                      Skip All
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Replace all remaining duplicates
+                        toast.dismiss(t);
+                        addBatchFiles(remainingDuplicates);
+                        toast.success(
+                          `Replacing ${remainingDuplicates.length} duplicate files`,
+                        );
+                      }}
+                      className="bg-primary hover:bg-primary/80 text-primary-foreground flex-1 rounded px-3 py-2 text-sm"
+                    >
+                      Replace All
+                    </button>
+                  </div>
+                </div>
+              );
+            };
+
+            return <DuplicateToast />;
+          },
+          {
+            duration: 15000, // Auto-dismiss after 15 seconds
+            position: "top-center",
+          },
+        );
+      }
     },
-    [addBatchFiles],
+    [addBatchFiles, findDuplicateByFileName],
   );
 
   // Cleanup batch manager when leaving batch mode
@@ -173,7 +317,9 @@ export default function UploadView() {
     return () => {
       if (batchFiles.length === 0) {
         // Only terminate if there are no files (fully exited batch mode)
-        console.log('🗑️ No batch files, will cleanup manager on next mount if still empty');
+        console.log(
+          "🗑️ No batch files, will cleanup manager on next mount if still empty",
+        );
       }
     };
   }, [batchFiles.length]);
@@ -407,7 +553,9 @@ export default function UploadView() {
                     setIsLoadingFromStorage(false);
                   }}
                   onTimeUpdate={() => {}} // Not needed in upload view
-                  onFileNameChange={(fileName) => setAudioFileName(fileName)}
+                  onFileNameChange={(fileName) =>
+                    setAudioFileName(fileName)
+                  }
                   onMultipleFilesSelected={handleMultipleFilesSelected}
                 />
               </div>

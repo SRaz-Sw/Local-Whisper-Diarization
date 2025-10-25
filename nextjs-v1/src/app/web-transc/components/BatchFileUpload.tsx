@@ -177,26 +177,6 @@ export function BatchFileUpload() {
         return;
       }
 
-      // Check for duplicates
-      const foundDuplicates: string[] = [];
-      validFiles.forEach((file) => {
-        const existing = findDuplicateByFileName(file.name);
-        if (existing) {
-          foundDuplicates.push(file.name);
-        }
-      });
-
-      if (foundDuplicates.length > 0) {
-        console.log("⚠️ Found duplicates:", foundDuplicates);
-        const proceed = window.confirm(
-          `Found ${foundDuplicates.length} duplicate file(s):\n${foundDuplicates.slice(0, 5).join("\n")}${foundDuplicates.length > 5 ? "\n..." : ""}\n\nDo you want to process them anyway?`,
-        );
-        if (!proceed) {
-          console.log("❌ User cancelled due to duplicates");
-          return;
-        }
-      }
-
       // Add files to batch
       console.log("➕ Calling addFiles with", validFiles.length, "files");
       addFiles(validFiles);
