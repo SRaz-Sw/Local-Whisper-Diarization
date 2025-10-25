@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+cd nextjs-v1 && bunx lint-staged

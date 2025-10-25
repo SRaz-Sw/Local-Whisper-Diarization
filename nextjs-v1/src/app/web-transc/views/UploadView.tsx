@@ -6,7 +6,8 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
-import { motion } from "framer-motion";
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -72,6 +73,7 @@ export default function UploadView() {
     remove: removeTranscript,
     updateMetadata,
     getWithAudio,
+    findDuplicateByFileName,
   } = useTranscripts();
 
   // Batch store
@@ -160,11 +162,221 @@ export default function UploadView() {
   // Handle multiple files selection - switch to batch mode
   const handleMultipleFilesSelected = useCallback(
     (files: File[]) => {
-      console.log('📦 Multiple files selected:', files.length);
-      // Add files to batch store (batch mode computed automatically from files.length)
-      addBatchFiles(files);
+      console.log("📦 Multiple files selected:", files.length);
+
+      // Check for duplicates and separate files
+      const duplicateFiles: File[] = [];
+      const nonDuplicateFiles: File[] = [];
+
+      files.forEach((file) => {
+        // Check both saved transcripts AND current batch files
+        const existingTranscript = findDuplicateByFileName(file.name);
+        const existingBatchFile = batchFiles.find(
+          (bf) =>
+            bf.fileName.toLowerCase().trim() ===
+            file.name.toLowerCase().trim(),
+        );
+
+        if (existingTranscript || existingBatchFile) {
+          duplicateFiles.push(file);
+        } else {
+          nonDuplicateFiles.push(file);
+        }
+      });
+
+      // Add non-duplicate files immediately
+      if (nonDuplicateFiles.length > 0) {
+        console.log(
+          "➕ Adding non-duplicate files:",
+          nonDuplicateFiles.length,
+        );
+        addBatchFiles(nonDuplicateFiles);
+      }
+
+      // Handle duplicate files with toast notification
+      if (duplicateFiles.length > 0) {
+        console.log("⚠️ Found duplicates:", duplicateFiles.length);
+
+        // Create a component for individual duplicate file items
+        const DuplicateFileItem = ({
+          file,
+          index,
+          onSkip,
+          onReplace,
+        }: {
+          file: File;
+          index: number;
+          onSkip: (file: File) => void;
+          onReplace: (file: File) => void;
+        }) => {
+          const [isHoveringReplace, setIsHoveringReplace] =
+            React.useState(false);
+
+          return (
+            <motion.div
+              key={file.name + index}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-muted/40 rounded-lg px-3 py-1 backdrop-blur-sm"
+            >
+              <div className="flex items-center justify-between">
+                <span
+                  className="text-foreground mr-3 flex-1 truncate font-medium"
+                  title={file.name}
+                >
+                  {file.name}
+                </span>
+                <div className="flex gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => onSkip(file)}
+                    className="bg-muted hover:bg-muted/70 text-muted-foreground rounded-md border px-4 py-2 text-sm font-medium shadow-sm transition-all duration-200 hover:shadow-md"
+                  >
+                    Skip
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => onReplace(file)}
+                    onMouseEnter={() => setIsHoveringReplace(true)}
+                    onMouseLeave={() => setIsHoveringReplace(false)}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium shadow-sm transition-all duration-200 hover:shadow-md"
+                  >
+                    Replace
+                  </motion.button>
+                </div>
+              </div>
+              <div
+                className={`text-primary text-bold mt-1 text-xs transition-opacity duration-200 ${
+                  isHoveringReplace ? "opacity-100" : "opacity-0"
+                }`}
+                style={{ minHeight: "1rem" }}
+              >
+                This will delete the older copy and add the new file. You
+                cannot keep both.
+              </div>
+            </motion.div>
+          );
+        };
+
+        // Create toast with duplicate file actions
+        toast.custom(
+          (t) => {
+            // Create a simple component to manage state
+            const DuplicateToast = () => {
+              const [remainingDuplicates, setRemainingDuplicates] =
+                React.useState(duplicateFiles);
+
+              const handleSkipFile = (fileToSkip: File) => {
+                setRemainingDuplicates((prev) =>
+                  prev.filter((f) => f !== fileToSkip),
+                );
+                toast.info(`Skipped: ${fileToSkip.name}`);
+
+                // If no more duplicates, dismiss the toast
+                if (remainingDuplicates.length === 1) {
+                  toast.dismiss(t);
+                }
+              };
+
+              const handleReplaceFile = (fileToReplace: File) => {
+                setRemainingDuplicates((prev) =>
+                  prev.filter((f) => f !== fileToReplace),
+                );
+                addBatchFiles([fileToReplace]);
+                toast.success(`Replacing: ${fileToReplace.name}`);
+
+                // If no more duplicates, dismiss the toast
+                if (remainingDuplicates.length === 1) {
+                  toast.dismiss(t);
+                }
+              };
+
+              return (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  className="bg-background border-border max-w-4xl rounded-xl border-2 p-6 shadow-2xl"
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-foreground text-lg font-bold">
+                      Duplicate Files Detected (
+                      {remainingDuplicates.length})
+                    </h3>
+                    <motion.button
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => toast.dismiss(t)}
+                      className="text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    >
+                      <span className="text-xl">✕</span>
+                    </motion.button>
+                  </div>
+
+                  <div className="mb-5 max-h-[calc(100svh-20rem)] space-y-1 overflow-y-auto pr-2">
+                    <AnimatePresence mode="popLayout">
+                      {remainingDuplicates.map((file, index) => (
+                        <DuplicateFileItem
+                          key={file.name + index}
+                          file={file}
+                          index={index}
+                          onSkip={handleSkipFile}
+                          onReplace={handleReplaceFile}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        // Skip all remaining duplicates
+                        toast.dismiss(t);
+                        toast.info(
+                          `Skipped ${remainingDuplicates.length} duplicate files`,
+                        );
+                      }}
+                      className="bg-muted hover:bg-muted/70 text-muted-foreground flex-1 rounded-lg border px-4 py-3 text-sm font-semibold shadow-sm transition-all duration-200 hover:shadow-md"
+                    >
+                      Skip All
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        // Replace all remaining duplicates
+                        toast.dismiss(t);
+                        addBatchFiles(remainingDuplicates);
+                        toast.success(
+                          `Replacing ${remainingDuplicates.length} duplicate files`,
+                        );
+                      }}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground flex-1 rounded-lg px-4 py-3 text-sm font-semibold shadow-sm transition-all duration-200 hover:shadow-md"
+                    >
+                      Replace All
+                    </motion.button>
+                  </div>
+                </motion.div>
+              );
+            };
+
+            return <DuplicateToast />;
+          },
+          {
+            duration: 20000, // Extended to 20 seconds for better UX
+            position: "top-center",
+          },
+        );
+      }
     },
-    [addBatchFiles],
+    [addBatchFiles, findDuplicateByFileName, batchFiles],
   );
 
   // Cleanup batch manager when leaving batch mode
@@ -173,7 +385,9 @@ export default function UploadView() {
     return () => {
       if (batchFiles.length === 0) {
         // Only terminate if there are no files (fully exited batch mode)
-        console.log('🗑️ No batch files, will cleanup manager on next mount if still empty');
+        console.log(
+          "🗑️ No batch files, will cleanup manager on next mount if still empty",
+        );
       }
     };
   }, [batchFiles.length]);
@@ -254,6 +468,7 @@ export default function UploadView() {
 
         toast.success("Transcript loaded!", {
           description: `Loaded "${data.metadata.fileName}"`,
+          position: "bottom-center",
         });
 
         // Navigate to transcript view
@@ -407,7 +622,9 @@ export default function UploadView() {
                     setIsLoadingFromStorage(false);
                   }}
                   onTimeUpdate={() => {}} // Not needed in upload view
-                  onFileNameChange={(fileName) => setAudioFileName(fileName)}
+                  onFileNameChange={(fileName) =>
+                    setAudioFileName(fileName)
+                  }
                   onMultipleFilesSelected={handleMultipleFilesSelected}
                 />
               </div>
