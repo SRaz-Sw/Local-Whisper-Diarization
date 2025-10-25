@@ -1,0 +1,17 @@
+# Root-level .gitignore for monorepo structure
+
+# Dependencies
+node_modules/
+*.lock
+bun.lock
+
+# Package manager files at root (not needed since this is a monorepo)
+/package.json
+/package-lock.json
+
+# OS files
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
