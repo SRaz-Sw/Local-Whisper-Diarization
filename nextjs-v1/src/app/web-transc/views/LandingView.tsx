@@ -22,6 +22,7 @@ export default function LandingView() {
   const [isClient, setIsClient] = useState(false);
   const navigate = useRouterStore((state) => state.navigate);
 
+  // Detect the platform of the user
   useEffect(() => {
     setIsClient(true);
     const userAgent = navigator.userAgent.toLowerCase();
@@ -43,11 +44,13 @@ export default function LandingView() {
     }
   }, []);
 
-  const handleDownload = (url: string, filename: string) => {
-    // Create a temporary anchor element to trigger download
+  const handleDownload = (url: string) => {
+    // Best practice for downloading files from GitHub releases:
+    // Create an anchor element and trigger a click
+    // GitHub sends Content-Disposition: attachment headers which triggers download
+    // We don't use download attribute for cross-origin URLs as it's ignored
     const link = document.createElement("a");
     link.href = url;
-    link.download = filename;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
     document.body.appendChild(link);
@@ -62,29 +65,29 @@ export default function LandingView() {
     switch (platform) {
       case "mac-arm":
         return {
-          url: `${baseUrl}/Whisper-Diarization-0.3.0-arm64.dmg`,
-          filename: "Whisper-Diarization-0.3.0-arm64.dmg",
+          url: `${baseUrl}/Whisper.Diarization-0.3.0-arm64.dmg`,
+          filename: "Whisper.Diarization-0.3.0-arm64.dmg",
           label: "Download for macOS (Apple Silicon)",
           size: "~200MB",
         };
       case "mac-intel":
         return {
-          url: `${baseUrl}/Whisper-Diarization-0.3.0-x64.dmg`,
-          filename: "Whisper-Diarization-0.3.0-x64.dmg",
+          url: `${baseUrl}/Whisper.Diarization-0.3.0.dmg`,
+          filename: "Whisper.Diarization-0.3.0.dmg",
           label: "Download for macOS (Intel)",
           size: "~210MB",
         };
       case "windows":
         return {
-          url: `${baseUrl}/Whisper-Diarization-Setup-0.3.0.exe`,
-          filename: "Whisper-Diarization-Setup-0.3.0.exe",
+          url: `${baseUrl}/Whisper.Diarization.Setup.0.3.0.exe`,
+          filename: "Whisper.Diarization.Setup.0.3.0.exe",
           label: "Download for Windows",
           size: "~180MB",
         };
       case "linux":
         return {
-          url: `${baseUrl}/Whisper-Diarization-0.3.0.AppImage`,
-          filename: "Whisper-Diarization-0.3.0.AppImage",
+          url: `${baseUrl}/Whisper.Diarization-0.3.0.AppImage`,
+          filename: "Whisper.Diarization-0.3.0.AppImage",
           label: "Download for Linux",
           size: "~190MB",
         };
@@ -164,9 +167,7 @@ export default function LandingView() {
               <Button
                 size="lg"
                 className="group relative overflow-hidden px-8 py-6 text-lg"
-                onClick={() =>
-                  handleDownload(downloadInfo.url, downloadInfo.filename)
-                }
+                onClick={() => handleDownload(downloadInfo.url)}
               >
                 <Download className="mr-2 h-5 w-5" />
                 {downloadInfo.label}
@@ -348,9 +349,7 @@ export default function LandingView() {
               <Button
                 size="lg"
                 className="px-8"
-                onClick={() =>
-                  handleDownload(downloadInfo.url, downloadInfo.filename)
-                }
+                onClick={() => handleDownload(downloadInfo.url)}
               >
                 <Download className="mr-2 h-5 w-5" />
                 Download Desktop App
