@@ -2,12 +2,9 @@
 
 import {
   HomeIcon,
-  MessageCircleIcon,
-  UsersIcon,
-  PhoneCallIcon,
   DatabaseIcon,
-  FileIcon,
-  SearchIcon,
+  UploadIcon,
+  PlaneIcon,
 } from "lucide-react";
 import {
   SidebarGroup,
@@ -17,13 +14,24 @@ import {
   SidebarMenuButton,
 } from "../ui/sidebar";
 import { useRouterStore } from "@/app/web-transc/store/useRouterStore";
+import type { ViewName } from "@/app/web-transc/router/types";
 
-const items = [
+interface NavItem {
+  title: string;
+  view: ViewName;
+  icon: React.ReactNode;
+}
+
+const items: NavItem[] = [
   {
-    title: "Web Transcribe",
-    url: "/web-transc",
-    icon: <DatabaseIcon />,
-    auth: true,
+    title: "Landing Page",
+    view: "landing",
+    icon: <PlaneIcon />,
+  },
+  {
+    title: "Upload",
+    view: "upload",
+    icon: <UploadIcon />,
   },
 ];
 
@@ -39,8 +47,8 @@ const MainSection = () => {
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 tooltip={item.title}
-                isActive={currentView === "upload"}
-                onClick={() => navigate("upload")}
+                isActive={currentView === item.view}
+                onClick={() => navigate(item.view)}
               >
                 <div className="flex items-center gap-4">
                   {item.icon}
