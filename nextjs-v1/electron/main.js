@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { app, BrowserWindow, ipcMain, protocol } = require("electron");
 const path = require("path");
 const isDev = process.env.NODE_ENV === "development";
@@ -86,12 +87,12 @@ function createWindow() {
 
   if (isDev) {
     // Development mode: load from Next.js dev server
-    mainWindow.loadURL("http://localhost:3000/web-transc");
+    mainWindow.loadURL("http://localhost:3000/#upload");
     mainWindow.webContents.openDevTools();
   } else {
     // Production mode: load using custom protocol with localhost as host
     // This ensures absolute paths like /_next/... resolve correctly
-    mainWindow.loadURL("app://localhost/web-transc/index.html");
+    mainWindow.loadURL("app://localhost/index.html#upload");
 
     // Open DevTools in production to debug
     mainWindow.webContents.openDevTools();

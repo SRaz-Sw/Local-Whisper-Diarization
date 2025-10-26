@@ -5,14 +5,16 @@
 
 "use client";
 
-import { Suspense, useEffect } from 'react';
-import { toast } from 'sonner';
-import { views } from './views';
-import type { ViewName } from './types';
-import { useRouterStore } from '../store/useRouterStore';
-import { ViewLoadingFallback } from '../components/ViewLoadingFallback';
-import { whisperWorker } from '../services/WhisperWorkerService';
-import { useTranscripts } from '../hooks/useTranscripts';
+import { Suspense, useEffect } from "react";
+import { toast } from "sonner";
+import { views } from "./views";
+import type { ViewName } from "./types";
+import { useRouterStore } from "../store/useRouterStore";
+import { ViewLoadingFallback } from "../components/ViewLoadingFallback";
+import { whisperWorker } from "../services/WhisperWorkerService";
+import { useTranscripts } from "../hooks/useTranscripts";
+import { useWhisperStore } from "../store/useWhisperStore";
+import { remapSpeakerLabels } from "../utils/transcriptFormatter";
 
 export function Router() {
   const { currentView, params, navigate } = useRouterStore();
@@ -20,49 +22,51 @@ export function Router() {
 
   // Worker message handler - global state management
   useEffect(() => {
-    console.log('🚀 Router mounted, initializing worker...');
+    console.log("🚀 Router mounted, initializing worker...");
     whisperWorker.initialize();
 
     // Global worker message handler
     const handleWorkerMessage = (e: MessageEvent) => {
-      console.log('📨 Router worker message:', e.data.status);
-
-      const useWhisperStore = require('../store/useWhisperStore').useWhisperStore;
-      const { remapSpeakerLabels } = require('../utils/transcriptFormatter');
+      console.log("📨 Router worker message:", e.data.status);
 
       switch (e.data.status) {
-        case 'loading':
-          useWhisperStore.getState().setStatus('loading');
-          useWhisperStore.getState().setLoadingMessage(e.data.data || 'Loading models...');
+        case "loading":
+          useWhisperStore.getState().setStatus("loading");
+          useWhisperStore
+            .getState()
+            .setLoadingMessage(e.data.data || "Loading models...");
           break;
 
-        case 'initiate':
+        case "initiate":
           useWhisperStore.getState().addProgressItem(e.data);
           break;
 
-        case 'progress':
-          useWhisperStore.getState().updateProgressItem(e.data.file, e.data);
+        case "progress":
+          useWhisperStore
+            .getState()
+            .updateProgressItem(e.data.file, e.data);
           break;
 
-        case 'done':
+        case "done":
           useWhisperStore.getState().removeProgressItem(e.data.file);
           break;
 
-        case 'loaded':
-          console.log('✅ Models loaded and ready');
-          useWhisperStore.getState().setStatus('ready');
+        case "loaded":
+          console.log("✅ Models loaded and ready");
+          useWhisperStore.getState().setStatus("ready");
           useWhisperStore.getState().setProgressItems([]);
           break;
 
-        case 'update':
+        case "update":
           useWhisperStore.getState().setProcessingMessage(e.data.data);
           break;
 
-        case 'transcribing':
+        case "transcribing":
           // Set processing status to running on first transcribe message
-          const currentProcessingStatus = useWhisperStore.getState().processing.status;
-          if (currentProcessingStatus !== 'running') {
-            useWhisperStore.getState().setProcessingStatus('running');
+          const currentProcessingStatus =
+            useWhisperStore.getState().processing.status;
+          if (currentProcessingStatus !== "running") {
+            useWhisperStore.getState().setProcessingStatus("running");
           }
           if (e.data.data?.text) {
             useWhisperStore.getState().addStreamingWord({
@@ -72,14 +76,22 @@ export function Router() {
           }
           break;
 
-        case 'processing_progress':
-          useWhisperStore.getState().setProcessedSeconds(e.data.processedSeconds || 0);
-          useWhisperStore.getState().setTotalSeconds(e.data.totalSeconds || 0);
-          useWhisperStore.getState().setEstimatedTimeRemaining(e.data.estimatedTimeRemaining || null);
+        case "processing_progress":
+          useWhisperStore
+            .getState()
+            .setProcessedSeconds(e.data.processedSeconds || 0);
+          useWhisperStore
+            .getState()
+            .setTotalSeconds(e.data.totalSeconds || 0);
+          useWhisperStore
+            .getState()
+            .setEstimatedTimeRemaining(
+              e.data.estimatedTimeRemaining || null,
+            );
           break;
 
-        case 'complete':
-          console.log('✅ Transcription complete');
+        case "complete":
+          console.log("✅ Transcription complete");
           const remappedResult = {
             ...e.data.result,
             segments: remapSpeakerLabels(e.data.result.segments),
@@ -87,9 +99,9 @@ export function Router() {
           useWhisperStore.getState().setResult(remappedResult);
           useWhisperStore.getState().setStreamingWords([]);
           useWhisperStore.getState().setGenerationTime(e.data.time);
-          useWhisperStore.getState().setStatus('ready');
-          useWhisperStore.getState().setProcessingStatus('complete');
-          useWhisperStore.getState().setProcessingMessage('');
+          useWhisperStore.getState().setStatus("ready");
+          useWhisperStore.getState().setProcessingStatus("complete");
+          useWhisperStore.getState().setProcessingMessage("");
           useWhisperStore.getState().setProcessedSeconds(0);
           useWhisperStore.getState().setTotalSeconds(0);
           useWhisperStore.getState().setEstimatedTimeRemaining(null);
@@ -97,17 +109,17 @@ export function Router() {
           // Auto-save will be handled in TranscribeView
           break;
 
-        case 'error':
-          console.error('❌ Worker error:', e.data.error);
-          toast.error('Worker error', { description: e.data.error });
+        case "error":
+          console.error("❌ Worker error:", e.data.error);
+          toast.error("Worker error", { description: e.data.error });
           useWhisperStore.getState().setStatus(null);
-          useWhisperStore.getState().setProcessingStatus('error');
+          useWhisperStore.getState().setProcessingStatus("error");
           useWhisperStore.getState().setProgressItems([]);
-          useWhisperStore.getState().setProcessingMessage('');
+          useWhisperStore.getState().setProcessingMessage("");
           break;
 
         default:
-          console.log('⚠️ Unknown worker status:', e.data.status);
+          console.log("⚠️ Unknown worker status:", e.data.status);
       }
     };
 
@@ -116,7 +128,7 @@ export function Router() {
 
     // Cleanup on unmount
     return () => {
-      console.log('👋 Router unmounting, cleaning up...');
+      console.log("👋 Router unmounting, cleaning up...");
       unsubscribe();
       whisperWorker.terminate();
     };
@@ -127,47 +139,48 @@ export function Router() {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
 
-      console.log('🔗 Hash changed:', hash);
+      console.log("🔗 Hash changed:", hash);
 
-      // No hash = go to upload
+      // No hash = go to landing
       if (!hash) {
-        navigate('upload');
+        navigate("landing");
         return;
       }
 
-      const [view, id] = hash.split('/');
+      const [view, id] = hash.split("/");
 
       // Validate view exists
       if (!(view in views)) {
         console.warn(`⚠️ Invalid view: ${view}`);
-        toast.error('Invalid page', {
+        toast.error("Invalid page", {
           description: `View "${view}" does not exist`,
         });
-        navigate('upload');
+        navigate("landing");
         return;
       }
 
       // Validate transcript ID if navigating to transcript view
-      if (view === 'transcript' && id) {
+      if (view === "transcript" && id) {
         getWithAudio(id)
           .then((result) => {
             if (result) {
-              console.log('✅ Valid transcript ID:', id);
+              console.log("✅ Valid transcript ID:", id);
               navigate(view as ViewName, { id });
             } else {
-              console.warn('⚠️ Transcript not found:', id);
-              toast.error('Transcript not found', {
+              console.warn("⚠️ Transcript not found:", id);
+              toast.error("Transcript not found", {
                 description: `Could not find transcript with ID: ${id}`,
               });
-              navigate('upload');
+              navigate("landing");
             }
           })
           .catch((error) => {
-            console.error('❌ Failed to load transcript:', error);
-            toast.error('Failed to load transcript', {
-              description: error instanceof Error ? error.message : 'Unknown error',
+            console.error("❌ Failed to load transcript:", error);
+            toast.error("Failed to load transcript", {
+              description:
+                error instanceof Error ? error.message : "Unknown error",
             });
-            navigate('upload');
+            navigate("landing");
           });
       } else {
         // Navigate to view without validation
@@ -179,15 +192,16 @@ export function Router() {
     handleHashChange();
 
     // Listen to hash changes (browser back/forward)
-    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener("hashchange", handleHashChange);
 
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    return () =>
+      window.removeEventListener("hashchange", handleHashChange);
   }, [navigate, getWithAudio]);
 
   // Get the view component
   const ViewComponent = views[currentView];
 
-  console.log('🎯 Rendering view:', currentView, 'with params:', params);
+  console.log("🎯 Rendering view:", currentView, "with params:", params);
 
   return (
     <Suspense fallback={<ViewLoadingFallback viewName={currentView} />}>

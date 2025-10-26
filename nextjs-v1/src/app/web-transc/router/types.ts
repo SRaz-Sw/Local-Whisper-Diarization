@@ -3,12 +3,14 @@
  */
 
 export type ViewName =
-  | 'upload'       // Initial state - upload audio
-  | 'transcribe'   // Model loading + transcription
-  | 'transcript'   // View completed transcript
-  | 'saved';       // Browse saved transcripts
+  | "landing" // Landing/marketing page
+  | "upload" // Initial state - upload audio
+  | "transcribe" // Model loading + transcription
+  | "transcript" // View completed transcript
+  | "saved"; // Browse saved transcripts
 
 export interface ViewParams {
+  landing: void;
   upload: void;
   transcribe: void;
   transcript: { id: string };

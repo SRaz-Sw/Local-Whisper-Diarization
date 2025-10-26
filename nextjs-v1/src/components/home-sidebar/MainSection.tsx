@@ -16,8 +16,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "../ui/sidebar";
-import Link from "next/link";
-import { useTranscripts } from "@/app/web-transc/hooks/useTranscripts";
 import { useRouterStore } from "@/app/web-transc/store/useRouterStore";
 
 const items = [
@@ -41,14 +39,13 @@ const MainSection = () => {
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 tooltip={item.title}
-                // asChild
                 isActive={currentView === "upload"}
-                onClick={() => navigate("upload")} // TODO: do something on click
+                onClick={() => navigate("upload")}
               >
-                <Link href={item.url} className="flex items-center gap-4">
+                <div className="flex items-center gap-4">
                   {item.icon}
                   <span className="text-sm">{item.title}</span>
-                </Link>
+                </div>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

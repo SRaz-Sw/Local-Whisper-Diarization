@@ -1,18 +1,23 @@
 "use client";
 
-import WhisperDiarization from "./components/WhisperDiarization";
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import { Router } from "./router/Router";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-// Feature flag: Toggle between old and new router
-// Set to false to use old WhisperDiarization component
-// Set to true to use new view-based router
-const USE_NEW_ROUTER = true;
+/**
+ * Redirect from legacy /web-transc route to root with upload view
+ * This maintains backward compatibility for old bookmarks and links
+ */
+export default function WebTranscRedirect() {
+  const router = useRouter();
 
-export default function WebTranscriptionPage() {
+  useEffect(() => {
+    // Redirect to root with upload view
+    router.replace("/#upload");
+  }, [router]);
+
   return (
-    <ErrorBoundary>
-      {USE_NEW_ROUTER ? <Router /> : <WhisperDiarization />}
-    </ErrorBoundary>
+    <div className="flex min-h-screen items-center justify-center">
+      <p>Redirecting to app...</p>
+    </div>
   );
 }
