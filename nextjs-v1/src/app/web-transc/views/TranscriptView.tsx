@@ -21,6 +21,9 @@ import {
 import WhisperTranscript from "../components/WhisperTranscript";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { useSidebar } from "@/components/ui/sidebar"; // Add this import
+import { EditConversationModal } from "../components/EditConversationModal";
+import { EditSpeakersModal } from "../components/EditSpeakersModal";
+import type { SavedTranscript } from "@/lib/localStorage/schemas";
 
 interface TranscriptViewProps {
   id: string;
@@ -68,11 +71,25 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [savedTranscript, setSavedTranscript] =
+    useState<SavedTranscript | null>(null);
+  const [editConversationModal, setEditConversationModal] = useState<{
+    open: boolean;
+    transcript: SavedTranscript | null;
+  }>({ open: false, transcript: null });
+  const [editSpeakersModal, setEditSpeakersModal] = useState<{
+    open: boolean;
+    transcript: SavedTranscript | null;
+  }>({ open: false, transcript: null });
 
   const audioPlayerRef = useRef<AudioPlayerRef>(null);
 
   // Storage
-  const { save: saveTranscript, getWithAudio } = useTranscripts();
+  const {
+    save: saveTranscript,
+    getWithAudio,
+    updateMetadata,
+  } = useTranscripts();
   const { state: sidebarState, isMobile } = useSidebar(); // Get sidebar state
 
   // Calculate dynamic positioning based on sidebar state
@@ -119,6 +136,9 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
         !!audioBlob,
         audioBlob?.type,
       );
+
+      // Save transcript to local state for edit modals
+      setSavedTranscript(data);
 
       // Map segments
       const segmentsWithMissingProps = data.segments.map(
@@ -231,6 +251,65 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
     navigate,
   ]);
 
+  // Modal handlers
+  const handleSaveConversationName = useCallback(
+    async (conversationName: string) => {
+      if (!editConversationModal.transcript) return;
+
+      try {
+        await updateMetadata(editConversationModal.transcript.id, {
+          conversationName,
+        });
+        // Update local state
+        setSavedTranscript((prev) =>
+          prev
+            ? {
+                ...prev,
+                metadata: { ...prev.metadata, conversationName },
+              }
+            : null,
+        );
+        toast.success("Conversation name updated!");
+      } catch (error) {
+        toast.error("Failed to update conversation name", {
+          description:
+            error instanceof Error ? error.message : "Unknown error",
+        });
+      }
+    },
+    [editConversationModal.transcript, updateMetadata],
+  );
+
+  const handleSaveSpeakerNames = useCallback(
+    async (speakerNames: Record<string, string>) => {
+      if (!editSpeakersModal.transcript) return;
+
+      try {
+        await updateMetadata(editSpeakersModal.transcript.id, {
+          speakerNames,
+        });
+        // Update local state
+        setSavedTranscript((prev) =>
+          prev
+            ? {
+                ...prev,
+                metadata: { ...prev.metadata, speakerNames },
+              }
+            : null,
+        );
+        // Update Whisper store
+        setSpeakerNames(speakerNames);
+        toast.success("Speaker names updated!");
+      } catch (error) {
+        toast.error("Failed to update speaker names", {
+          description:
+            error instanceof Error ? error.message : "Unknown error",
+        });
+      }
+    },
+    [editSpeakersModal.transcript, updateMetadata, setSpeakerNames],
+  );
+
   // Handle export to LLM
   const handleExportToLLM = useCallback(() => {
     const event = new CustomEvent("export-to-llm");
@@ -294,6 +373,25 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
                   ref={audioPlayerRef}
                   src={audioFile}
                   onTimeUpdate={(time) => setCurrentTime(time)}
+                  transcriptId={id !== "unsaved" ? id : undefined}
+                  onEditConversation={
+                    savedTranscript
+                      ? () =>
+                          setEditConversationModal({
+                            open: true,
+                            transcript: savedTranscript,
+                          })
+                      : undefined
+                  }
+                  onEditSpeakers={
+                    savedTranscript
+                      ? () =>
+                          setEditSpeakersModal({
+                            open: true,
+                            transcript: savedTranscript,
+                          })
+                      : undefined
+                  }
                 />
               ) : (
                 <div className="bg-muted/50 text-muted-foreground flex items-center justify-center gap-2 rounded-md border border-dashed px-4 py-3 text-sm">
@@ -536,6 +634,24 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
           />
         </svg>
       </motion.button>
+
+      {/* Edit Modals */}
+      <EditConversationModal
+        open={editConversationModal.open}
+        onOpenChange={(open) =>
+          setEditConversationModal({ open, transcript: null })
+        }
+        transcript={editConversationModal.transcript}
+        onSave={handleSaveConversationName}
+      />
+      <EditSpeakersModal
+        open={editSpeakersModal.open}
+        onOpenChange={(open) =>
+          setEditSpeakersModal({ open, transcript: null })
+        }
+        transcript={editSpeakersModal.transcript}
+        onSave={handleSaveSpeakerNames}
+      />
     </div>
   );
 }
