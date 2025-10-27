@@ -6,7 +6,8 @@ Solutions for building Windows/Linux apps from macOS.
 
 ## ❌ The Problem
 
-When building Windows or Linux apps from macOS, you may encounter this error:
+When building Windows or Linux apps from macOS, you may encounter this
+error:
 
 ```
 ⨯ node-gyp does not support cross-compiling native modules from source.
@@ -220,7 +221,8 @@ bun run electron:build:linux
 
 **Problem:** App crashes on Windows/Linux due to missing native module
 
-**Solution:** The native module (`msgpackr-extract`) has pre-built binaries for all platforms, so this shouldn't be an issue. If it is:
+**Solution:** The native module (`msgpackr-extract`) has pre-built binaries
+for all platforms, so this shouldn't be an issue. If it is:
 
 ```bash
 # Manually install with pre-built binaries
@@ -272,7 +274,8 @@ brew install --cask wine-stable
 bun run electron:build:win
 ```
 
-**Note:** Wine can be unreliable. GitHub Actions or building on Windows is recommended.
+**Note:** Wine can be unreliable. GitHub Actions or building on Windows is
+recommended.
 
 ---
 
@@ -324,7 +327,8 @@ ls -lh speech-to-text/nextjs-v1/dist/
 
 ## 📚 Additional Resources
 
-- **electron-builder docs:** https://www.electron.build/configuration/configuration
+- **electron-builder docs:**
+  https://www.electron.build/configuration/configuration
 - **Native modules:** https://www.electron.build/multi-platform-build
 - **GitHub Actions:** https://www.electron.build/configuration/publish
 
@@ -335,7 +339,8 @@ ls -lh speech-to-text/nextjs-v1/dist/
 1. ✅ Updated `electron-builder.json` to skip native module rebuilding
 2. ✅ This allows cross-platform builds from macOS
 3. ✅ Try building Windows/Linux again
-4. ✅ For most reliable results: Use GitHub Actions or build on target platform
+4. ✅ For most reliable results: Use GitHub Actions or build on target
+   platform
 
 ---
 
@@ -346,4 +351,5 @@ cd speech-to-text/nextjs-v1
 bun run electron:build:win
 ```
 
-If it still fails, use **GitHub Actions** (Solution 4) or build on a Windows machine.
+If it still fails, use **GitHub Actions** (Solution 4) or build on a
+Windows machine.

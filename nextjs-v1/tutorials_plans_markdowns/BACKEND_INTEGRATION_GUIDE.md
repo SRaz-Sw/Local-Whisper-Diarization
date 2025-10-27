@@ -1,6 +1,7 @@
 # 🔌 Backend Integration Guide - Web + Electron
 
-Complete guide for adding a backend to save transcripts that works in both browser and Electron.
+Complete guide for adding a backend to save transcripts that works in both
+browser and Electron.
 
 ## 🎯 Architecture Overview
 
@@ -893,6 +894,3 @@ Browser/Electron → Service Layer → External API → Database
 - Firebase docs: https://firebase.google.com/docs
 - Supabase docs: https://supabase.com/docs
 - Express docs: https://expressjs.com/
-
-
-

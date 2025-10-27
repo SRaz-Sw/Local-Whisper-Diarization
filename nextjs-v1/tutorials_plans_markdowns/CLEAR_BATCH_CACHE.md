@@ -7,14 +7,16 @@ To fix the batch upload issues, please clear the cached state:
 3. Run this command:
 
 ```javascript
-localStorage.removeItem('batch-store');
+localStorage.removeItem("batch-store");
 location.reload();
 ```
 
 This will:
+
 - Clear the old persisted batch state
 - Reload the page with fresh state
 - Fix the "whisper-base" model issue
 - Fix the file assignment tracking
 
-After this, try uploading files in batch mode again. The progress should now update properly!
+After this, try uploading files in batch mode again. The progress should
+now update properly!

@@ -44,7 +44,8 @@ Open `package.json` and update these fields:
 
 ## 📝 Step 2: Update Landing Page URLs
 
-Open `src/app/page.tsx` and update the GitHub release URLs (around line 47-48):
+Open `src/app/page.tsx` and update the GitHub release URLs (around line
+47-48):
 
 ```typescript
 const baseUrl =
@@ -63,7 +64,8 @@ const baseUrl =
 
 ## 📝 Step 3: Code Signing (Critical for Distribution)
 
-⚠️ **Important:** Apps built without code signing will trigger security warnings!
+⚠️ **Important:** Apps built without code signing will trigger security
+warnings!
 
 ### Quick Decision Guide
 
@@ -71,7 +73,8 @@ const baseUrl =
 
 - ✅ Skip code signing
 - ℹ️ Users will need to right-click → Open on macOS
-- ℹ️ See `tutorials_plans_markdowns/UNSIGNED_APP_INSTALLATION.md` for user instructions
+- ℹ️ See `tutorials_plans_markdowns/UNSIGNED_APP_INSTALLATION.md` for user
+  instructions
 
 **Building for others to download?**
 
@@ -145,7 +148,8 @@ Place your custom icons in `electron/resources/`:
 
 ## ✅ You're Ready!
 
-After updating the above (steps 1-2 required, steps 3-4 optional), you can build:
+After updating the above (steps 1-2 required, steps 3-4 optional), you can
+build:
 
 ```bash
 cd speech-to-text/nextjs-v1
@@ -277,9 +281,11 @@ This happens because the app isn't code signed.
 
 See these guides for more details:
 
-- `tutorials_plans_markdowns/DISTRIBUTION_GUIDE.md` - Distribution best practices
+- `tutorials_plans_markdowns/DISTRIBUTION_GUIDE.md` - Distribution best
+  practices
 - `tutorials_plans_markdowns/CODE_SIGNING_GUIDE.md` - How to code sign apps
-- `tutorials_plans_markdowns/UNSIGNED_APP_INSTALLATION.md` - User instructions for unsigned apps
+- `tutorials_plans_markdowns/UNSIGNED_APP_INSTALLATION.md` - User
+  instructions for unsigned apps
 
 ---
 

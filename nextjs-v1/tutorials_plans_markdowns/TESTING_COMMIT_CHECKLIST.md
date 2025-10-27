@@ -3,26 +3,33 @@
 ## ✅ What to Commit
 
 ### Core Test Files
-- [ ] `__tests__/unit/services/BatchQueueManager.raceCondition.test.ts` - Critical race condition tests
-- [ ] `__tests__/unit/services/BatchQueueManager.test.ts` - Core functionality tests
+
+- [ ] `__tests__/unit/services/BatchQueueManager.raceCondition.test.ts` -
+      Critical race condition tests
+- [ ] `__tests__/unit/services/BatchQueueManager.test.ts` - Core
+      functionality tests
 - [ ] `__tests__/unit/stores/useBatchStore.test.ts` - Zustand store tests
 - [ ] `__tests__/helpers/testUtils.tsx` - Test utilities
 - [ ] `__tests__/mocks/audioData.ts` - Mock audio data generators
 - [ ] `__tests__/mocks/worker.ts` - Mock Web Worker
-- [ ] `__tests__/mocks/localStorage.ts` - Mock localStorage/transcripts (**NEW**)
+- [ ] `__tests__/mocks/localStorage.ts` - Mock localStorage/transcripts
+      (**NEW**)
 - [ ] `__tests__/README.md` - Testing guide
 
 ### Configuration Files
+
 - [ ] `jest.config.js` - Jest configuration
 - [ ] `jest.setup.js` - Global test setup (with localStorage mock import)
 - [ ] `package.json` - Test scripts added
 - [ ] `.gitignore` - Add coverage/ and .jest-cache/
 
 ### Documentation
+
 - [ ] `BATCH_UPLOAD_TEST_SPECIFICATION.md` - Full test specification
 - [ ] `TESTING_COMMIT_CHECKLIST.md` - This file
 
 ### Dependencies (already installed via Bun)
+
 - `@testing-library/react@16.3.0`
 - `@testing-library/jest-dom@6.9.1`
 - `@testing-library/user-event@14.6.1`
@@ -34,27 +41,33 @@
 ## ⚠️ Issues Fixed Before Commit
 
 ### 1. Missing localStorage Mock
+
 **Problem**: Tests were failing because transcript storage wasn't mocked
 **Solution**: Created `__tests__/mocks/localStorage.ts` with mocks for:
+
 - `transcripts` collection
 - `blobStorage`
 
 ### 2. Mock Import in Setup
-**Problem**: localStorage mock wasn't being loaded globally
-**Solution**: Added import to `jest.setup.js`
+
+**Problem**: localStorage mock wasn't being loaded globally **Solution**:
+Added import to `jest.setup.js`
 
 ### 3. Test Helper Cleanup
-**Problem**: Mock storage wasn't being cleared between tests
-**Solution**: Updated `resetStores()` to clear mock storage
+
+**Problem**: Mock storage wasn't being cleared between tests **Solution**:
+Updated `resetStores()` to clear mock storage
 
 ## 📊 Current Test Status
 
 ### Tests Implemented: 27 tests
+
 - ✅ **Race Condition Prevention**: 6 tests (P0 - CRITICAL)
 - ✅ **BatchQueueManager Core**: 10 tests (P1)
 - ✅ **useBatchStore**: 11 tests (P1)
 
 ### Known Issues (Will be fixed in next commit)
+
 None - all tests should pass after localStorage mock is added.
 
 ## 🧪 Verification Steps Before Commit
@@ -76,6 +89,7 @@ npm run test:watch
 ```
 
 Expected output:
+
 ```
 Test Suites: 3 passed, 3 total
 Tests:       27 passed, 27 total
@@ -120,9 +134,11 @@ All tests passing. Ready for CI/CD integration.
 
 ## ✅ Ready to Commit
 
-Once you've verified all tests pass with `npm test`, you can commit with confidence!
+Once you've verified all tests pass with `npm test`, you can commit with
+confidence!
 
 The test infrastructure is solid and follows best practices:
+
 - ✅ Proper mocking
 - ✅ Type safety
 - ✅ Isolated test cases

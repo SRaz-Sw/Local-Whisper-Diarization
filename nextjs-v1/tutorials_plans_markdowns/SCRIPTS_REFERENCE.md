@@ -32,7 +32,8 @@ cd nextjs-v1
 bun run electron:start
 ```
 
-**Note:** This is the recommended way to develop Electron features. It combines:
+**Note:** This is the recommended way to develop Electron features. It
+combines:
 
 - Next.js dev server with hot reload
 - Electron window for desktop testing
@@ -167,7 +168,8 @@ bun run electron:build:linux
 ### `bun run worker:build`
 
 **Purpose:** Build the web worker separately  
-**When to use:** Usually not needed directly (used internally by electron:build)  
+**When to use:** Usually not needed directly (used internally by
+electron:build)  
 **Output:** `public/workers/whisperDiarization.worker.js`
 
 ```bash
@@ -293,7 +295,8 @@ These scripts were removed because they were redundant:
 
 ### ~~`build-local`~~
 
-**Why removed:** Same as `build` but without `--force` install. Unnecessary duplication.  
+**Why removed:** Same as `build` but without `--force` install. Unnecessary
+duplication.  
 **Use instead:** `bun run build`
 
 ### ~~`electron:dev`~~

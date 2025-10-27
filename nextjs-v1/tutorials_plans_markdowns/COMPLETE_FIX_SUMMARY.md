@@ -6,7 +6,8 @@
 
 **Problem:** WASM fetch errors, models wouldn't load in browser
 
-**Root Cause:** `next.config.ts` was left in Electron mode (`output: "export"`)
+**Root Cause:** `next.config.ts` was left in Electron mode
+(`output: "export"`)
 
 **Solution:** Restored proper web configuration from commit `47031a6`
 
@@ -16,7 +17,8 @@
 
 ### 2. ❌ **Electron Dev Mode White Screen** → ✅ **FIXED**
 
-**Problem:** Running `electron:start` after `electron:build` showed white screen
+**Problem:** Running `electron:start` after `electron:build` showed white
+screen
 
 **Root Cause:** Mixing production build with dev mode commands
 
@@ -306,7 +308,8 @@ bun run electron:start       # ✅ Works immediately!
 - ✅ Self-healing system
 - ✅ Clear feedback
 
-**Result:** Seamless development experience across both web and Electron! 🚀
+**Result:** Seamless development experience across both web and Electron!
+🚀
 
 ---
 
