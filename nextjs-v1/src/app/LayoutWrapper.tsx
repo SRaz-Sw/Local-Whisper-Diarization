@@ -18,7 +18,7 @@ export function LayoutWrapper({
     <SidebarProvider>
       <div className="relative w-full">
         <HomeNavbar />
-        <div className="mx-auto flex h-full max-h-[calc(100svw-4rem)] max-w-svh pt-[4rem]">
+        <div className="mx-auto flex h-full max-h-[calc(100svh-4rem)] w-full pt-[4rem]">
           {showSidebar && <HomeSidebar />}
           <main className="w-full">{children}</main>
           <Toaster position="top-center" />
