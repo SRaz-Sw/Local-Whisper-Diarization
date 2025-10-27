@@ -7,7 +7,8 @@ export type ViewName =
   | "upload" // Initial state - upload audio
   | "transcribe" // Model loading + transcription
   | "transcript" // View completed transcript
-  | "saved"; // Browse saved transcripts
+  | "saved" // Browse saved transcripts
+  | "global-search"; // Search across all transcripts
 
 export interface ViewParams {
   landing: void;
@@ -15,6 +16,7 @@ export interface ViewParams {
   transcribe: void;
   transcript: { id: string };
   saved: void;
+  "global-search": { q?: string };
 }
 
 export type ViewComponent<T extends ViewName> = React.ComponentType<

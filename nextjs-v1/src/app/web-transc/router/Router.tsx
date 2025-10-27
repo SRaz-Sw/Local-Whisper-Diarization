@@ -147,7 +147,19 @@ export function Router() {
         return;
       }
 
-      const [view, id] = hash.split("/");
+      // Parse view, path params, and query params
+      // Format: view/id?param=value or view?param=value
+      const [pathPart, queryString] = hash.split("?");
+      const [view, id] = pathPart.split("/");
+
+      // Parse query parameters
+      const queryParams: Record<string, string> = {};
+      if (queryString) {
+        const searchParams = new URLSearchParams(queryString);
+        searchParams.forEach((value, key) => {
+          queryParams[key] = value;
+        });
+      }
 
       // Validate view exists
       if (!(view in views)) {
@@ -159,13 +171,16 @@ export function Router() {
         return;
       }
 
+      // Combine path and query params
+      const allParams = id ? { id, ...queryParams } : queryParams;
+
       // Validate transcript ID if navigating to transcript view
       if (view === "transcript" && id) {
         getWithAudio(id)
           .then((result) => {
             if (result) {
               console.log("✅ Valid transcript ID:", id);
-              navigate(view as ViewName, { id });
+              navigate(view as ViewName, allParams);
             } else {
               console.warn("⚠️ Transcript not found:", id);
               toast.error("Transcript not found", {
@@ -184,7 +199,10 @@ export function Router() {
           });
       } else {
         // Navigate to view without validation
-        navigate(view as ViewName, id ? { id } : undefined);
+        navigate(
+          view as ViewName,
+          Object.keys(allParams).length > 0 ? allParams : undefined,
+        );
       }
     };
 

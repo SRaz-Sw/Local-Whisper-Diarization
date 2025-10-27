@@ -5,6 +5,7 @@ import {
   DatabaseIcon,
   UploadIcon,
   PlaneIcon,
+  SearchIcon,
 } from "lucide-react";
 import {
   SidebarGroup,
@@ -32,6 +33,11 @@ const items: NavItem[] = [
     title: "Upload",
     view: "upload",
     icon: <UploadIcon />,
+  },
+  {
+    title: "Global Search",
+    view: "global-search",
+    icon: <SearchIcon />,
   },
 ];
 

@@ -11,11 +11,13 @@ import {
 import { cn } from "@/lib/utils";
 import { formatFileSize } from "../utils/templateStorage";
 import { Music, Video } from "lucide-react";
+import { useGlobalPlayerStore } from "../store/useGlobalPlayerStore";
 
 export interface AudioPlayerProps {
   src: File | Blob | string | null;
   onTimeUpdate?: (time: number) => void;
   className?: string;
+  transcriptId?: string; // Optional: For global player coordination
 }
 
 export interface AudioPlayerRef {
@@ -24,7 +26,7 @@ export interface AudioPlayerRef {
 }
 
 export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
-  ({ src, onTimeUpdate, className }, ref) => {
+  ({ src, onTimeUpdate, className, transcriptId }, ref) => {
     const [mediaType, setMediaType] = useState<"audio" | "video" | null>(
       null,
     );
@@ -37,6 +39,30 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
     const videoElement = useRef<HTMLVideoElement>(null);
     const currentTimeRef = useRef(0);
     const requestRef = useRef<number>(0);
+
+    // Global player coordination (only if transcriptId is provided)
+    const { activePlayerId, setActivePlayer } = useGlobalPlayerStore();
+
+    // Auto-pause when another player starts (if transcriptId is provided)
+    useEffect(() => {
+      if (!transcriptId) return;
+
+      if (activePlayerId && activePlayerId !== transcriptId) {
+        if (audioElement.current && !audioElement.current.paused) {
+          audioElement.current.pause();
+        }
+        if (videoElement.current && !videoElement.current.paused) {
+          videoElement.current.pause();
+        }
+      }
+    }, [activePlayerId, transcriptId]);
+
+    // Handler for when this player starts playing
+    const handlePlay = useCallback(() => {
+      if (transcriptId) {
+        setActivePlayer(transcriptId);
+      }
+    }, [transcriptId, setActivePlayer]);
 
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
@@ -149,7 +175,7 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
         <div className="flex flex-row items-center justify-center gap-2">
           <div className="ms-4 flex items-center gap-2 truncate">
             {mediaType === "audio" && (
-              <Music className="h-4 w-4 text-blue-500" />
+              <Music className="text-primary h-4 w-4" />
             )}
             {mediaType === "video" && (
               <Video className="h-4 w-4 text-purple-500" />
@@ -165,6 +191,7 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
           ref={audioElement}
           controls
           src={mediaUrl}
+          onPlay={handlePlay}
           className={cn(
             "w-full",
             mediaType === "audio" ? "block" : "hidden",
@@ -176,6 +203,7 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
           ref={videoElement}
           controls
           src={mediaUrl}
+          onPlay={handlePlay}
           className={cn(
             "max-h-[500px] w-full",
             mediaType === "video" ? "block" : "hidden",
@@ -183,8 +211,8 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
         />
 
         {/* Playback speed controls */}
-        <div className="flex items-center justify-center gap-2 border-t border-gray-100 bg-gray-50/50 p-3 dark:border-white/10 dark:bg-white/[0.02]">
-          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+        <div className="dark:border-background/10 dark:bg-background/[0.02] border-accent bg-muted-foreground/5 flex items-center justify-center gap-2 border-t p-3">
+          <span className="text-foreground/70 dark:text-foreground/40 text-xs font-medium">
             Speed:
           </span>
           {[0.5, 0.75, 1, 1.25, 1.5, 2].map((speed) => (
@@ -194,8 +222,8 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
               className={cn(
                 "rounded-md px-2.5 py-1 text-xs font-medium transition-all",
                 playbackSpeed === speed
-                  ? "bg-blue-500 text-white shadow-sm"
-                  : "bg-white text-gray-700 hover:bg-gray-100 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10",
+                  ? "bg-primary text-background shadow-sm"
+                  : "bg-background dark:bg-background/5 dark:hover:bg-background/10 text-secondary-foreground hover:bg-accent dark:text-gray-300",
               )}
             >
               {speed}x

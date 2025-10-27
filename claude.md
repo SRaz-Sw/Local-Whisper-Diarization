@@ -1,46 +1,5 @@
 # Claude Development Instructions
 
-## UI Testing Requirements
-
-**IMPORTANT:** Every time you implement a feature or bug fix that changes the UI, you MUST use the Playwright MCP to test the feature.
-
-### Testing Workflow
-
-When making UI changes:
-
-1. Implement the feature or bug fix
-2. Use the Playwright MCP tools to write and run automated tests
-3. Verify that the tests pass before marking the task as complete
-4. Document any test coverage in your commit message
-
-### Playwright MCP Setup
-
-The Playwright MCP server has been configured for this project. It provides tools for:
-
--   Writing browser automation tests
--   Testing user interactions and flows
--   Verifying UI elements and behavior
--   Taking screenshots for visual verification
-
-### When to Test
-
-You should use Playwright MCP testing when:
-
--   Adding new UI components or pages
--   Modifying existing UI behavior
--   Fixing UI-related bugs
--   Implementing user interaction flows
--   Making changes to forms, buttons, or interactive elements
-
-### Example Testing Scenarios
-
--   Form submissions (file upload, batch upload, etc.)
--   Navigation between pages
--   Button clicks and state changes
--   Modal/dialog interactions
--   Responsive design verification
--   Error handling and validation messages
-
 ## Code Quality and Formatting Rules
 
 ### Linting and Formatting

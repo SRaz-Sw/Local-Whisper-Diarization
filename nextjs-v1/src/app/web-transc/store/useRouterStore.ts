@@ -3,9 +3,9 @@
  * Manages current view, params, and navigation history
  */
 
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { ViewName, NavigationState } from '../router/types';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { ViewName, NavigationState } from "../router/types";
 
 interface RouterStore extends NavigationState {
   // Actions
@@ -19,7 +19,7 @@ export const useRouterStore = create<RouterStore>()(
   persist(
     (set, get) => ({
       // Initial state
-      currentView: 'upload',
+      currentView: "upload",
       params: {},
       history: [],
 
@@ -28,21 +28,46 @@ export const useRouterStore = create<RouterStore>()(
         const { currentView, params: currentParams, history } = get();
 
         // Skip if navigating to the same view with same params
-        if (currentView === view && JSON.stringify(currentParams) === JSON.stringify(params)) {
-          console.log('🔗 Skipping duplicate navigation to:', view, params);
+        if (
+          currentView === view &&
+          JSON.stringify(currentParams) === JSON.stringify(params)
+        ) {
+          console.log(
+            "🔗 Skipping duplicate navigation to:",
+            view,
+            params,
+          );
           return;
         }
 
         // Update URL hash (for web shareable links)
-        if (typeof window !== 'undefined') {
-          const path = params.id ? `${view}/${params.id}` : view;
+        if (typeof window !== "undefined") {
+          // Build path with id if present
+          let path = params.id ? `${view}/${params.id}` : view;
+
+          // Add query parameters if present (excluding 'id')
+          const queryParams = Object.entries(params)
+            .filter(([key]) => key !== "id")
+            .map(
+              ([key, value]) =>
+                `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
+            )
+            .join("&");
+
+          if (queryParams) {
+            path += `?${queryParams}`;
+          }
+
           window.location.hash = path;
         }
 
         set({
           currentView: view,
           params,
-          history: [...history, { view: currentView, params: currentParams }],
+          history: [
+            ...history,
+            { view: currentView, params: currentParams },
+          ],
         });
       },
 
@@ -54,10 +79,25 @@ export const useRouterStore = create<RouterStore>()(
         const previous = history[history.length - 1];
 
         // Update hash
-        if (typeof window !== 'undefined') {
-          const path = previous.params?.id
+        if (typeof window !== "undefined") {
+          // Build path with id if present
+          let path = previous.params?.id
             ? `${previous.view}/${previous.params.id}`
             : previous.view;
+
+          // Add query parameters if present (excluding 'id')
+          const queryParams = Object.entries(previous.params || {})
+            .filter(([key]) => key !== "id")
+            .map(
+              ([key, value]) =>
+                `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
+            )
+            .join("&");
+
+          if (queryParams) {
+            path += `?${queryParams}`;
+          }
+
           window.location.hash = path;
         }
 
@@ -71,8 +111,23 @@ export const useRouterStore = create<RouterStore>()(
       // Replace current view (doesn't push to history)
       replace: (view, params = {}) => {
         // Update hash
-        if (typeof window !== 'undefined') {
-          const path = params.id ? `${view}/${params.id}` : view;
+        if (typeof window !== "undefined") {
+          // Build path with id if present
+          let path = params.id ? `${view}/${params.id}` : view;
+
+          // Add query parameters if present (excluding 'id')
+          const queryParams = Object.entries(params)
+            .filter(([key]) => key !== "id")
+            .map(
+              ([key, value]) =>
+                `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
+            )
+            .join("&");
+
+          if (queryParams) {
+            path += `?${queryParams}`;
+          }
+
           window.location.hash = path;
         }
 
@@ -86,13 +141,13 @@ export const useRouterStore = create<RouterStore>()(
       },
     }),
     {
-      name: 'whisper-router',
+      name: "whisper-router",
       partialize: (state) => ({
         // Persist current view to resume where user left off
         currentView: state.currentView,
         params: state.params,
         // Do NOT persist history (reset on reload)
       }),
-    }
-  )
+    },
+  ),
 );

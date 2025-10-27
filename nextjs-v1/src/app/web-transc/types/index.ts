@@ -109,3 +109,20 @@ export interface BackupState {
   timestamp: number;
   fileName?: string;
 }
+
+// Global search result interface
+export interface SearchResult {
+  transcriptId: string;
+  conversationName: string;
+  fileName: string;
+  matchCount: number;
+  duration: number;
+  createdAt: number;
+  matchedSegments: Array<{
+    label: string;
+    start: number;
+    end: number;
+    chunks: TranscriptChunk[];
+  }>;
+  audioFileId?: string;
+}
