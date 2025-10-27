@@ -646,7 +646,7 @@ const MediaFileUpload = forwardRef<
                         </div>
 
                         <div className="mb-4 space-y-1.5 text-center">
-                          <h3 className="dark:text-background text-lg font-semibold tracking-tight text-gray-900">
+                          <h3 className="dark:text-foreground text-lg font-semibold tracking-tight text-gray-900">
                             Drag and drop or
                           </h3>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -657,7 +657,7 @@ const MediaFileUpload = forwardRef<
                         <button
                           type="button"
                           onClick={triggerFileInput}
-                          className="group border-border hover:bg-accent dark:bg-background/10 dark:text-background dark:hover:bg-background/20 mb-3 flex w-4/5 items-center justify-center gap-2 rounded-lg border bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-all duration-200"
+                          className="group border-border hover:bg-accent dark:bg-background/10 dark:text-foreground dark:hover:bg-background/20 mb-3 flex w-4/5 items-center justify-center gap-2 rounded-lg border bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-all duration-200"
                         >
                           <span>Upload File(s)</span>
                           <UploadCloud className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -691,7 +691,7 @@ const MediaFileUpload = forwardRef<
                         className="flex flex-col items-center justify-center p-6"
                       >
                         <div className="border-accent mb-4 h-16 w-16 animate-spin rounded-full border-4 border-t-blue-500 dark:border-gray-700 dark:border-t-blue-400" />
-                        <p className="dark:text-background text-sm font-medium text-gray-900">
+                        <p className="dark:text-foreground text-sm font-medium text-gray-900">
                           Processing media...
                         </p>
                       </motion.div>
@@ -709,7 +709,7 @@ const MediaFileUpload = forwardRef<
                             {/* Conversation name header (if loaded transcript) */}
                             {currentTranscript && (
                               <div className="dark:border-background/5 flex items-center justify-between border-b border-gray-100/50 px-3 py-2">
-                                <h3 className="dark:text-background text-base font-semibold text-gray-900">
+                                <h3 className="dark:text-foreground text-base font-semibold text-gray-900">
                                   {currentTranscript.metadata
                                     .conversationName ||
                                     currentTranscript.metadata.fileName}
