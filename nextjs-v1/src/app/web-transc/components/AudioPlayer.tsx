@@ -8,6 +8,7 @@ import {
   forwardRef,
   useImperativeHandle,
 } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { formatFileSize } from "../utils/templateStorage";
 import { Music, Video } from "lucide-react";
@@ -183,30 +184,50 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
     }
 
     return (
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
         className={cn(
-          "bg-muted/30 border-border w-full overflow-hidden rounded-lg border shadow-sm",
+          "w-full overflow-hidden rounded-2xl border border-black/5 bg-white/80 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-gray-900/80",
           className,
         )}
       >
-        <div className="border-border/40 flex flex-row items-center justify-between gap-2 border-b px-3 py-2">
-          <div className="flex min-w-0 items-center gap-2 truncate">
-            {mediaType === "audio" && (
-              <Music className="text-primary h-4 w-4" />
-            )}
-            {mediaType === "video" && (
-              <Video className="h-4 w-4 text-purple-500" />
-            )}
-            <span className="truncate">{filename}</span>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="flex flex-row items-center justify-between gap-2 px-4 py-2.5"
+        >
+          <div className="flex min-w-0 items-center gap-2.5 truncate">
+            <motion.div
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              {mediaType === "audio" && (
+                <div className="rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 p-1.5">
+                  <Music className="h-3.5 w-3.5 text-white" />
+                </div>
+              )}
+              {mediaType === "video" && (
+                <div className="rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 p-1.5">
+                  <Video className="h-3.5 w-3.5 text-white" />
+                </div>
+              )}
+            </motion.div>
+            <span className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+              {filename}
+            </span>
           </div>
-          <div className="ms-auto me-4 flex items-center gap-2">
+          <div className="flex items-center gap-2">
             {/* Edit buttons - only show if callbacks provided */}
             {(onEditConversation || onEditSpeakers) && (
               <div className="flex gap-1">
                 {onEditConversation && (
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={onEditConversation}
-                    className="text-muted-foreground hover:bg-primary/10 hover:text-primary flex-shrink-0 rounded p-1 transition-colors"
+                    className="flex-shrink-0 rounded-lg bg-gray-100 p-1.5 text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                     title="Edit conversation name"
                   >
                     <svg
@@ -222,12 +243,14 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                       />
                     </svg>
-                  </button>
+                  </motion.button>
                 )}
                 {onEditSpeakers && (
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={onEditSpeakers}
-                    className="text-muted-foreground hover:bg-primary/10 hover:text-primary flex-shrink-0 rounded p-1 transition-colors"
+                    className="flex-shrink-0 rounded-lg bg-gray-100 p-1.5 text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                     title="Edit speaker names"
                   >
                     <svg
@@ -243,59 +266,74 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                       />
                     </svg>
-                  </button>
+                  </motion.button>
                 )}
               </div>
             )}
-            <div className="text-muted-foreground text-xs">{fileSize}</div>
+            <div className="text-xs font-medium text-gray-500 dark:text-gray-400">
+              {fileSize}
+            </div>
           </div>
-        </div>
+        </motion.div>
         {/* Audio player */}
-        <audio
+        <motion.audio
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
           ref={audioElement}
           controls
           src={mediaUrl}
           onPlay={handlePlay}
           className={cn(
-            "w-full bg-transparent",
+            "w-full bg-transparent px-2",
             mediaType === "audio" ? "block" : "hidden",
           )}
-          style={{ height: "40px", outline: "none" }}
+          style={{ height: "48px", outline: "none" }}
         />
 
         {/* Video player */}
-        <video
+        <motion.video
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
           ref={videoElement}
           controls
           src={mediaUrl}
           onPlay={handlePlay}
           className={cn(
-            "max-h-[500px] w-full bg-transparent",
+            "mx-2 my-1 max-h-[500px] w-full rounded-lg bg-black/5 dark:bg-white/5",
             mediaType === "video" ? "block" : "hidden",
           )}
         />
 
         {/* Playback speed controls */}
-        <div className="border-border/40 flex items-center justify-center gap-1.5 border-t px-3 py-1.5">
-          <span className="text-muted-foreground text-[11px] font-medium">
-            Speed:
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="flex items-center justify-center gap-1.5 bg-gray-50/50 px-4 py-2.5 backdrop-blur-sm dark:bg-gray-800/30"
+        >
+          <span className="mr-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
+            Speed
           </span>
           {[0.5, 0.75, 1, 1.25, 1.5, 2].map((speed) => (
-            <button
+            <motion.button
               key={speed}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => changePlaybackSpeed(speed)}
               className={cn(
-                "rounded px-2 py-0.5 text-[11px] font-medium transition-all hover:scale-105",
+                "rounded-full px-3 py-1 text-xs font-semibold transition-all",
                 playbackSpeed === speed
                   ? "bg-primary text-primary-foreground ring-primary/20 shadow-md ring-1"
                   : "bg-background/80 hover:bg-background text-muted-foreground hover:text-foreground",
               )}
             >
-              {speed}x
-            </button>
+              {speed}×
+            </motion.button>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     );
   },
 );
