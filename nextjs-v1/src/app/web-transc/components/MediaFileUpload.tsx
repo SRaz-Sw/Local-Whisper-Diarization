@@ -58,7 +58,7 @@ const UploadIllustration = () => (
         cx="50"
         cy="50"
         r="45"
-        className="stroke-gray-200 dark:stroke-gray-700"
+        className="stroke-accent dark:stroke-gray-700"
         strokeWidth="2"
         strokeDasharray="4 4"
       >
@@ -204,6 +204,52 @@ const MediaFileUpload = forwardRef<
       }
     }, [currentTranscriptId, getTranscript]);
 
+    // Helper function to process audio buffer and create media URL
+    const onBufferLoad = useCallback(
+      async (arrayBuffer: ArrayBuffer, type: string) => {
+        const blob = new Blob([arrayBuffer.slice(0)], { type: type });
+        const url = URL.createObjectURL(blob);
+
+        // Process audio
+        const AudioContextClass =
+          window.AudioContext || (window as any).webkitAudioContext;
+        const audioContext = new AudioContextClass({ sampleRate: 16_000 });
+
+        try {
+          const audioBuffer =
+            await audioContext.decodeAudioData(arrayBuffer);
+          let audio: Float32Array;
+          if (audioBuffer.numberOfChannels === 2) {
+            const SCALING_FACTOR = Math.sqrt(2);
+            const left = audioBuffer.getChannelData(0);
+            const right = audioBuffer.getChannelData(1);
+            audio = new Float32Array(left.length);
+            for (let i = 0; i < audioBuffer.length; ++i) {
+              audio[i] = (SCALING_FACTOR * (left[i] + right[i])) / 2;
+            }
+          } else {
+            audio = audioBuffer.getChannelData(0);
+          }
+          onInputChange(audio);
+          setStatus("loaded");
+        } catch (e) {
+          setError({
+            message: "Failed to process audio file",
+            code: "PROCESSING_ERROR",
+          });
+          setStatus("error");
+        }
+
+        setMediaUrl(url);
+        if (type.startsWith("audio/")) {
+          setMediaType("audio");
+        } else if (type.startsWith("video/")) {
+          setMediaType("video");
+        }
+      },
+      [onInputChange],
+    );
+
     useImperativeHandle(
       ref,
       () => ({
@@ -258,7 +304,7 @@ const MediaFileUpload = forwardRef<
           return file;
         },
       }),
-      [mediaUrl, onFileNameChange, file],
+      [onFileNameChange, file, onBufferLoad, mediaUrl],
     );
 
     const updateTime = useCallback(() => {
@@ -286,69 +332,29 @@ const MediaFileUpload = forwardRef<
       };
     }, [updateTime]);
 
-    const processFile = async (buffer: ArrayBuffer) => {
-      const AudioContextClass =
-        window.AudioContext || (window as any).webkitAudioContext;
-      const audioContext = new AudioContextClass({ sampleRate: 16_000 });
+    const readFile = useCallback(
+      (selectedFile: File | null | undefined) => {
+        if (!selectedFile) return;
 
-      try {
-        const audioBuffer = await audioContext.decodeAudioData(buffer);
-        let audio: Float32Array;
-        if (audioBuffer.numberOfChannels === 2) {
-          const SCALING_FACTOR = Math.sqrt(2);
-          const left = audioBuffer.getChannelData(0);
-          const right = audioBuffer.getChannelData(1);
-          audio = new Float32Array(left.length);
-          for (let i = 0; i < audioBuffer.length; ++i) {
-            audio[i] = (SCALING_FACTOR * (left[i] + right[i])) / 2;
+        setError(null);
+        setFile(selectedFile);
+        setStatus("processing");
+
+        // Notify parent component of the file name
+        if (onFileNameChange) {
+          onFileNameChange(selectedFile.name);
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result && e.target.result instanceof ArrayBuffer) {
+            onBufferLoad(e.target.result, selectedFile.type);
           }
-        } else {
-          audio = audioBuffer.getChannelData(0);
-        }
-        onInputChange(audio);
-        setStatus("loaded");
-      } catch (e) {
-        setError({
-          message: "Failed to process audio file",
-          code: "PROCESSING_ERROR",
-        });
-        setStatus("error");
-      }
-    };
-
-    const onBufferLoad = (arrayBuffer: ArrayBuffer, type: string) => {
-      const blob = new Blob([arrayBuffer.slice(0)], { type: type });
-      const url = URL.createObjectURL(blob);
-      processFile(arrayBuffer);
-
-      setMediaUrl(url);
-      if (type.startsWith("audio/")) {
-        setMediaType("audio");
-      } else if (type.startsWith("video/")) {
-        setMediaType("video");
-      }
-    };
-
-    const readFile = (selectedFile: File | null | undefined) => {
-      if (!selectedFile) return;
-
-      setError(null);
-      setFile(selectedFile);
-      setStatus("processing");
-
-      // Notify parent component of the file name
-      if (onFileNameChange) {
-        onFileNameChange(selectedFile.name);
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result && e.target.result instanceof ArrayBuffer) {
-          onBufferLoad(e.target.result, selectedFile.type);
-        }
-      };
-      reader.readAsArrayBuffer(selectedFile);
-    };
+        };
+        reader.readAsArrayBuffer(selectedFile);
+      },
+      [onFileNameChange, onBufferLoad],
+    );
 
     const handleFileSelect = useCallback(
       (selectedFile: File | null) => {
@@ -378,7 +384,7 @@ const MediaFileUpload = forwardRef<
 
         readFile(selectedFile);
       },
-      [findDuplicateByFileName],
+      [findDuplicateByFileName, readFile],
     );
 
     const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
@@ -592,13 +598,13 @@ const MediaFileUpload = forwardRef<
           role="complementary"
           aria-label="Media file upload"
         >
-          <div className="group relative w-full rounded-xl bg-white p-0.5 ring-1 ring-gray-200 dark:bg-black dark:ring-white/10">
+          <div className="group bg-background ring-accent dark:ring-background/10 relative w-full rounded-xl p-0.5 ring-1 dark:bg-black">
             <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
 
             <div className="bg-foreground/20 relative w-full rounded-[10px] p-1.5">
               <div
                 className={cn(
-                  "relative mx-auto w-full overflow-hidden rounded-lg border border-gray-100 bg-white dark:border-white/[0.08] dark:bg-black/50",
+                  "bg-background dark:border-background/[0.08] relative mx-auto w-full overflow-hidden rounded-lg border border-gray-100 dark:bg-black/50",
                   error ? "border-red-500/50" : "",
                 )}
               >
@@ -640,7 +646,7 @@ const MediaFileUpload = forwardRef<
                         </div>
 
                         <div className="mb-4 space-y-1.5 text-center">
-                          <h3 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
+                          <h3 className="dark:text-foreground text-lg font-semibold tracking-tight text-gray-900">
                             Drag and drop or
                           </h3>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -651,7 +657,7 @@ const MediaFileUpload = forwardRef<
                         <button
                           type="button"
                           onClick={triggerFileInput}
-                          className="group border-border mb-3 flex w-4/5 items-center justify-center gap-2 rounded-lg border bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-all duration-200 hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+                          className="group border-border hover:bg-accent dark:bg-background/10 dark:text-foreground dark:hover:bg-background/20 mb-3 flex w-4/5 items-center justify-center gap-2 rounded-lg border bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-900 transition-all duration-200"
                         >
                           <span>Upload File(s)</span>
                           <UploadCloud className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
@@ -660,7 +666,7 @@ const MediaFileUpload = forwardRef<
                         <button
                           type="button"
                           onClick={loadExample}
-                          className="text-xs text-gray-500 transition-colors hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                          className="dark:hover:text-accent text-xs text-gray-500 transition-colors hover:text-gray-800 dark:text-gray-400"
                         >
                           or{" "}
                           <span className="underline">try an example</span>
@@ -684,8 +690,8 @@ const MediaFileUpload = forwardRef<
                         exit={{ opacity: 0, scale: 0.95 }}
                         className="flex flex-col items-center justify-center p-6"
                       >
-                        <div className="mb-4 h-16 w-16 animate-spin rounded-full border-4 border-gray-200 border-t-blue-500 dark:border-gray-700 dark:border-t-blue-400" />
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        <div className="border-accent mb-4 h-16 w-16 animate-spin rounded-full border-4 border-t-blue-500 dark:border-gray-700 dark:border-t-blue-400" />
+                        <p className="dark:text-foreground text-sm font-medium text-gray-900">
                           Processing media...
                         </p>
                       </motion.div>
@@ -699,11 +705,11 @@ const MediaFileUpload = forwardRef<
                       >
                         {/* File info header */}
                         {file && (
-                          <div className="border-b border-gray-100 bg-gray-50/50 dark:border-white/10 dark:bg-white/[0.02]">
+                          <div className="dark:border-background/10 dark:bg-background/[0.02] border-b border-gray-100 bg-gray-50/50">
                             {/* Conversation name header (if loaded transcript) */}
                             {currentTranscript && (
-                              <div className="flex items-center justify-between border-b border-gray-100/50 px-3 py-2 dark:border-white/5">
-                                <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                              <div className="dark:border-background/5 flex items-center justify-between border-b border-gray-100/50 px-3 py-2">
+                                <h3 className="dark:text-foreground text-base font-semibold text-gray-900">
                                   {currentTranscript.metadata
                                     .conversationName ||
                                     currentTranscript.metadata.fileName}
@@ -802,19 +808,19 @@ const MediaFileUpload = forwardRef<
                         />
 
                         {/* Playback speed controls */}
-                        <div className="flex items-center justify-center gap-2 border-t border-gray-100 bg-gray-50/50 p-3 dark:border-white/10 dark:bg-white/[0.02]">
+                        <div className="dark:border-background/10 dark:bg-background/[0.02] flex items-center justify-center gap-2 border-t border-gray-100 bg-gray-50/50 p-3">
                           <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
                             Speed:
                           </span>
-                          {[0.5, 0.75, 1, 1.25, 1.5, 2].map((speed) => (
+                          {[0.5, 0.75, 1, 1.25, 1.5, 2, 3].map((speed) => (
                             <button
                               key={speed}
                               onClick={() => changePlaybackSpeed(speed)}
                               className={cn(
                                 "rounded-md px-2.5 py-1 text-xs font-medium transition-all",
                                 playbackSpeed === speed
-                                  ? "bg-blue-500 text-white shadow-sm"
-                                  : "bg-white text-gray-700 hover:bg-gray-100 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10",
+                                  ? "bg-primary text-foreground shadow-sm"
+                                  : "bg-background dark:bg-background/5 dark:hover:bg-background/10 text-gray-700 hover:bg-gray-100 dark:text-gray-300",
                               )}
                             >
                               {speed}x

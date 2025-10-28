@@ -9,7 +9,8 @@
 3. **Right-click** app → Select **"Open"**
 4. Click **"Open"** in dialog
 
-**Why?** App isn't code-signed ($99/year cost). This is the official workaround.
+**Why?** App isn't code-signed ($99/year cost). This is the official
+workaround.
 
 ---
 
@@ -19,7 +20,8 @@
 2. If blocked: Click **"More info"** → **"Run anyway"**
 3. Follow installer
 
-**Why?** App isn't code-signed ($300/year cost). This is normal for open-source apps.
+**Why?** App isn't code-signed ($300/year cost). This is normal for
+open-source apps.
 
 ---
 
@@ -35,4 +37,3 @@ chmod +x Whisper-*.AppImage
 ## ❓ Need Help?
 
 See full guide: `INSTALLATION_INSTRUCTIONS.md`
-

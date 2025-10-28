@@ -1,6 +1,7 @@
 # 📦 Whisper Diarization - Installation Instructions
 
-Thank you for downloading Whisper Diarization! Please follow the instructions below for your operating system.
+Thank you for downloading Whisper Diarization! Please follow the
+instructions below for your operating system.
 
 ---
 
@@ -19,7 +20,8 @@ Thank you for downloading Whisper Diarization! Please follow the instructions be
 
 ### Step 3: Open the App (Important!)
 
-⚠️ **Do NOT double-click the app the first time!** You'll see an error saying the app is "damaged."
+⚠️ **Do NOT double-click the app the first time!** You'll see an error
+saying the app is "damaged."
 
 **Instead, do this:**
 
@@ -34,9 +36,14 @@ Thank you for downloading Whisper Diarization! Please follow the instructions be
 
 ### Why does this happen?
 
-This app is not code-signed with an Apple Developer certificate (which costs $99/year). macOS's security feature (Gatekeeper) blocks unsigned apps by default. The right-click method allows you to override this security check.
+This app is not code-signed with an Apple Developer certificate (which
+costs $99/year). macOS's security feature (Gatekeeper) blocks unsigned apps
+by default. The right-click method allows you to override this security
+check.
 
-**Is it safe?** Yes, if you downloaded it from our official GitHub repository or website. The app is open-source and you can review the code at any time.
+**Is it safe?** Yes, if you downloaded it from our official GitHub
+repository or website. The app is open-source and you can review the code
+at any time.
 
 ### Alternative Methods
 
@@ -63,8 +70,10 @@ Then open the app normally.
 
 ### Step 1: Download
 
-- **Installer:** Download `Whisper Diarization Setup X.X.X.exe` (recommended)
-- **Portable:** Download `Whisper Diarization X.X.X.exe` (no installation required)
+- **Installer:** Download `Whisper Diarization Setup X.X.X.exe`
+  (recommended)
+- **Portable:** Download `Whisper Diarization X.X.X.exe` (no installation
+  required)
 
 ### Step 2: Install
 
@@ -87,9 +96,12 @@ Then open the app normally.
 
 ### Why does this happen?
 
-This app is not code-signed with a Windows certificate (which costs $50-300/year). Windows SmartScreen blocks unsigned apps to protect users. The "Run anyway" option allows you to bypass this.
+This app is not code-signed with a Windows certificate (which costs
+$50-300/year). Windows SmartScreen blocks unsigned apps to protect users.
+The "Run anyway" option allows you to bypass this.
 
-**Is it safe?** Yes, if you downloaded it from our official GitHub repository or website.
+**Is it safe?** Yes, if you downloaded it from our official GitHub
+repository or website.
 
 ---
 
@@ -187,7 +199,8 @@ On first launch, the app will:
 2. Prompt you to select a Whisper model (downloads on first use)
 3. Show model download progress (500MB - 1.5GB depending on model)
 
-**Recommended model for most users:** `small` (good balance of speed/accuracy)
+**Recommended model for most users:** `small` (good balance of
+speed/accuracy)
 
 ---
 
@@ -197,7 +210,8 @@ On first launch, the app will:
 
 1. Make sure you **right-clicked** (not double-clicked)
 2. Try the System Settings method (see above)
-3. Try the Terminal method: `xattr -cr /Applications/Whisper\ Diarization.app`
+3. Try the Terminal method:
+   `xattr -cr /Applications/Whisper\ Diarization.app`
 4. Check macOS version (requires 10.13+)
 
 ### Windows: SmartScreen won't let me run it
@@ -212,13 +226,15 @@ On first launch, the app will:
 
 1. Make sure it's executable: `chmod +x *.AppImage`
 2. Install FUSE: `sudo apt-get install fuse libfuse2`
-3. Try running with `--no-sandbox` flag: `./Whisper-Diarization-*.AppImage --no-sandbox`
+3. Try running with `--no-sandbox` flag:
+   `./Whisper-Diarization-*.AppImage --no-sandbox`
 
 ### App crashes on launch
 
 1. Check you meet system requirements
 2. Try running from terminal to see error messages:
-   - macOS: `/Applications/Whisper\ Diarization.app/Contents/MacOS/Whisper\ Diarization`
+   - macOS:
+     `/Applications/Whisper\ Diarization.app/Contents/MacOS/Whisper\ Diarization`
    - Windows: Run the `.exe` from Command Prompt
    - Linux: Run the AppImage from terminal
 3. Report the error on our GitHub Issues page
@@ -277,4 +293,5 @@ If you find Whisper Diarization useful:
 
 **Thank you for using Whisper Diarization!** 🎉
 
-_For more detailed technical information, see the documentation in the GitHub repository._
+_For more detailed technical information, see the documentation in the
+GitHub repository._

@@ -1,6 +1,7 @@
 # PRD: SPA Routing Architecture for Whisper Diarization
 
 ## Document Information
+
 - **Version**: 1.1 (Updated with Critical Improvements)
 - **Date**: 2025-10-18
 - **Status**: Ready for Implementation
@@ -10,7 +11,10 @@
 
 ## Executive Summary
 
-Refactor the Whisper Diarization app from a conditional-rendering monolith to a clean, maintainable SPA architecture with proper view management. The solution must work identically in both Next.js (web) and Electron (desktop) environments without build-time conditionals or workarounds.
+Refactor the Whisper Diarization app from a conditional-rendering monolith
+to a clean, maintainable SPA architecture with proper view management. The
+solution must work identically in both Next.js (web) and Electron (desktop)
+environments without build-time conditionals or workarounds.
 
 ---
 
@@ -38,12 +42,24 @@ Refactor the Whisper Diarization app from a conditional-rendering monolith to a 
 
 ```tsx
 // Current: Nested conditional rendering (anti-pattern)
-{!result && !audio && <UploadView />}
-{audio && !result && status === null && <ModelLoadView />}
-{audio && !result && status === 'loading' && <LoadingView />}
-{audio && !result && status === 'ready' && <TranscriptionView />}
-{result && <TranscriptResultView />}
-{showSavedTranscripts && <SavedTranscriptsView />}
+{
+  !result && !audio && <UploadView />;
+}
+{
+  audio && !result && status === null && <ModelLoadView />;
+}
+{
+  audio && !result && status === "loading" && <LoadingView />;
+}
+{
+  audio && !result && status === "ready" && <TranscriptionView />;
+}
+{
+  result && <TranscriptResultView />;
+}
+{
+  showSavedTranscripts && <SavedTranscriptsView />;
+}
 ```
 
 ---
@@ -69,21 +85,21 @@ Refactor the Whisper Diarization app from a conditional-rendering monolith to a 
 
 ```typescript
 // src/app/web-transc/router/views.ts
-import { lazy } from 'react';
+import { lazy } from "react";
 
 export type ViewName =
-  | 'upload'           // Initial state - upload audio
-  | 'transcribe'       // Model loading + transcription
-  | 'transcript'       // View completed transcript
-  | 'saved'           // Browse saved transcripts
-  | 'settings';       // App settings
+  | "upload" // Initial state - upload audio
+  | "transcribe" // Model loading + transcription
+  | "transcript" // View completed transcript
+  | "saved" // Browse saved transcripts
+  | "settings"; // App settings
 
 export const views = {
-  upload: lazy(() => import('../views/UploadView')),
-  transcribe: lazy(() => import('../views/TranscribeView')),
-  transcript: lazy(() => import('../views/TranscriptView')),
-  saved: lazy(() => import('../views/SavedView')),
-  settings: lazy(() => import('../views/SettingsView')),
+  upload: lazy(() => import("../views/UploadView")),
+  transcribe: lazy(() => import("../views/TranscribeView")),
+  transcript: lazy(() => import("../views/TranscriptView")),
+  saved: lazy(() => import("../views/SavedView")),
+  settings: lazy(() => import("../views/SettingsView")),
 } as const;
 ```
 
@@ -114,8 +130,8 @@ export interface NavigationState {
 
 ```typescript
 // src/app/web-transc/store/useRouterStore.ts
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface RouterStore {
   currentView: ViewName;
@@ -134,7 +150,7 @@ interface RouterStore {
 export const useRouterStore = create<RouterStore>()(
   persist(
     (set, get) => ({
-      currentView: 'upload',
+      currentView: "upload",
       params: {},
       history: [],
 
@@ -142,7 +158,7 @@ export const useRouterStore = create<RouterStore>()(
         const { currentView, params: currentParams, history } = get();
 
         // Update URL hash (for web shareable links)
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
           const path = params.id ? `${view}/${params.id}` : view;
           window.location.hash = path;
         }
@@ -150,7 +166,10 @@ export const useRouterStore = create<RouterStore>()(
         set({
           currentView: view,
           params,
-          history: [...history, { view: currentView, params: currentParams }],
+          history: [
+            ...history,
+            { view: currentView, params: currentParams },
+          ],
         });
       },
 
@@ -161,7 +180,7 @@ export const useRouterStore = create<RouterStore>()(
         const previous = history[history.length - 1];
 
         // Update hash
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
           const path = previous.params?.id
             ? `${previous.view}/${previous.params.id}`
             : previous.view;
@@ -177,7 +196,7 @@ export const useRouterStore = create<RouterStore>()(
 
       replace: (view, params = {}) => {
         // Update hash
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
           const path = params.id ? `${view}/${params.id}` : view;
           window.location.hash = path;
         }
@@ -191,21 +210,22 @@ export const useRouterStore = create<RouterStore>()(
       },
     }),
     {
-      name: 'whisper-router',
+      name: "whisper-router",
       partialize: (state) => ({
         // Persist current view to resume where user left off
         currentView: state.currentView,
         params: state.params,
         // Do NOT persist history (reset on reload)
       }),
-    }
-  )
+    },
+  ),
 );
 ```
 
 ### 3. Worker Service Layer (NEW - CRITICAL)
 
-**Purpose:** Prevent worker recreation during view transitions and centralize worker lifecycle.
+**Purpose:** Prevent worker recreation during view transitions and
+centralize worker lifecycle.
 
 ```typescript
 // src/app/web-transc/services/WhisperWorkerService.ts
@@ -222,30 +242,33 @@ class WhisperWorkerService {
    */
   initialize(): boolean {
     if (this.isInitialized && this.worker) {
-      console.log('✅ Worker already initialized');
+      console.log("✅ Worker already initialized");
       return true;
     }
 
     try {
-      const isDev = process.env.NODE_ENV === 'development';
+      const isDev = process.env.NODE_ENV === "development";
 
       if (isDev) {
         this.worker = new Worker(
-          new URL('../workers/whisperDiarization.worker.js', import.meta.url),
-          { type: 'module' }
+          new URL(
+            "../workers/whisperDiarization.worker.js",
+            import.meta.url,
+          ),
+          { type: "module" },
         );
       } else {
-        this.worker = new Worker('/workers/whisperDiarization.worker.js');
+        this.worker = new Worker("/workers/whisperDiarization.worker.js");
       }
 
-      this.worker.addEventListener('message', this.handleMessage);
-      this.worker.addEventListener('error', this.handleError);
+      this.worker.addEventListener("message", this.handleMessage);
+      this.worker.addEventListener("error", this.handleError);
 
       this.isInitialized = true;
-      console.log('✅ Worker initialized successfully');
+      console.log("✅ Worker initialized successfully");
       return true;
     } catch (error) {
-      console.error('❌ Failed to initialize worker:', error);
+      console.error("❌ Failed to initialize worker:", error);
       return false;
     }
   }
@@ -272,7 +295,7 @@ class WhisperWorkerService {
    */
   postMessage(data: any): void {
     if (!this.worker) {
-      console.error('❌ Worker not initialized');
+      console.error("❌ Worker not initialized");
       return;
     }
     this.worker.postMessage(data);
@@ -288,7 +311,7 @@ class WhisperWorkerService {
       this.isInitialized = false;
       this.messageHandlers.clear();
       this.errorHandlers.clear();
-      console.log('🗑️ Worker terminated');
+      console.log("🗑️ Worker terminated");
     }
   }
 
@@ -317,12 +340,12 @@ export const whisperWorker = new WhisperWorkerService();
 
 ```typescript
 // src/app/web-transc/hooks/useWhisperWorker.ts
-import { useEffect } from 'react';
-import { whisperWorker } from '../services/WhisperWorkerService';
+import { useEffect } from "react";
+import { whisperWorker } from "../services/WhisperWorkerService";
 
 export function useWhisperWorker(
   onMessage: (e: MessageEvent) => void,
-  onError?: (error: ErrorEvent) => void
+  onError?: (error: ErrorEvent) => void,
 ) {
   useEffect(() => {
     // Subscribe to messages
@@ -486,6 +509,7 @@ export default function ViewName(props: ViewProps) {
 ### View Responsibilities
 
 #### 1. UploadView
+
 - **Purpose**: Initial state, audio file upload
 - **Displays**: Upload area, file browser, or audio URL input
 - **Navigation**:
@@ -495,6 +519,7 @@ export default function ViewName(props: ViewProps) {
 - **Search**: Not applicable
 
 #### 2. TranscribeView
+
 - **Purpose**: Model loading and transcription process
 - **Displays**:
   - Model selection
@@ -509,6 +534,7 @@ export default function ViewName(props: ViewProps) {
 - **Search**: Not applicable
 
 #### 3. TranscriptView
+
 - **Purpose**: Display completed transcript with actions
 - **Props**: `{ id: string }` (transcript ID)
 - **Displays**:
@@ -523,6 +549,7 @@ export default function ViewName(props: ViewProps) {
 - **Search**: Active (search within current transcript)
 
 #### 4. SavedView
+
 - **Purpose**: Browse and manage saved transcripts
 - **Displays**:
   - List of saved transcripts
@@ -536,6 +563,7 @@ export default function ViewName(props: ViewProps) {
 - **Search**: Active (search across saved transcript names/metadata)
 
 #### 5. SettingsView (Optional)
+
 - **Purpose**: App configuration
 - **Displays**: Model preferences, storage settings, etc.
 - **Navigation**: → `upload` (back to home)
@@ -620,16 +648,16 @@ page.tsx (10 lines) → Router
 
 ```typescript
 // Navigate to upload (home)
-navigate('upload');
+navigate("upload");
 
 // Start transcription
-navigate('transcribe');
+navigate("transcribe");
 
 // View specific transcript (with validation)
-navigate('transcript', { id: 'transcript-123' });
+navigate("transcript", { id: "transcript-123" });
 
 // Browse saved
-navigate('saved');
+navigate("saved");
 
 // Go back
 back();
@@ -673,15 +701,18 @@ if (status === 'complete' && userPrefs.autoSaveTranscripts) {
 ### Router State (via `useRouterStore` persist middleware)
 
 **Persist:**
+
 - `currentView` - Resume on last visited view
 - `params` - Resume viewing the same transcript (e.g., transcript ID)
 
 **Do NOT persist:**
+
 - `history` - Reset navigation history on page reload (fresh stack)
 
 ### Whisper State (existing `useWhisperStore`)
 
 **Keep current behavior:**
+
 - **Persist**: model, device, language preferences
 - **Do NOT persist**: transcription results, streaming words, audio
 
@@ -699,8 +730,8 @@ If user reloads page while `status === "running"`:
 // In Router.tsx or UploadView.tsx
 useEffect(() => {
   const status = useWhisperStore.getState().model.status;
-  if (status === 'running') {
-    toast.warning('Previous transcription was interrupted');
+  if (status === "running") {
+    toast.warning("Previous transcription was interrupted");
     useWhisperStore.getState().reset();
   }
 }, []);
@@ -710,22 +741,24 @@ useEffect(() => {
 
 ## Media Player Behavior by View
 
-| View         | Media Player Visible | Sticky Position | Audio State | Can Change File |
-|--------------|---------------------|-----------------|-------------|-----------------|
-| upload       | Yes                 | Inline          | User can load file | Yes |
-| transcribe   | Yes                 | Inline          | Playing/paused | No (locked) |
-| transcript   | Yes                 | Sticky Header   | Synced with transcript | No |
-| saved        | No                  | Hidden          | Paused/cleared | N/A |
+| View       | Media Player Visible | Sticky Position | Audio State            | Can Change File |
+| ---------- | -------------------- | --------------- | ---------------------- | --------------- |
+| upload     | Yes                  | Inline          | User can load file     | Yes             |
+| transcribe | Yes                  | Inline          | Playing/paused         | No (locked)     |
+| transcript | Yes                  | Sticky Header   | Synced with transcript | No              |
+| saved      | No                   | Hidden          | Paused/cleared         | N/A             |
 
 ### Navigation Behavior
 
 - **FROM transcript TO saved**: Pause audio, hide player
 - **FROM saved TO transcript**: Restore audio, show player
-- **MediaFileUpload ref**: Managed at Router level or shared via context/store
+- **MediaFileUpload ref**: Managed at Router level or shared via
+  context/store
 
 ### Implementation Note
 
-Consider moving `MediaFileUpload` state to Zustand for better cross-view access:
+Consider moving `MediaFileUpload` state to Zustand for better cross-view
+access:
 
 ```typescript
 // In useWhisperStore
@@ -744,10 +777,12 @@ interface AudioPlayerState {
 ### Scope
 
 **TranscriptView**: Search within current transcript segments
+
 - Search query highlights matching words/segments
 - Navigate between results (next/previous)
 
 **SavedView**: Search across all saved transcripts
+
 - Search by conversation name, file name, date
 - Filter list dynamically
 
@@ -756,28 +791,35 @@ interface AudioPlayerState {
 **Decision**: Use **local component state** for search, not global Zustand
 
 **Rationale**:
+
 - Search is view-specific and should reset on navigation
 - Prevents global state pollution
 - Each view can implement search independently
 
 ```typescript
 // In TranscriptView
-const [searchQuery, setSearchQuery] = useState('');
+const [searchQuery, setSearchQuery] = useState("");
 const [currentResultIndex, setCurrentResultIndex] = useState(0);
-const matches = useMemo(() => findMatches(segments, searchQuery), [segments, searchQuery]);
+const matches = useMemo(
+  () => findMatches(segments, searchQuery),
+  [segments, searchQuery],
+);
 
 // In SavedView
-const [searchQuery, setSearchQuery] = useState('');
-const filteredTranscripts = useMemo(() =>
-  transcripts.filter(t =>
-    t.metadata.conversationName?.includes(searchQuery) ||
-    t.metadata.fileName.includes(searchQuery)
-  ),
-  [transcripts, searchQuery]
+const [searchQuery, setSearchQuery] = useState("");
+const filteredTranscripts = useMemo(
+  () =>
+    transcripts.filter(
+      (t) =>
+        t.metadata.conversationName?.includes(searchQuery) ||
+        t.metadata.fileName.includes(searchQuery),
+    ),
+  [transcripts, searchQuery],
 );
 ```
 
-**Remove from global store**: Delete `searchQuery`, `searchResultIndex`, `totalSearchResults` from `useWhisperStore.ui`
+**Remove from global store**: Delete `searchQuery`, `searchResultIndex`,
+`totalSearchResults` from `useWhisperStore.ui`
 
 ---
 
@@ -785,9 +827,11 @@ const filteredTranscripts = useMemo(() =>
 
 ### Decision: Block Navigation During Transcription
 
-**If user attempts to navigate away from TranscribeView while `status === "running"`:**
+**If user attempts to navigate away from TranscribeView while
+`status === "running"`:**
 
 1. **Show confirmation dialog**:
+
    ```
    "Transcription in progress. Do you want to cancel it?"
    [Cancel Transcription] [Continue Transcription]
@@ -811,24 +855,31 @@ navigate: (view, params) => {
   const currentView = get().currentView;
 
   // Block navigation if leaving transcribe view during transcription
-  if (currentView === 'transcribe' && status === 'running' && view !== 'transcribe') {
-    const confirmed = confirm('Transcription in progress. Do you want to cancel it?');
+  if (
+    currentView === "transcribe" &&
+    status === "running" &&
+    view !== "transcribe"
+  ) {
+    const confirmed = confirm(
+      "Transcription in progress. Do you want to cancel it?",
+    );
 
     if (!confirmed) {
       return; // Stay on current view
     }
 
     // Cancel transcription
-    whisperWorker.postMessage({ type: 'cancel' }); // Or recreate worker
+    whisperWorker.postMessage({ type: "cancel" }); // Or recreate worker
     useWhisperStore.getState().reset();
   }
 
   // Continue with navigation
   // ... existing code
-}
+};
 ```
 
-**Alternative (Advanced)**: Allow background transcription with global progress indicator. **Not recommended** for V1 due to complexity.
+**Alternative (Advanced)**: Allow background transcription with global
+progress indicator. **Not recommended** for V1 due to complexity.
 
 ---
 
@@ -866,7 +917,7 @@ Electron's `BrowserWindow` supports hash-based routing natively:
 
 ```javascript
 // In Electron main process (main.js)
-const { BrowserWindow } = require('electron');
+const { BrowserWindow } = require("electron");
 
 const mainWindow = new BrowserWindow({
   width: 1200,
@@ -874,13 +925,13 @@ const mainWindow = new BrowserWindow({
   webPreferences: {
     nodeIntegration: false,
     contextIsolation: true,
-  }
+  },
 });
 
 mainWindow.loadURL(
   isDev
-    ? 'http://localhost:3000/web-transc#transcript/123'
-    : `file://${path.join(__dirname, '../out/web-transc.html')}#transcript/123`
+    ? "http://localhost:3000/web-transc#transcript/123"
+    : `file://${path.join(__dirname, "../out/web-transc.html")}#transcript/123`,
 );
 ```
 
@@ -900,16 +951,18 @@ Before finalizing migration, test in Electron:
 
 - **No URL bar** in Electron (hash changes invisible to user)
 - **Consider**: Add breadcrumb navigation for better UX in Electron
-- **Worker path**: Ensure worker loads from correct path in production builds
+- **Worker path**: Ensure worker loads from correct path in production
+  builds
 
 ```typescript
 // Electron-specific worker path resolution
-const isElectron = typeof navigator !== 'undefined' &&
-  navigator.userAgent.toLowerCase().includes('electron');
+const isElectron =
+  typeof navigator !== "undefined" &&
+  navigator.userAgent.toLowerCase().includes("electron");
 
 const workerPath = isElectron
-  ? './workers/whisperDiarization.worker.js'  // Electron uses relative paths
-  : '/workers/whisperDiarization.worker.js';   // Web uses absolute paths
+  ? "./workers/whisperDiarization.worker.js" // Electron uses relative paths
+  : "/workers/whisperDiarization.worker.js"; // Web uses absolute paths
 ```
 
 ---
@@ -984,8 +1037,8 @@ When navigating between views:
 // In each view component
 useEffect(() => {
   // Set focus to main heading on mount
-  const heading = document.querySelector('h1');
-  heading?.setAttribute('tabIndex', '-1');
+  const heading = document.querySelector("h1");
+  heading?.setAttribute("tabIndex", "-1");
   heading?.focus();
 }, []);
 ```
@@ -1059,6 +1112,7 @@ useEffect(() => {
 **Rollback**: Simply delete new files. Old code untouched.
 
 **Success Criteria**:
+
 - Project builds without errors
 - Old app still works
 - New router structure exists but not active
@@ -1069,17 +1123,20 @@ useEffect(() => {
 
 **Estimated Time**: 6-8 hours
 
-**Approach**: Extract one view at a time, test thoroughly, then move to next.
+**Approach**: Extract one view at a time, test thoroughly, then move to
+next.
 
 #### 2.1: Extract UploadView
 
 **Tasks**:
+
 1. Move upload UI from WhisperDiarization.tsx (lines ~790-955)
 2. Move MediaFileUpload component integration
 3. Move "Saved Transcripts" section (lines ~961-1151)
 4. Wire up navigation to `transcribe` view
 
 **Test**:
+
 - [ ] File upload works
 - [ ] Audio playback works
 - [ ] Saved transcripts list renders
@@ -1089,6 +1146,7 @@ useEffect(() => {
 #### 2.2: Extract TranscribeView
 
 **Tasks**:
+
 1. Move model loading UI (lines ~888-937)
 2. Move language selector (lines ~940-953)
 3. Move transcription progress (WhisperProgress component)
@@ -1097,6 +1155,7 @@ useEffect(() => {
 6. Add navigation blocking logic (confirm on leave)
 
 **Test**:
+
 - [ ] Model loading works
 - [ ] Transcription starts and shows progress
 - [ ] Streaming words appear
@@ -1107,6 +1166,7 @@ useEffect(() => {
 #### 2.3: Extract TranscriptView
 
 **Tasks**:
+
 1. Move result display UI (lines ~1154-1346)
 2. Move sticky audio player header (lines ~791-875)
 3. Move search functionality (lines ~822-872)
@@ -1114,6 +1174,7 @@ useEffect(() => {
 5. Wire up action buttons (Save, Export, Back to Home)
 
 **Test**:
+
 - [ ] Transcript renders correctly
 - [ ] Audio player is sticky
 - [ ] Audio syncs with transcript clicks
@@ -1125,12 +1186,14 @@ useEffect(() => {
 #### 2.4: Extract SavedView
 
 **Tasks**:
+
 1. Move saved transcripts list from UploadView
 2. Add search/filter functionality
 3. Wire up load, edit, delete actions
 4. Wire up navigation to transcript view
 
 **Test**:
+
 - [ ] Saved transcripts list renders
 - [ ] Search filters list
 - [ ] Load transcript navigates to transcript view
@@ -1138,11 +1201,13 @@ useEffect(() => {
 - [ ] Delete works
 
 **Rollback per view**:
+
 - Keep feature flag: `USE_NEW_ROUTER = false`
 - Comment out problematic view in Router
 - Fix issues before proceeding
 
 **Success Criteria**:
+
 - All views extracted
 - Full user flow works (upload → transcribe → transcript → saved)
 - No regressions in functionality
@@ -1161,6 +1226,7 @@ useEffect(() => {
 4. Test worker survives view transitions
 
 **Test**:
+
 - [ ] Worker initializes once on app start
 - [ ] Worker persists across view navigation
 - [ ] Multiple views can subscribe to worker messages
@@ -1168,9 +1234,11 @@ useEffect(() => {
 
 **Optional**: Create TranscriptService to wrap storage operations
 
-**Rollback**: Keep worker management in WhisperDiarization.tsx until service is fully tested
+**Rollback**: Keep worker management in WhisperDiarization.tsx until
+service is fully tested
 
 **Success Criteria**:
+
 - Worker managed by service
 - No worker recreation during navigation
 - All worker-dependent features work
@@ -1184,6 +1252,7 @@ useEffect(() => {
 **Tasks**:
 
 1. Enable new router permanently
+
    ```typescript
    // Remove feature flag from page.tsx
    return <Router />;
@@ -1198,10 +1267,12 @@ useEffect(() => {
 5. Run final tests in both web and Electron
 
 **Point of No Return**:
+
 - Only delete old code after 2 weeks of new architecture in production
 - Keep git history for easy rollback
 
 **Success Criteria**:
+
 - Codebase is clean
 - No unused files
 - All tests pass
@@ -1237,6 +1308,7 @@ useEffect(() => {
    - Test focus management
 
 **Success Criteria**:
+
 - All tests pass
 - No accessibility violations
 - Works in web and Electron
@@ -1245,28 +1317,28 @@ useEffect(() => {
 
 ## Total Timeline Estimate
 
-| Phase | Estimated Time | Dependencies |
-|-------|---------------|--------------|
-| Setup (Phase 1) | 2-3 hours | None |
-| Extract Views (Phase 2) | 6-8 hours | Phase 1 |
-| Extract Service (Phase 3) | 3-4 hours | Phase 2 |
-| Cleanup (Phase 4) | 1-2 hours | Phase 3 |
-| Testing & Polish (Phase 5) | 2-3 hours | All phases |
-| **Total** | **14-20 hours** | |
+| Phase                      | Estimated Time  | Dependencies |
+| -------------------------- | --------------- | ------------ |
+| Setup (Phase 1)            | 2-3 hours       | None         |
+| Extract Views (Phase 2)    | 6-8 hours       | Phase 1      |
+| Extract Service (Phase 3)  | 3-4 hours       | Phase 2      |
+| Cleanup (Phase 4)          | 1-2 hours       | Phase 3      |
+| Testing & Polish (Phase 5) | 2-3 hours       | All phases   |
+| **Total**                  | **14-20 hours** |              |
 
 ---
 
 ## Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| Breaking existing features | Medium | High | Incremental migration, feature flag, parallel code |
-| Worker lifecycle bugs | Medium | High | Service layer with thorough testing |
-| Performance regression | Low | Medium | Lazy loading, code splitting, benchmarking |
-| Type safety issues | Low | Low | Strict TypeScript config, comprehensive types |
-| Navigation bugs | Medium | Medium | Comprehensive testing, URL validation |
-| Electron compatibility | Low | High | Test in Electron after each phase |
-| State persistence issues | Low | Medium | Clear persistence strategy, edge case handling |
+| Risk                       | Likelihood | Impact | Mitigation                                         |
+| -------------------------- | ---------- | ------ | -------------------------------------------------- |
+| Breaking existing features | Medium     | High   | Incremental migration, feature flag, parallel code |
+| Worker lifecycle bugs      | Medium     | High   | Service layer with thorough testing                |
+| Performance regression     | Low        | Medium | Lazy loading, code splitting, benchmarking         |
+| Type safety issues         | Low        | Low    | Strict TypeScript config, comprehensive types      |
+| Navigation bugs            | Medium     | Medium | Comprehensive testing, URL validation              |
+| Electron compatibility     | Low        | High   | Test in Electron after each phase                  |
+| State persistence issues   | Low        | Medium | Clear persistence strategy, edge case handling     |
 
 ---
 
@@ -1275,11 +1347,12 @@ useEffect(() => {
 If analytics is implemented, add tracking at:
 
 ### 1. Navigation Events (in `useRouterStore.navigate`)
+
 ```typescript
 navigate: (view, params) => {
   // ... existing code
 
-  analytics?.track('view_navigated', {
+  analytics?.track("view_navigated", {
     from: get().currentView,
     to: view,
     params,
@@ -1287,20 +1360,21 @@ navigate: (view, params) => {
   });
 
   // ... continue navigation
-}
+};
 ```
 
 ### 2. Transcription Events (in TranscribeView)
+
 ```typescript
 // On transcription start
-analytics?.track('transcription_started', {
+analytics?.track("transcription_started", {
   model,
   language,
   audioDuration,
 });
 
 // On transcription complete
-analytics?.track('transcription_completed', {
+analytics?.track("transcription_completed", {
   model,
   language,
   duration: generationTime,
@@ -1308,28 +1382,30 @@ analytics?.track('transcription_completed', {
 });
 
 // On transcription error
-analytics?.track('transcription_failed', {
+analytics?.track("transcription_failed", {
   model,
   error: errorMessage,
 });
 ```
 
 ### 3. Storage Events (in useTranscripts hook)
+
 ```typescript
 // On save
-analytics?.track('transcript_saved', {
+analytics?.track("transcript_saved", {
   transcriptId,
   fileSize,
   hasAudio,
 });
 
 // On delete
-analytics?.track('transcript_deleted', {
+analytics?.track("transcript_deleted", {
   transcriptId,
 });
 ```
 
 ### 4. Error Events (in ErrorBoundary)
+
 ```typescript
 componentDidCatch(error, errorInfo) {
   analytics?.track('app_error', {
@@ -1408,8 +1484,10 @@ Before starting, answer these:
 - **Current Code**: `src/app/web-transc/components/WhisperDiarization.tsx`
 - **Zustand Docs**: https://docs.pmnd.rs/zustand
 - **React Lazy**: https://react.dev/reference/react/lazy
-- **Next.js Static Export**: https://nextjs.org/docs/app/building-your-application/deploying/static-exports
-- **Electron BrowserWindow**: https://www.electronjs.org/docs/latest/api/browser-window
+- **Next.js Static Export**:
+  https://nextjs.org/docs/app/building-your-application/deploying/static-exports
+- **Electron BrowserWindow**:
+  https://www.electronjs.org/docs/latest/api/browser-window
 
 ---
 
@@ -1466,11 +1544,16 @@ src/app/web-transc/
 
 ## Conclusion
 
-This architecture provides a clean, maintainable, and unified solution that works seamlessly in both web and Electron environments. The view-based SPA approach eliminates the need for complex build scripts, conditional rendering, and duplicate code paths.
+This architecture provides a clean, maintainable, and unified solution that
+works seamlessly in both web and Electron environments. The view-based SPA
+approach eliminates the need for complex build scripts, conditional
+rendering, and duplicate code paths.
 
-The implementation should be done incrementally to minimize risk, with each phase fully tested before proceeding to the next.
+The implementation should be done incrementally to minimize risk, with each
+phase fully tested before proceeding to the next.
 
 **Key Improvements in V1.1:**
+
 - ✅ Worker service layer (prevents recreation bugs)
 - ✅ Deep link validation (graceful error handling)
 - ✅ Navigation blocking during transcription (UX clarity)

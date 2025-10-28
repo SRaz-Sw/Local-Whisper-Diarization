@@ -9,6 +9,7 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouterStore } from "../store/useRouterStore";
@@ -711,6 +712,31 @@ export default function UploadView() {
 
                     {/* Batch Progress Widget */}
                     <BatchProgressWidget />
+
+                    {/* Global Search Trigger */}
+                    {status !== "running" &&
+                      savedTranscripts.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4 }}
+                          className="w-full max-w-2xl"
+                        >
+                          <button
+                            onClick={() => navigate("global-search")}
+                            className="group relative w-full overflow-hidden rounded-lg border border-gray-300 bg-white px-4 py-3 text-left shadow-sm transition-all hover:border-blue-400 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-600"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="flex-shrink-0 rounded-full bg-blue-50 p-2 transition-colors group-hover:bg-blue-100 dark:bg-blue-900/30 dark:group-hover:bg-blue-900/50">
+                                <Search className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                              </div>
+                              <span className="text-sm text-gray-600 transition-colors group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-gray-200">
+                                Search all transcripts...
+                              </span>
+                            </div>
+                          </button>
+                        </motion.div>
+                      )}
 
                     {/* Saved Transcripts Section */}
                     {status !== "running" && (
