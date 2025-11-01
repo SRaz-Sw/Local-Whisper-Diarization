@@ -5,7 +5,7 @@
  * This ensures type safety at runtime and provides automatic validation.
  */
 
-import { z } from 'zod'
+import { z } from "zod";
 
 /**
  * Transcript Chunk Schema
@@ -15,7 +15,7 @@ import { z } from 'zod'
 export const transcriptChunkSchema = z.object({
   text: z.string(),
   timestamp: z.tuple([z.number(), z.number()]), // [start, end] in seconds
-})
+});
 
 /**
  * Speaker Segment Schema
@@ -26,7 +26,7 @@ export const speakerSegmentSchema = z.object({
   label: z.string(), // e.g., "SPEAKER_00", "SPEAKER_01"
   start: z.number(), // Start time in seconds
   end: z.number(), // End time in seconds
-})
+});
 
 /**
  * Saved Transcript Schema
@@ -60,7 +60,18 @@ export const savedTranscriptSchema = z.object({
 
   // Optional reference to audio blob
   audioFileId: z.string().optional(),
-})
+
+  // Optional reference to compressed audio (MP3)
+  compressedAudioFileId: z.string().optional(),
+
+  // API sync status
+  apiSyncStatus: z
+    .enum(["pending", "syncing", "synced", "error", "disabled"])
+    .default("disabled")
+    .optional(),
+  apiSyncedAt: z.number().optional(), // Unix timestamp of last successful sync
+  apiError: z.string().optional(), // Last error message if sync failed
+});
 
 /**
  * Prompt Template Schema
@@ -73,7 +84,7 @@ export const promptTemplateSchema = z.object({
   content: z.string(), // Template content/prompt
   createdAt: z.number(), // Unix timestamp
   updatedAt: z.number(), // Unix timestamp
-})
+});
 
 /**
  * App Settings Schema (Future Use)
@@ -81,11 +92,19 @@ export const promptTemplateSchema = z.object({
  * Application-wide settings
  */
 export const appSettingsSchema = z.object({
-  theme: z.enum(['light', 'dark', 'system']).default('system'),
-  defaultLanguage: z.string().default('en'),
+  theme: z.enum(["light", "dark", "system"]).default("system"),
+  defaultLanguage: z.string().default("en"),
   autoSave: z.boolean().default(false),
   keepAudioFiles: z.boolean().default(true), // Keep audio with transcript
-})
+
+  // Audio compression settings
+  compressAudio: z.boolean().default(true), // Compress audio to MP3 before saving
+
+  // API sync settings
+  apiEnabled: z.boolean().default(false), // Enable automatic API sync
+  apiEndpoint: z.string().optional(), // API endpoint URL
+  apiKey: z.string().optional(), // API authentication key
+});
 
 /**
  * Batch Job Schema
@@ -101,8 +120,8 @@ export const batchJobSchema = z.object({
   failedFiles: z.number(),
   cancelledFiles: z.number(),
   transcriptIds: z.array(z.string()), // References to saved transcripts
-  status: z.enum(['processing', 'completed', 'partial', 'cancelled']),
-})
+  status: z.enum(["processing", "completed", "partial", "cancelled"]),
+});
 
 // ==================== TypeScript Types ====================
 
@@ -111,12 +130,12 @@ export const batchJobSchema = z.object({
  * These provide type safety at compile time
  */
 
-export type TranscriptChunk = z.infer<typeof transcriptChunkSchema>
-export type SpeakerSegment = z.infer<typeof speakerSegmentSchema>
-export type SavedTranscript = z.infer<typeof savedTranscriptSchema>
-export type PromptTemplate = z.infer<typeof promptTemplateSchema>
-export type AppSettings = z.infer<typeof appSettingsSchema>
-export type BatchJob = z.infer<typeof batchJobSchema>
+export type TranscriptChunk = z.infer<typeof transcriptChunkSchema>;
+export type SpeakerSegment = z.infer<typeof speakerSegmentSchema>;
+export type SavedTranscript = z.infer<typeof savedTranscriptSchema>;
+export type PromptTemplate = z.infer<typeof promptTemplateSchema>;
+export type AppSettings = z.infer<typeof appSettingsSchema>;
+export type BatchJob = z.infer<typeof batchJobSchema>;
 
 // ==================== Default Values ====================
 
@@ -124,8 +143,8 @@ export type BatchJob = z.infer<typeof batchJobSchema>
  * Default prompt template
  */
 export const DEFAULT_TEMPLATE: PromptTemplate = {
-  id: 'default',
-  name: 'Default',
+  id: "default",
+  name: "Default",
   content: `Based on the following conversation transcript, please analyze and provide insights:
 
 format and data we want to extract:
@@ -151,14 +170,16 @@ Here's the transcript:
 `,
   createdAt: Date.now(),
   updatedAt: Date.now(),
-}
+};
 
 /**
  * Default app settings
  */
 export const DEFAULT_SETTINGS: AppSettings = {
-  theme: 'system',
-  defaultLanguage: 'en',
+  theme: "system",
+  defaultLanguage: "en",
   autoSave: false,
   keepAudioFiles: true,
-}
+  compressAudio: true,
+  apiEnabled: false,
+};

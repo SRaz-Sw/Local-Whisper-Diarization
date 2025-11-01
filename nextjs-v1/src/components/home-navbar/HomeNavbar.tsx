@@ -5,6 +5,7 @@ import { SidebarTrigger } from "../ui/sidebar";
 import { ThemeToggle } from "./ThemeToggle";
 import TopTitle from "./TopTitle";
 import { useRouterStore } from "@/app/web-transc/store/useRouterStore";
+import { ApiSettingsModal } from "@/features/api-sync";
 
 const HomeNavbar = () => {
   const navigate = useRouterStore((state) => state.navigate);
@@ -37,6 +38,7 @@ const HomeNavbar = () => {
         {/* Theme Toggle */}
         <div className="ms-auto flex items-center gap-2">
           {/* <WatchVideoButton /> */}
+          <ApiSettingsModal />
           <ThemeToggle />
           {/* <ProfileSection /> */}
         </div>

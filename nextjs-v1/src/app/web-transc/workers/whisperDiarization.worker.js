@@ -214,7 +214,7 @@ async function run({ audio, language, resumeFromBackup = false, fileId }) {
     skip_prompt: true,
     time_precision: 0.02,
     callback_function: (text) => {
-      console.log("🔥 WORKER: Streamer callback fired with text:", text);
+      // console.log("🔥 WORKER: Streamer callback fired with text:", text);
       // Send streaming text updates with timestamp
       self.postMessage({
         status: "transcribing",

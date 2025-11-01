@@ -27,7 +27,7 @@ export function Router() {
 
     // Global worker message handler
     const handleWorkerMessage = (e: MessageEvent) => {
-      console.log("📨 Router worker message:", e.data.status);
+      // console.log("📨 Router worker message:", e.data.status);
 
       switch (e.data.status) {
         case "loading":
@@ -219,7 +219,12 @@ export function Router() {
   // Get the view component
   const ViewComponent = views[currentView];
 
-  console.log("🎯 Rendering view:", currentView, "with params:", params);
+  console.log(
+    "🎯 Rendering view:",
+    currentView,
+    "with params:",
+    JSON.stringify(params),
+  );
 
   return (
     <Suspense fallback={<ViewLoadingFallback viewName={currentView} />}>

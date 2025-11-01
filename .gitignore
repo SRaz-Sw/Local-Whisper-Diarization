@@ -15,3 +15,6 @@ bun.lock
 # IDE
 .vscode/
 .idea/
+server_orpc/
+deploy-with-env.sh
+deploy-orpc-server.sh

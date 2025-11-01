@@ -1,12 +1,14 @@
 # Code Quality and Formatting Rules
 
 ## Linting and Formatting
+
 - ALWAYS respect and follow project linting rules
 - DO NOT introduce new linting errors
 - Format code according to .prettierrc and eslint.config.mjs
 - Run Prettier on all files after every change
 
 ## Formatting Standards
+
 - DO NOT add or remove empty lines unnecessarily
 - DO NOT change existing spacing or indentation unless required by linting
 - Avoid cosmetic-only changes unless explicitly requested
@@ -16,6 +18,12 @@
 - Include trailing commas in all multi-line structures
 
 ## Code Changes
+
 - Only make changes that are functionally necessary
 - Preserve existing code structure and style
 - Test changes do not break linting before committing
+
+## Summarize of work
+
+Summarize the work in a new markdown in a concise, well-structured, and
+sharp way. make sure to write 4 parahraphs at-most.

@@ -7,7 +7,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { transcripts } from "@/lib/localStorage/collections";
+import { transcripts, settings } from "@/lib/localStorage/collections";
 import { blobStorage } from "@/lib/localStorage/storage";
 import type {
   SavedTranscript,
@@ -16,6 +16,7 @@ import type {
 } from "@/lib/localStorage/schemas";
 import { toast } from "sonner";
 import { sanitizeChunks } from "../utils/chunkSanitizer";
+import { compressAudio, backgroundSyncService } from "@/features/api-sync";
 
 /**
  * Hook for managing transcripts
@@ -112,11 +113,37 @@ export function useTranscripts() {
         // Generate unique ID
         const id = `transcript-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
+        // Get app settings for compression and API sync
+        const appSettings = await settings.get("app");
+        console.log("🔍 App Settings:", appSettings);
+        const shouldCompress = appSettings?.compressAudio ?? true;
+
         // Save audio blob if provided
         let audioFileId: string | undefined;
+        let compressedAudioFileId: string | undefined;
+
         if (data.audioBlob) {
           audioFileId = `audio-${id}`;
           await blobStorage.save(audioFileId, data.audioBlob);
+
+          // Compress audio in background (non-blocking)
+          if (shouldCompress) {
+            try {
+              console.log(`🗜️ Compressing audio for transcript ${id}...`);
+              const compressedBlob = await compressAudio(data.audioBlob);
+              compressedAudioFileId = `audio-compressed-${id}`;
+              await blobStorage.save(
+                compressedAudioFileId,
+                compressedBlob,
+              );
+              console.log(
+                `✅ Compressed audio saved: ${compressedAudioFileId}`,
+              );
+            } catch (error) {
+              console.error("⚠️ Audio compression failed:", error);
+              // Continue without compressed audio
+            }
+          }
         }
 
         // Sanitize chunks to remove/fix invalid timestamps
@@ -137,6 +164,8 @@ export function useTranscripts() {
           },
           segments: data.segments,
           audioFileId,
+          compressedAudioFileId,
+          apiSyncStatus: appSettings?.apiEnabled ? "pending" : "disabled",
           metadata: {
             fileName: data.fileName || "untitled",
             duration,
@@ -156,6 +185,16 @@ export function useTranscripts() {
 
         // Notify other components that transcripts have changed
         window.dispatchEvent(new Event("transcripts-changed"));
+
+        // Queue for API sync if enabled (non-blocking)
+        // Small delay to ensure IndexedDB write is committed
+        if (appSettings?.apiEnabled) {
+          console.log("🔍 API Settings:", appSettings);
+          console.log(`📤 Queuing transcript ${id} for API sync`);
+          setTimeout(() => {
+            backgroundSyncService.queueSync(id);
+          }, 100); // 100ms delay to ensure persistence
+        }
 
         return id;
       } catch (err) {

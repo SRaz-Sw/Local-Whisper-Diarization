@@ -7,7 +7,7 @@ import { batchWorkerPool } from "./BatchWorkerPoolService";
 import { useBatchStore, type BatchFile } from "../store/useBatchStore";
 import { useWhisperStore } from "../store/useWhisperStore";
 import type { TranscriptionResult, WorkerMessage } from "../types";
-import { transcripts } from "@/lib/localStorage/collections";
+import { transcripts, settings } from "@/lib/localStorage/collections";
 import { blobStorage } from "@/lib/localStorage/storage";
 import type {
   TranscriptChunk,
@@ -15,6 +15,7 @@ import type {
 } from "@/lib/localStorage/schemas";
 import { DEFAULT_MODEL } from "../config/modelConfig";
 import { sanitizeChunks } from "../utils/chunkSanitizer";
+import { compressAudio, backgroundSyncService } from "@/features/api-sync";
 
 class BatchQueueManager {
   private workerSubscriptions: Map<string, () => void> = new Map(); // workerId -> unsubscribe
@@ -507,11 +508,35 @@ class BatchQueueManager {
       // Generate unique ID
       const id = `transcript-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
+      // Get app settings for compression and API sync
+      const appSettings = await settings.get("app");
+      const shouldCompress = appSettings?.compressAudio ?? true;
+
       // Save audio blob
       let audioFileId: string | undefined;
+      let compressedAudioFileId: string | undefined;
+
       if (file.file && file.file.size > 0) {
         audioFileId = `audio-${id}`;
         await blobStorage.save(audioFileId, file.file);
+
+        // Compress audio in background (non-blocking)
+        if (shouldCompress) {
+          try {
+            console.log(
+              `🗜️ Compressing audio for batch transcript ${id}...`,
+            );
+            const compressedBlob = await compressAudio(file.file);
+            compressedAudioFileId = `audio-compressed-${id}`;
+            await blobStorage.save(compressedAudioFileId, compressedBlob);
+            console.log(
+              `✅ Compressed audio saved: ${compressedAudioFileId}`,
+            );
+          } catch (error) {
+            console.error("⚠️ Audio compression failed:", error);
+            // Continue without compressed audio
+          }
+        }
       }
 
       // Sanitize chunks to remove/fix invalid timestamps
@@ -542,6 +567,10 @@ class BatchQueueManager {
           end: s.end,
         })) as SpeakerSegment[],
         audioFileId,
+        compressedAudioFileId,
+        apiSyncStatus: appSettings?.apiEnabled
+          ? ("pending" as const)
+          : ("disabled" as const),
         metadata: {
           fileName: file.fileName,
           duration,
@@ -558,6 +587,15 @@ class BatchQueueManager {
 
       // Notify other components that transcripts have changed
       window.dispatchEvent(new Event("transcripts-changed"));
+
+      // Queue for API sync if enabled (non-blocking)
+      // Small delay to ensure IndexedDB write is committed
+      if (appSettings?.apiEnabled) {
+        console.log(`📤 Queuing batch transcript ${id} for API sync`);
+        setTimeout(() => {
+          backgroundSyncService.queueSync(id);
+        }, 100); // 100ms delay to ensure persistence
+      }
 
       return id;
     } catch (error) {
