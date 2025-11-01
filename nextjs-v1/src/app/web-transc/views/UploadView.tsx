@@ -119,11 +119,14 @@ export default function UploadView() {
       console.log("✅ Model already ready, skipping load");
     }
 
+    // Clear any previous result before starting new transcription
+    setResult(null);
+
     // Always navigate to transcribe view
     // TranscribeView will wait for model to be ready before starting transcription
     console.log("🎤 Navigating to transcribe view...");
     navigate("transcribe");
-  }, [status, audio, device, model, postMessage, navigate]);
+  }, [status, audio, device, model, postMessage, navigate, setResult]);
 
   // Handle model change
   const handleModelChange = useCallback(

@@ -249,6 +249,14 @@ export const useBatchStore = create<BatchStore>()((set, get) => ({
       batchFiles.map((bf) => `${bf.fileName} (${bf.id})`),
     );
 
+    // Guard: Don't update state if no files to add (prevents inconsistent batch status)
+    if (batchFiles.length === 0) {
+      console.log(
+        "ℹ️ No files to add (all filtered out), skipping state update",
+      );
+      return;
+    }
+
     // Add files to store immediately
     set((state) => ({
       files: [...state.files, ...batchFiles],
