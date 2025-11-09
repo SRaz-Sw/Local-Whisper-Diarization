@@ -69,6 +69,7 @@ export interface CompressionConfig {
   bitDepth: number;
   channels: number;
   quality: number;
+  isConvertingToMono?: boolean;
 }
 
 /**
@@ -78,6 +79,7 @@ export interface CompressionOptions {
   sampleRate?: number;
   channels?: number;
   quality?: number;
+  isConvertingToMono?: boolean;
 }
 
 /**

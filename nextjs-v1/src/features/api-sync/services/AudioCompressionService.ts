@@ -85,16 +85,27 @@ export async function compressAudio(
 
     // Get channel data (convert to mono if needed)
     let channelData: Float32Array;
+    const shouldConvertToMono =
+      config.isConvertingToMono ?? config.channels === 1;
+
     if (audioBuffer.numberOfChannels === 1) {
       channelData = audioBuffer.getChannelData(0);
-    } else {
-      // Mix to mono
-      const left = audioBuffer.getChannelData(0);
-      const right = audioBuffer.getChannelData(1);
-      channelData = new Float32Array(left.length);
-      for (let i = 0; i < left.length; i++) {
-        channelData[i] = (left[i] + right[i]) / 2;
+    } else if (shouldConvertToMono) {
+      // Mix all channels to mono by averaging them
+      const numChannels = audioBuffer.numberOfChannels;
+      const length = audioBuffer.length;
+      channelData = new Float32Array(length);
+
+      for (let i = 0; i < length; i++) {
+        let sum = 0;
+        for (let ch = 0; ch < numChannels; ch++) {
+          sum += audioBuffer.getChannelData(ch)[i];
+        }
+        channelData[i] = sum / numChannels;
       }
+    } else {
+      // Keep original channels (use first channel only for now)
+      channelData = audioBuffer.getChannelData(0);
     }
 
     // Create WAV blob (simpler than MP3, still compressed due to lower sample rate)
