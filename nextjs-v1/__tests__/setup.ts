@@ -27,19 +27,156 @@ global.AudioContext = class AudioContext {
     this.sampleRate = options?.sampleRate || 44100;
   }
 
-  async decodeAudioData(arrayBuffer: ArrayBuffer) {
-    // Return mock audio buffer
+  async decodeAudioData(_arrayBuffer: ArrayBuffer) {
+    // Return mock audio buffer with the correct sample rate from constructor
     return {
       numberOfChannels: 2,
-      length: 16000,
-      sampleRate: 16000,
+      length: this.sampleRate,
+      sampleRate: this.sampleRate,
       duration: 1,
-      getChannelData: (channel: number) => new Float32Array(16000),
+      getChannelData: (_channel: number) =>
+        new Float32Array(this.sampleRate),
+      copyFromChannel: () => {},
+      copyToChannel: () => {},
     };
   }
 
   async close() {
     return Promise.resolve();
+  }
+
+  createBufferSource() {
+    return {
+      buffer: null,
+      connect: () => {},
+      start: () => {},
+    };
+  }
+
+  createMediaStreamDestination() {
+    return {
+      stream: {},
+    };
+  }
+} as any;
+
+// Mock OfflineAudioContext BEFORE any modules are imported
+global.OfflineAudioContext = class OfflineAudioContext {
+  sampleRate: number;
+
+  constructor(
+    numberOfChannels: number,
+    length: number,
+    sampleRate: number,
+  ) {
+    this.sampleRate = sampleRate;
+  }
+
+  createBuffer(
+    numberOfChannels: number,
+    length: number,
+    sampleRate: number,
+  ): AudioBuffer {
+    return {
+      numberOfChannels,
+      length,
+      sampleRate,
+      duration: length / sampleRate,
+      getChannelData: (_channel: number) => new Float32Array(length),
+      copyFromChannel: () => {},
+      copyToChannel: () => {},
+    } as AudioBuffer;
+  }
+
+  createChannelMerger(_channels: number) {
+    return { connect: () => {} };
+  }
+
+  createChannelSplitter(_channels: number) {
+    return { connect: () => {} };
+  }
+
+  createGain() {
+    return {
+      gain: { value: 1 },
+      connect: () => {},
+    };
+  }
+
+  get destination() {
+    return { connect: () => {} };
+  }
+
+  async startRendering(): Promise<AudioBuffer> {
+    return this.createBuffer(1, this.sampleRate, this.sampleRate);
+  }
+
+  async close() {
+    return Promise.resolve();
+  }
+
+  async decodeAudioData(_arrayBuffer: ArrayBuffer): Promise<AudioBuffer> {
+    return {
+      numberOfChannels: 2,
+      length: this.sampleRate,
+      sampleRate: this.sampleRate,
+      duration: 1,
+      getChannelData: (_channel: number) =>
+        new Float32Array(this.sampleRate),
+      copyFromChannel: () => {},
+      copyToChannel: () => {},
+    } as AudioBuffer;
+  }
+
+  createBufferSource() {
+    return {
+      buffer: null,
+      connect: () => {},
+      start: () => {},
+    };
+  }
+
+  createMediaStreamDestination() {
+    return {
+      stream: {},
+    };
+  }
+} as any;
+
+// Mock MediaRecorder BEFORE any modules are imported
+global.MediaRecorder = class MediaRecorder {
+  static isTypeSupported(mimeType: string) {
+    return mimeType.includes("webm") || mimeType.includes("opus");
+  }
+
+  state = "inactive";
+  ondataavailable: ((e: any) => void) | null = null;
+  onstop: (() => void) | null = null;
+  onerror: ((e: any) => void) | null = null;
+
+  constructor(
+    public stream: any,
+    public options?: any,
+  ) {}
+
+  start() {
+    this.state = "recording";
+    setTimeout(() => {
+      if (this.ondataavailable) {
+        this.ondataavailable({
+          data: new Blob(["mock audio data"], {
+            type: this.options?.mimeType || "audio/webm",
+          }),
+        });
+      }
+    }, 10);
+  }
+
+  stop() {
+    this.state = "inactive";
+    setTimeout(() => {
+      if (this.onstop) this.onstop();
+    }, 10);
   }
 } as any;
 

@@ -83,7 +83,9 @@ const WhisperMediaInput = forwardRef<
     reader.readAsArrayBuffer(file);
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     readFile(event.target.files?.[0]);
   };
 
@@ -111,7 +113,8 @@ const WhisperMediaInput = forwardRef<
   };
 
   const processFile = async (buffer: ArrayBuffer) => {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    const AudioContextClass =
+      window.AudioContext || (window as any).webkitAudioContext;
     const audioContext = new AudioContextClass({ sampleRate: 16_000 });
 
     try {
@@ -239,4 +242,3 @@ const WhisperMediaInput = forwardRef<
 WhisperMediaInput.displayName = "WhisperMediaInput";
 
 export default WhisperMediaInput;
-

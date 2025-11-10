@@ -11,8 +11,12 @@ import {
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { formatFileSize } from "../utils/templateStorage";
-import { Music, Video } from "lucide-react";
+import { Music, Video, RefreshCw } from "lucide-react";
 import { useGlobalPlayerStore } from "../store/useGlobalPlayerStore";
+import { compressAudio } from "@/features/audioCompressor";
+import { blobStorage } from "@/lib/localStorage/storage";
+import { transcripts } from "@/lib/localStorage/collections";
+import { toast } from "sonner";
 
 export interface AudioPlayerProps {
   src: File | Blob | string | null;
@@ -21,6 +25,7 @@ export interface AudioPlayerProps {
   transcriptId?: string; // Optional: For global player coordination
   onEditConversation?: () => void; // Optional: Edit conversation name
   onEditSpeakers?: () => void; // Optional: Edit speaker names
+  audioFileId?: string; // Optional: ID of audio file in storage for compression
 }
 
 export interface AudioPlayerRef {
@@ -37,6 +42,7 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
       transcriptId,
       onEditConversation,
       onEditSpeakers,
+      audioFileId,
     },
     ref,
   ) => {
@@ -47,6 +53,7 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
     const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
     const [filename, setFilename] = useState<string>("");
     const [fileSize, setFileSize] = useState<string>("");
+    const [isCompressing, setIsCompressing] = useState<boolean>(false);
 
     const audioElement = useRef<HTMLAudioElement>(null);
     const videoElement = useRef<HTMLVideoElement>(null);
@@ -76,6 +83,91 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
         setActivePlayer(transcriptId);
       }
     }, [transcriptId, setActivePlayer]);
+
+    // Handler for compression/sync
+    const handleCompress = useCallback(async () => {
+      if (!transcriptId || !audioFileId) {
+        toast.error("Cannot compress: missing transcript or audio ID");
+        return;
+      }
+
+      if (isCompressing) {
+        return; // Already compressing
+      }
+
+      try {
+        setIsCompressing(true);
+        toast.info("Starting compression...", {
+          id: `compress-${transcriptId}`,
+        });
+
+        // Get the transcript
+        const transcript = await transcripts.get(transcriptId);
+        if (!transcript) {
+          throw new Error("Transcript not found");
+        }
+
+        // Check if already compressed
+        if (transcript.compressedAudioFileId) {
+          toast.info("Audio already compressed!", {
+            id: `compress-${transcriptId}`,
+          });
+          setIsCompressing(false);
+          return;
+        }
+
+        // Get the audio blob
+        const audioBlob = await blobStorage.get(audioFileId);
+        if (!audioBlob) {
+          throw new Error("Audio file not found in storage");
+        }
+
+        console.log(
+          `🗜️ Starting compression for transcript ${transcriptId}`,
+        );
+
+        // Compress the audio
+        const compressedBlob = await compressAudio(audioBlob, {
+          bitrate: 24,
+          sampleRate: 16000,
+          channels: 1,
+          codec: "opus",
+          onProgress: (progress) => {
+            toast.info(`Compressing: ${Math.round(progress.percent)}%`, {
+              id: `compress-${transcriptId}`,
+            });
+          },
+        });
+
+        // Save compressed audio
+        const compressedAudioFileId = `audio-compressed-${transcriptId}`;
+        await blobStorage.save(compressedAudioFileId, compressedBlob);
+
+        // Update transcript with compressed audio ID
+        transcript.compressedAudioFileId = compressedAudioFileId;
+        await transcripts.set(transcriptId, transcript);
+
+        // Calculate compression ratio
+        const ratio = (compressedBlob.size / audioBlob.size) * 100;
+
+        toast.success(
+          `Compressed to ${Math.round(ratio)}% of original size!`,
+          { id: `compress-${transcriptId}` },
+        );
+
+        console.log(
+          `✅ Compression complete: ${audioBlob.size} → ${compressedBlob.size} bytes (${ratio.toFixed(1)}%)`,
+        );
+      } catch (error) {
+        console.error("❌ Compression failed:", error);
+        toast.error(
+          `Compression failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+          { id: `compress-${transcriptId}` },
+        );
+      } finally {
+        setIsCompressing(false);
+      }
+    }, [transcriptId, audioFileId, isCompressing]);
 
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
@@ -270,6 +362,35 @@ export const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(
                 )}
               </div>
             )}
+
+            {/* Compress/Sync button - only show if transcriptId and audioFileId are provided */}
+            {transcriptId && audioFileId && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleCompress}
+                disabled={isCompressing}
+                className={cn(
+                  "flex-shrink-0 rounded-lg p-1.5 transition-colors",
+                  isCompressing
+                    ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700",
+                )}
+                title={
+                  isCompressing
+                    ? "Compressing..."
+                    : "Compress & backup audio"
+                }
+              >
+                <RefreshCw
+                  className={cn(
+                    "h-4 w-4",
+                    isCompressing && "animate-spin",
+                  )}
+                />
+              </motion.button>
+            )}
+
             <div className="text-xs font-medium text-gray-500 dark:text-gray-400">
               {fileSize}
             </div>

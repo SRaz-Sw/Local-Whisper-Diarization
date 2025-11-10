@@ -521,7 +521,11 @@ export const useWhisperStore = create<WhisperStore>()(
         setSearchQuery: (query) =>
           set(
             (state) => ({
-              ui: { ...state.ui, searchQuery: query, searchResultIndex: 0 },
+              ui: {
+                ...state.ui,
+                searchQuery: query,
+                searchResultIndex: 0,
+              },
             }),
             false,
             "setSearchQuery",
@@ -534,7 +538,9 @@ export const useWhisperStore = create<WhisperStore>()(
           ),
         setTotalSearchResults: (total) =>
           set(
-            (state) => ({ ui: { ...state.ui, totalSearchResults: total } }),
+            (state) => ({
+              ui: { ...state.ui, totalSearchResults: total },
+            }),
             false,
             "setTotalSearchResults",
           ),
@@ -546,7 +552,8 @@ export const useWhisperStore = create<WhisperStore>()(
               return {
                 ui: {
                   ...state.ui,
-                  searchResultIndex: (searchResultIndex + 1) % totalSearchResults,
+                  searchResultIndex:
+                    (searchResultIndex + 1) % totalSearchResults,
                 },
               };
             },

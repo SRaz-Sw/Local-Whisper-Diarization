@@ -9,10 +9,10 @@ const cspDirectives = [
   // script-src: Controls where JavaScript can be loaded from
   // 'unsafe-eval' allows functions like eval() - needed for some frameworks
   // 'unsafe-inline' allows inline scripts - often needed for React
-  // Also allows scripts from YouTube domains
-  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.youtube.com https://s.ytimg.com https://cdn.jsdelivr.net",
-  // Added https://cdn.jsdelivr.net for the web transcription (see client/chat-whatsapp-clone/src/app/web-transc/page.tsx)
-  // "https://cdn.jsdelivr.net",
+  // blob: allows scripts loaded from blob URLs - needed for FFmpeg.wasm
+  // Also allows scripts from YouTube domains and CDNs for FFmpeg
+  "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://www.youtube.com https://s.ytimg.com https://cdn.jsdelivr.net https://unpkg.com",
+  // Added blob:, https://cdn.jsdelivr.net and https://unpkg.com for FFmpeg.wasm
 
   // style-src: Controls where stylesheets can be loaded from
   // 'unsafe-inline' allows inline styles (often needed for React/Next.js)

@@ -15,7 +15,9 @@ import type {
 } from "@/lib/localStorage/schemas";
 import { DEFAULT_MODEL } from "../config/modelConfig";
 import { sanitizeChunks } from "../utils/chunkSanitizer";
-import { compressAudio, backgroundSyncService } from "@/features/api-sync";
+import { compressionQueue } from "@/features/audioCompressor";
+import { backgroundSyncService } from "@/features/api-sync";
+import { toast } from "sonner";
 
 class BatchQueueManager {
   private workerSubscriptions: Map<string, () => void> = new Map(); // workerId -> unsubscribe
@@ -520,22 +522,65 @@ class BatchQueueManager {
         audioFileId = `audio-${id}`;
         await blobStorage.save(audioFileId, file.file);
 
-        // Compress audio in background (non-blocking)
+        // Compress audio using compression queue (non-blocking)
         if (shouldCompress) {
-          try {
+          console.log(
+            `🗜️ Queueing audio compression for batch transcript ${id}...`,
+          );
+
+          const jobId = compressionQueue.add(file.file, {
+            bitrate: 24,
+            sampleRate: 16000,
+            channels: 1,
+            codec: "opus",
+          });
+
+          // Listen for compression progress
+          compressionQueue.onProgress(jobId, (progress) => {
             console.log(
-              `🗜️ Compressing audio for batch transcript ${id}...`,
+              `📊 Compression progress for ${file.fileName}: ${Math.round(progress.percent)}%`,
             );
-            const compressedBlob = await compressAudio(file.file);
-            compressedAudioFileId = `audio-compressed-${id}`;
-            await blobStorage.save(compressedAudioFileId, compressedBlob);
-            console.log(
-              `✅ Compressed audio saved: ${compressedAudioFileId}`,
-            );
-          } catch (error) {
+          });
+
+          // Listen for completion
+          compressionQueue.onComplete(jobId, async (result) => {
+            try {
+              compressedAudioFileId = `audio-compressed-${id}`;
+              await blobStorage.save(compressedAudioFileId, result.blob);
+
+              const ratio = result.compressionRatio * 100;
+              console.log(
+                `✅ Batch audio compressed: ${result.originalSize} → ${result.compressedSize} bytes (${ratio.toFixed(1)}%)`,
+              );
+
+              toast.success(
+                `${file.fileName}: Compressed to ${Math.round(ratio)}%`,
+                { duration: 3000 },
+              );
+
+              // Update transcript with compressed audio ID
+              const transcript = await transcripts.get(id);
+              if (transcript) {
+                transcript.compressedAudioFileId = compressedAudioFileId;
+                await transcripts.set(id, transcript);
+              }
+            } catch (error) {
+              console.error("⚠️ Failed to save compressed audio:", error);
+            }
+          });
+
+          // Listen for errors
+          compressionQueue.onError(jobId, (error) => {
             console.error("⚠️ Audio compression failed:", error);
-            // Continue without compressed audio
-          }
+            toast.error(
+              `Compression failed for ${file.fileName}: ${error.message}`,
+              { duration: 5000 },
+            );
+          });
+
+          // Note: Don't await compression - it happens in background
+          // The transcript will be saved with original audio, and compressed audio
+          // will be added when compression completes
         }
       }
 

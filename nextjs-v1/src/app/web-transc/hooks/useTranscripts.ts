@@ -16,7 +16,8 @@ import type {
 } from "@/lib/localStorage/schemas";
 import { toast } from "sonner";
 import { sanitizeChunks } from "../utils/chunkSanitizer";
-import { compressAudio, backgroundSyncService } from "@/features/api-sync";
+import { compressAudio } from "@/features/audioCompressor";
+import { backgroundSyncService } from "@/features/api-sync";
 
 /**
  * Hook for managing transcripts
@@ -126,21 +127,50 @@ export function useTranscripts() {
           audioFileId = `audio-${id}`;
           await blobStorage.save(audioFileId, data.audioBlob);
 
-          // Compress audio in background (non-blocking)
+          // Compress audio with new compression service
           if (shouldCompress) {
             try {
-              console.log(`🗜️ Compressing audio for transcript ${id}...`);
-              const compressedBlob = await compressAudio(data.audioBlob);
+              toast.info("Compressing audio...", { id: `compress-${id}` });
+
+              const compressedBlob = await compressAudio(data.audioBlob, {
+                bitrate: 24,
+                sampleRate: 16000,
+                channels: 1,
+                codec: "opus",
+                onProgress: (progress) => {
+                  // Update toast with progress
+                  toast.info(
+                    `Compressing audio: ${Math.round(progress.percent)}%`,
+                    { id: `compress-${id}` },
+                  );
+                },
+              });
+
               compressedAudioFileId = `audio-compressed-${id}`;
               await blobStorage.save(
                 compressedAudioFileId,
                 compressedBlob,
               );
+
+              // Calculate compression ratio
+              const ratio =
+                (compressedBlob.size / data.audioBlob.size) * 100;
+              toast.success(
+                `Audio compressed to ${Math.round(ratio)}% of original size`,
+                { id: `compress-${id}` },
+              );
+
               console.log(
-                `✅ Compressed audio saved: ${compressedAudioFileId}`,
+                `✅ Audio compressed: ${data.audioBlob.size} → ${compressedBlob.size} bytes (${ratio.toFixed(1)}%)`,
               );
             } catch (error) {
               console.error("⚠️ Audio compression failed:", error);
+              toast.error(
+                "Audio compression failed, using original file",
+                {
+                  id: `compress-${id}`,
+                },
+              );
               // Continue without compressed audio
             }
           }
@@ -239,7 +269,7 @@ export function useTranscripts() {
         throw error;
       }
     },
-    [load],
+    [load, items],
   );
 
   /**

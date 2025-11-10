@@ -50,7 +50,7 @@ export function BatchFileItem({
   const formatDuration = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   // Get status icon and color
@@ -144,7 +144,9 @@ export function BatchFileItem({
               <p className="text-muted-foreground mt-1 text-sm">
                 {formatFileSize(file.fileSize)}
                 {file.audioDuration && (
-                  <span className="ml-2">• {formatDuration(file.audioDuration)}</span>
+                  <span className="ml-2">
+                    • {formatDuration(file.audioDuration)}
+                  </span>
                 )}
                 {file.retryCount > 0 && (
                   <span className="text-warning ml-2">

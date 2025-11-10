@@ -32,7 +32,9 @@ export function EditSpeakersModal({
   transcript,
   onSave,
 }: EditSpeakersModalProps) {
-  const [speakerNames, setSpeakerNames] = useState<Record<string, string>>({});
+  const [speakerNames, setSpeakerNames] = useState<Record<string, string>>(
+    {},
+  );
   const [isSaving, setIsSaving] = useState(false);
 
   // Extract unique speakers from segments
@@ -102,7 +104,8 @@ export function EditSpeakersModal({
         <DialogHeader>
           <DialogTitle>Edit Speaker Names</DialogTitle>
           <DialogDescription>
-            Customize the display names for each speaker in this conversation.
+            Customize the display names for each speaker in this
+            conversation.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -113,7 +116,10 @@ export function EditSpeakersModal({
           ) : (
             speakers.map((speaker) => (
               <div key={speaker} className="grid gap-2">
-                <Label htmlFor={speaker} className="flex items-center gap-2">
+                <Label
+                  htmlFor={speaker}
+                  className="flex items-center gap-2"
+                >
                   <Badge
                     variant="secondary"
                     className={`text-xs ${getSpeakerColor(speaker, speakerColorMap)}`}

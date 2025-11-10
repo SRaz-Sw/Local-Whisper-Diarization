@@ -132,10 +132,12 @@ export default function WhisperLanguageSelector({
   const language = useWhisperStore((state) => state.audio.language);
   const setLanguage = useWhisperStore((state) => state.setLanguage);
 
-  const languageOptions = Object.entries(LANGUAGES).map(([code, name]) => ({
-    code,
-    name: titleCase(name),
-  }));
+  const languageOptions = Object.entries(LANGUAGES).map(
+    ([code, name]) => ({
+      code,
+      name: titleCase(name),
+    }),
+  );
 
   return (
     <Select value={language} onValueChange={setLanguage}>
@@ -152,4 +154,3 @@ export default function WhisperLanguageSelector({
     </Select>
   );
 }
-

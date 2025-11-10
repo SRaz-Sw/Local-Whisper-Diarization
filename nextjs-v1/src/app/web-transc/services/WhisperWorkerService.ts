@@ -18,36 +18,39 @@ class WhisperWorkerService {
    */
   initialize(): boolean {
     if (this.isInitialized && this.worker) {
-      console.log('✅ Worker already initialized');
+      console.log("✅ Worker already initialized");
       return true;
     }
 
     try {
-      const isDev = process.env.NODE_ENV === 'development';
+      const isDev = process.env.NODE_ENV === "development";
 
       if (isDev) {
         this.worker = new Worker(
-          new URL('../workers/whisperDiarization.worker.js', import.meta.url),
-          { type: 'module' }
+          new URL(
+            "../workers/whisperDiarization.worker.js",
+            import.meta.url,
+          ),
+          { type: "module" },
         );
       } else {
-        this.worker = new Worker('/workers/whisperDiarization.worker.js');
+        this.worker = new Worker("/workers/whisperDiarization.worker.js");
       }
 
-      this.worker.addEventListener('message', this.handleMessage);
-      this.worker.addEventListener('error', this.handleError);
+      this.worker.addEventListener("message", this.handleMessage);
+      this.worker.addEventListener("error", this.handleError);
 
       this.isInitialized = true;
-      console.log('✅ Worker initialized successfully');
+      console.log("✅ Worker initialized successfully");
       return true;
     } catch (error) {
-      console.error('❌ Failed to initialize worker:', error);
+      console.error("❌ Failed to initialize worker:", error);
       const errorMessage =
-        typeof error === 'object' && error !== null && 'message' in error
+        typeof error === "object" && error !== null && "message" in error
           ? (error as { message: string }).message
-          : 'Unknown error';
+          : "Unknown error";
       alert(
-        `Failed to initialize worker: ${errorMessage}. Check console for details.`
+        `Failed to initialize worker: ${errorMessage}. Check console for details.`,
       );
       return false;
     }
@@ -77,7 +80,7 @@ class WhisperWorkerService {
    */
   postMessage(data: any): void {
     if (!this.worker) {
-      console.error('❌ Worker not initialized. Call initialize() first.');
+      console.error("❌ Worker not initialized. Call initialize() first.");
       return;
     }
     this.worker.postMessage(data);
@@ -93,7 +96,7 @@ class WhisperWorkerService {
       this.isInitialized = false;
       this.messageHandlers.clear();
       this.errorHandlers.clear();
-      console.log('🗑️ Worker terminated');
+      console.log("🗑️ Worker terminated");
     }
   }
 
@@ -101,7 +104,7 @@ class WhisperWorkerService {
    * Recreate worker (for reset scenarios)
    */
   recreate(): boolean {
-    console.log('🔄 Recreating worker...');
+    console.log("🔄 Recreating worker...");
     this.terminate();
     return this.initialize();
   }
@@ -121,7 +124,7 @@ class WhisperWorkerService {
       try {
         handler(e);
       } catch (error) {
-        console.error('Error in message handler:', error);
+        console.error("Error in message handler:", error);
       }
     });
   };
@@ -134,7 +137,7 @@ class WhisperWorkerService {
       try {
         handler(error);
       } catch (err) {
-        console.error('Error in error handler:', err);
+        console.error("Error in error handler:", err);
       }
     });
   };

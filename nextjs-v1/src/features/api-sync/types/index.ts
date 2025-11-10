@@ -62,27 +62,6 @@ export type ApiSyncStatus =
   | "disabled";
 
 /**
- * Audio compression configuration
- */
-export interface CompressionConfig {
-  sampleRate: number;
-  bitDepth: number;
-  channels: number;
-  quality: number;
-  isConvertingToMono?: boolean;
-}
-
-/**
- * Audio compression options
- */
-export interface CompressionOptions {
-  sampleRate?: number;
-  channels?: number;
-  quality?: number;
-  isConvertingToMono?: boolean;
-}
-
-/**
  * API settings
  */
 export interface ApiSettings {

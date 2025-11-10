@@ -1,0 +1,13 @@
+# Dependencies
+node_modules
+.next
+out
+build
+dist
+
+# FFmpeg compiled files
+public/ffmpeg/*.js
+public/ffmpeg/*.wasm
+
+# Other compiled/generated files
+*.min.js

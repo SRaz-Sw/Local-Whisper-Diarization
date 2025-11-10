@@ -21,15 +21,22 @@ export {
   compressAudio,
   isCompressionAvailable,
   getEstimatedCompressionRatio,
-} from "./services/AudioCompressionService";
+  detectCompressionCapabilities,
+} from "@/features/audioCompressor";
 
 // Types
 export type {
   TranscriptSyncDTO,
   ApiSyncResponse,
   ApiSyncStatus,
-  CompressionConfig,
-  CompressionOptions,
   ApiSettings,
   SyncQueueItem,
 } from "./types";
+
+// Re-export compression types from audioCompressor
+export type {
+  CompressionConfig,
+  CompressionOptions,
+  CompressionCapabilities,
+  SupportedAudioFormat,
+} from "@/features/audioCompressor";

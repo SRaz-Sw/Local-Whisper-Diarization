@@ -8,9 +8,12 @@ export function useTranscriptionWorker(onMessage: MessageHandler) {
 
   useEffect(() => {
     if (!workerRef.current) {
-      workerRef.current = new Worker("/workers/whisperDiarization.worker.js", {
-        type: "module",
-      });
+      workerRef.current = new Worker(
+        "/workers/whisperDiarization.worker.js",
+        {
+          type: "module",
+        },
+      );
     }
 
     const worker = workerRef.current;
@@ -37,4 +40,3 @@ export function useTranscriptionWorker(onMessage: MessageHandler) {
 
   return { postMessage, terminate, worker: workerRef };
 }
-

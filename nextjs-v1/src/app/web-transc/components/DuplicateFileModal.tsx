@@ -93,10 +93,7 @@ export function DuplicateFileModal({
           >
             Go Back & Pick Another File
           </Button>
-          <Button
-            onClick={onViewExisting}
-            className="w-full sm:w-auto"
-          >
+          <Button onClick={onViewExisting} className="w-full sm:w-auto">
             View Existing Transcript
           </Button>
         </DialogFooter>

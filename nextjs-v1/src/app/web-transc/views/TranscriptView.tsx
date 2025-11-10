@@ -248,7 +248,7 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
     model,
     id,
     saveTranscript,
-    navigate,
+    audioFile,
   ]);
 
   // Modal handlers
@@ -374,6 +374,7 @@ export default function TranscriptView({ id }: TranscriptViewProps) {
                   src={audioFile}
                   onTimeUpdate={(time) => setCurrentTime(time)}
                   transcriptId={id !== "unsaved" ? id : undefined}
+                  audioFileId={savedTranscript?.audioFileId}
                   onEditConversation={
                     savedTranscript
                       ? () =>

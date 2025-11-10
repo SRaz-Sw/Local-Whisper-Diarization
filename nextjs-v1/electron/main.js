@@ -111,6 +111,17 @@ function createWindow() {
 
 // App lifecycle
 app.whenReady().then(() => {
+  // Register compression IPC handlers
+  try {
+    const {
+      registerCompressionHandlers,
+    } = require("../src/features/audioCompressor/electron/handlers/compressionHandlers");
+    registerCompressionHandlers();
+  } catch (error) {
+    console.warn("Failed to register compression handlers:", error);
+    // Continue without compression handlers - compression will fall back to browser implementation
+  }
+
   // Configure persistent cache for ML models
   // Models will be cached in Electron's default cache location
   const modelCachePath = path.join(

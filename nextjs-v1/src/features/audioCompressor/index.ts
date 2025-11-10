@@ -1,0 +1,65 @@
+/**
+ * Audio Compressor Feature
+ *
+ * High-performance audio compression using FFmpeg.wasm (browser) or native FFmpeg (Electron).
+ * Compresses audio to Opus/MP3/AAC format at configurable bitrates for efficient storage.
+ *
+ * Key Features:
+ * - 90-95% file size reduction
+ * - Browser-native compression (FFmpeg.wasm) or native FFmpeg (Electron)
+ * - Supports any input format
+ * - Background processing with queue management
+ * - Progress tracking and notifications
+ */
+
+// Main API
+export {
+  compressAudio,
+  isCompressionAvailable,
+  CompressionService,
+} from "./core/CompressionService";
+
+// Queue Management
+export {
+  compressionQueue,
+  CompressionQueue,
+} from "./queue/CompressionQueue";
+
+// Types
+export type {
+  CompressionOptions,
+  CompressionResult,
+  CompressionProgress,
+  CompressionError,
+  CompressionEnvironment,
+  QueueItem,
+} from "./core/types";
+
+// Backward compatibility - re-export old types if needed
+export type {
+  CompressionConfig,
+  SupportedAudioFormat,
+  CompressionCapabilities,
+  ProcessingOptions,
+  EncoderConfig,
+} from "./types";
+
+// Utilities (for advanced use cases)
+export {
+  detectCompressionCapabilities,
+  getBestSupportedFormat,
+  isAlreadyCompressed,
+  estimateBitrate,
+  shouldSkipCompression,
+} from "./utils/audioFormatDetector";
+
+export {
+  decodeAudioBlob,
+  convertToMono,
+  createAudioBufferFromData,
+  createProcessedBuffer,
+  getAudioBufferInfo,
+} from "./utils/audioBufferProcessor";
+
+// Legacy exports (kept for backward compatibility)
+export { getEstimatedCompressionRatio } from "./services/AudioCompressionService";

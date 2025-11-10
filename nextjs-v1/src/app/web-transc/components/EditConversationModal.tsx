@@ -34,7 +34,8 @@ export function EditConversationModal({
   useEffect(() => {
     if (transcript) {
       setConversationName(
-        transcript.metadata.conversationName || transcript.metadata.fileName
+        transcript.metadata.conversationName ||
+          transcript.metadata.fileName,
       );
     }
   }, [transcript]);
@@ -61,8 +62,8 @@ export function EditConversationModal({
         <DialogHeader>
           <DialogTitle>Edit Conversation Name</DialogTitle>
           <DialogDescription>
-            Give this conversation a custom name. The original filename will be
-            preserved.
+            Give this conversation a custom name. The original filename
+            will be preserved.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -95,7 +96,10 @@ export function EditConversationModal({
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isSaving || !conversationName.trim()}>
+          <Button
+            onClick={handleSave}
+            disabled={isSaving || !conversationName.trim()}
+          >
             {isSaving ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>

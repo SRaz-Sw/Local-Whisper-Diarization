@@ -3,19 +3,21 @@
  * Shows view-specific skeletons for better UX
  */
 
-import type { ViewName } from '../router/types';
+import type { ViewName } from "../router/types";
 
 interface ViewLoadingFallbackProps {
   viewName: ViewName;
 }
 
-export function ViewLoadingFallback({ viewName }: ViewLoadingFallbackProps) {
+export function ViewLoadingFallback({
+  viewName,
+}: ViewLoadingFallbackProps) {
   // Show view-specific skeleton for better UX
-  if (viewName === 'transcript') {
+  if (viewName === "transcript") {
     return <TranscriptSkeleton />;
   }
 
-  if (viewName === 'saved') {
+  if (viewName === "saved") {
     return <SavedListSkeleton />;
   }
 

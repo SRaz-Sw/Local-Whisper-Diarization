@@ -3,12 +3,12 @@
  * Manages subscriptions and cleanup automatically
  */
 
-import { useEffect, useCallback } from 'react';
-import { whisperWorker } from '../services/WhisperWorkerService';
+import { useEffect, useCallback } from "react";
+import { whisperWorker } from "../services/WhisperWorkerService";
 
 export function useWhisperWorker(
   onMessage: (e: MessageEvent) => void,
-  onError?: (error: ErrorEvent) => void
+  onError?: (error: ErrorEvent) => void,
 ) {
   useEffect(() => {
     // Subscribe to messages
