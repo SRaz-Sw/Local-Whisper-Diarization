@@ -109,7 +109,12 @@ export class CompressionService {
       throw new Error("Compression service not initialized");
     }
 
-    return this.implementation.compress(audioBlob, options || {});
+    const result = this.implementation.compress(audioBlob, options || {});
+    console.log(
+      "CompressionService ______________ compress result:",
+      result,
+    );
+    return result;
   }
 
   /**

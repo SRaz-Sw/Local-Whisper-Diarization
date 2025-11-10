@@ -149,6 +149,7 @@ export class BrowserCompressionService {
       // Convert blob to Uint8Array
       const arrayBuffer = await audioBlob.arrayBuffer();
       const audioData = new Uint8Array(arrayBuffer);
+      const inputDataSize = audioData.length;
 
       // Get codec info
       const codecInfo = this.getCodecInfo(options.codec);
@@ -175,6 +176,9 @@ export class BrowserCompressionService {
       ];
 
       console.log("⚙️ Running FFmpeg...");
+      console.log("ffmpeg args:", ffmpegArgs);
+      console.log("_____ TRACE _____");
+      console.trace();
       await ffmpeg.exec(ffmpegArgs);
 
       console.log(`📖 Reading output file: ${outputFileName}`);
@@ -200,11 +204,11 @@ export class BrowserCompressionService {
 
       // Calculate compression ratio safely (avoid division by zero)
       const compressionRatio =
-        audioData.length > 0 ? outputBlob.size / audioData.length : 0;
+        inputDataSize > 0 ? outputBlob.size / inputDataSize : 0;
 
       const result: CompressionResult = {
         blob: outputBlob,
-        originalSize: audioData.length,
+        originalSize: inputDataSize,
         compressedSize: outputBlob.size,
         compressionRatio,
         duration,
@@ -212,7 +216,7 @@ export class BrowserCompressionService {
       };
 
       console.log(
-        `✅ Compression complete: ${audioData.length} → ${outputBlob.size} bytes (${(compressionRatio * 100).toFixed(1)}%)`,
+        `✅ Compression complete: ${inputDataSize} → ${outputBlob.size} bytes (${(compressionRatio * 100).toFixed(1)}%)`,
       );
       return result;
     } catch (error) {

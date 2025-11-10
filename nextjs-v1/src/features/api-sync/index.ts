@@ -17,12 +17,12 @@ export {
   backgroundSyncService,
 } from "./services/ApiSyncService";
 
-export {
-  compressAudio,
-  isCompressionAvailable,
-  getEstimatedCompressionRatio,
-  detectCompressionCapabilities,
-} from "@/features/audioCompressor";
+// export {
+//   compressAudio,
+//   isCompressionAvailable,
+//   getEstimatedCompressionRatio,
+//   detectCompressionCapabilities,
+// } from "@/features/audioCompressor";
 
 // Types
 export type {
@@ -34,9 +34,9 @@ export type {
 } from "./types";
 
 // Re-export compression types from audioCompressor
-export type {
-  CompressionConfig,
-  CompressionOptions,
-  CompressionCapabilities,
-  SupportedAudioFormat,
-} from "@/features/audioCompressor";
+// export type {
+//   CompressionConfig,
+//   CompressionOptions,
+//   CompressionCapabilities,
+//   SupportedAudioFormat,
+// } from "@/features/audioCompressor";

@@ -236,6 +236,10 @@ export class CompressionQueue {
         options,
       );
 
+      console.log("processItem ______________ Result = _____________:");
+      console.log(result);
+      console.log("duration processing took:", result.duration);
+
       // Update item
       item.status = "completed";
       item.result = result;
@@ -295,6 +299,8 @@ export class CompressionQueue {
    */
   private notifyComplete(id: string, result: CompressionResult): void {
     const listeners = this.listeners.get(id);
+    console.log("notifyComplete listeners:", listeners);
+    console.log("notifyComplete result:", result);
     if (listeners?.complete) {
       listeners.complete.forEach((callback) => {
         try {

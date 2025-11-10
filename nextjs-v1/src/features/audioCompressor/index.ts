@@ -33,33 +33,5 @@ export type {
   CompressionError,
   CompressionEnvironment,
   QueueItem,
-} from "./core/types";
-
-// Backward compatibility - re-export old types if needed
-export type {
   CompressionConfig,
-  SupportedAudioFormat,
-  CompressionCapabilities,
-  ProcessingOptions,
-  EncoderConfig,
-} from "./types";
-
-// Utilities (for advanced use cases)
-export {
-  detectCompressionCapabilities,
-  getBestSupportedFormat,
-  isAlreadyCompressed,
-  estimateBitrate,
-  shouldSkipCompression,
-} from "./utils/audioFormatDetector";
-
-export {
-  decodeAudioBlob,
-  convertToMono,
-  createAudioBufferFromData,
-  createProcessedBuffer,
-  getAudioBufferInfo,
-} from "./utils/audioBufferProcessor";
-
-// Legacy exports (kept for backward compatibility)
-export { getEstimatedCompressionRatio } from "./services/AudioCompressionService";
+} from "./core/types";
